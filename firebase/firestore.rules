@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // During migration all access goes through the authenticated Python API.
+    // Admin SDK operations bypass these rules; the API must enforce ownership.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
