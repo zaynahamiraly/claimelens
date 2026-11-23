@@ -21,7 +21,7 @@ from ..schemas import (
     ProcessResult,
 )
 from ..security import CurrentUser, get_current_user
-from ..supabase import SupabaseGateway
+from ..firebase import FirebaseGateway
 
 
 router = APIRouter(prefix="/claims", tags=["claims"])
@@ -54,8 +54,8 @@ def valid_signature(content: bytes, mime_type: str) -> bool:
     return False
 
 
-async def accessible_claim(gateway: SupabaseGateway, token: str, reference: str) -> dict[str, Any]:
-    rows = await gateway.rest(
+async def accessible_claim(gateway: FirebaseGateway, token: str, reference: str) -> dict[str, Any]:
+    rows = await gateway.records(
         "GET",
         "claims",
         token=token,
@@ -74,7 +74,7 @@ async def list_claims(
     limit: int = Query(default=50, ge=1, le=200),
     user: CurrentUser = Depends(get_current_user),
 ) -> list[ClaimSummary]:
-    gateway = SupabaseGateway(request)
+    gateway = FirebaseGateway(request)
     params: dict[str, str] = {"select": CLAIM_SELECT, "order": "created_at.desc", "limit": str(limit)}
     if user.profile.role == "claims_officer":
         params["assigned_to"] = f"eq.{user.id}"
@@ -84,7 +84,7 @@ async def list_claims(
         safe = re.sub(r"[^\w\s-]", "", search.strip())
         if safe:
             params["or"] = f"(reference.ilike.*{safe}*,patient_name.ilike.*{safe}*,provider_name.ilike.*{safe}*)"
-    rows = await gateway.rest("GET", "claims", token=user.token, params=params)
+    rows = await gateway.records("GET", "claims", token=user.token, params=params)
     return [summary(row) for row in rows]
 
 
@@ -93,11 +93,11 @@ async def dashboard(
     request: Request,
     user: CurrentUser = Depends(get_current_user),
 ) -> DashboardSummary:
-    gateway = SupabaseGateway(request)
+    gateway = FirebaseGateway(request)
     params: dict[str, str] = {"select": CLAIM_SELECT, "order": "created_at.desc", "limit": "500"}
     if user.profile.role == "claims_officer":
         params["assigned_to"] = f"eq.{user.id}"
-    rows = await gateway.rest("GET", "claims", token=user.token, params=params)
+    rows = await gateway.records("GET", "claims", token=user.token, params=params)
     counts = Counter(row["status"] for row in rows)
     return DashboardSummary(
         total_claims=len(rows),
@@ -115,13 +115,14 @@ async def create_claim(
     files: list[UploadFile] = File(...),
     user: CurrentUser = Depends(get_current_user),
 ) -> ClaimDetails:
-    gateway = SupabaseGateway(request)
+    gateway = FirebaseGateway(request)
     settings = gateway.settings
+    gateway._bucket()  # Reject unconfigured storage before creating an empty draft.
     if not files or len(files) > settings.max_claim_documents:
         raise HTTPException(status_code=422, detail=f"Upload between 1 and {settings.max_claim_documents} documents.")
     prepared: list[tuple[UploadFile, bytes]] = []
     for upload in files:
-        content = await upload.read()
+        content = await upload.read(settings.max_file_bytes + 1)
         if upload.content_type not in ALLOWED_MIME_TYPES:
             raise HTTPException(status_code=422, detail=f"{upload.filename or 'Document'} is not a PDF, PNG, JPEG, or DOCX file.")
         if not content or len(content) > settings.max_file_bytes:
@@ -130,7 +131,7 @@ async def create_claim(
             raise HTTPException(status_code=422, detail=f"{upload.filename or 'Document'} does not match its reported file type.")
         prepared.append((upload, content))
 
-    rows = await gateway.rest(
+    rows = await gateway.records(
         "POST",
         "claims",
         token=user.token,
@@ -147,7 +148,7 @@ async def create_claim(
             storage_path = f"{user.id}/{claim['id']}/{uuid.uuid4().hex}-{safe_name}"
             await gateway.upload(storage_path, content, upload.content_type, user.token)
             uploaded_paths.append(storage_path)
-            inserted = await gateway.rest(
+            inserted = await gateway.records(
                 "POST",
                 "claim_documents",
                 token=user.token,
@@ -163,17 +164,17 @@ async def create_claim(
                 prefer="return=representation",
             )
             documents.append(inserted[0])
-            await gateway.rest(
+            await gateway.records(
                 "POST",
                 "audit_events",
                 token=user.token,
                 json={"claim_id": claim["id"], "actor_id": user.id, "event_type": "DOCUMENT_UPLOADED", "metadata": {"document_id": inserted[0]["id"], "name": original}},
             )
-        await gateway.rest("POST", "audit_events", token=user.token, json={"claim_id": claim["id"], "actor_id": user.id, "event_type": "CLAIM_CREATED", "metadata": {"document_count": len(documents)}})
+        await gateway.records("POST", "audit_events", token=user.token, json={"claim_id": claim["id"], "actor_id": user.id, "event_type": "CLAIM_CREATED", "metadata": {"document_count": len(documents)}})
     except Exception:
         try:
             await gateway.delete_objects(uploaded_paths, user.token)
-            await gateway.rest("DELETE", "claims", token=user.token, params={"id": f"eq.{claim['id']}"})
+            await gateway.records("DELETE", "claims", token=user.token, params={"id": f"eq.{claim['id']}"})
         except Exception:
             pass
         raise
@@ -190,11 +191,11 @@ async def get_claim(
     request: Request,
     user: CurrentUser = Depends(get_current_user),
 ) -> ClaimDetails:
-    gateway = SupabaseGateway(request)
+    gateway = FirebaseGateway(request)
     claim = await accessible_claim(gateway, user.token, reference)
-    documents = await gateway.rest("GET", "claim_documents", token=user.token, params={"claim_id": f"eq.{claim['id']}", "select": "*", "order": "created_at.asc"})
-    fields = await gateway.rest("GET", "claim_extracted_fields", token=user.token, params={"claim_id": f"eq.{claim['id']}", "select": "*", "order": "created_at.asc"})
-    audit = await gateway.rest("GET", "audit_events", token=user.token, params={"claim_id": f"eq.{claim['id']}", "select": "id,event_type,metadata,created_at,actor_id", "order": "created_at.desc", "limit": "100"})
+    documents = await gateway.records("GET", "claim_documents", token=user.token, params={"claim_id": f"eq.{claim['id']}", "select": "*", "order": "created_at.asc"})
+    fields = await gateway.records("GET", "claim_extracted_fields", token=user.token, params={"claim_id": f"eq.{claim['id']}", "select": "*", "order": "created_at.asc"})
+    audit = await gateway.records("GET", "audit_events", token=user.token, params={"claim_id": f"eq.{claim['id']}", "select": "id,event_type,metadata,created_at,actor_id", "order": "created_at.desc", "limit": "100"})
     grouped: dict[str, list[ExtractedField]] = {}
     for field in fields:
         grouped.setdefault(field.get("document_id") or "", []).append(ExtractedField(**field))
@@ -211,14 +212,17 @@ async def process(
     request: Request,
     user: CurrentUser = Depends(get_current_user),
 ) -> ProcessResult:
-    gateway = SupabaseGateway(request)
+    gateway = FirebaseGateway(request)
     claim = await accessible_claim(gateway, user.token, reference)
     if claim["status"] not in {"UPLOADED", "PROCESSING_FAILED"}:
         raise HTTPException(status_code=409, detail="This claim is not available for processing.")
-    active = await gateway.rest("GET", "claim_processing_jobs", service=True, params={"claim_id": f"eq.{claim['id']}", "status": "in.(QUEUED,RUNNING)", "select": "id", "limit": "1"})
-    if active:
-        raise HTTPException(status_code=409, detail="Document processing is already running.")
-    return await process_claim(gateway, claim, user.id)
+    await gateway.acquire_processing(claim["id"])
+    try:
+        return await process_claim(gateway, claim, user.id)
+    except Exception:
+        # A failure before the processing job is created must release the claim.
+        await gateway.records('PATCH', 'claims', service=True, params={'id': f"eq.{claim['id']}"}, json={'status':'PROCESSING_FAILED'})
+        raise
 
 
 @router.post("/{reference}/confirm")
@@ -228,57 +232,8 @@ async def confirm_claim(
     request: Request,
     user: CurrentUser = Depends(get_current_user),
 ) -> dict[str, str]:
-    gateway = SupabaseGateway(request)
+    gateway = FirebaseGateway(request)
     claim = await accessible_claim(gateway, user.token, reference)
     if user.profile.role != "client" or claim.get("client_id") != user.id or claim.get("status") != "UPLOADED":
         raise HTTPException(status_code=403, detail="Only the claim owner can confirm this draft.")
-    if payload.fields:
-        correction_ids = [str(item.id) for item in payload.fields]
-        existing = await gateway.rest(
-            "GET",
-            "claim_extracted_fields",
-            service=True,
-            params={"claim_id": f"eq.{claim['id']}", "id": f"in.({','.join(correction_ids)})", "select": "id,field_name,normalized_value"},
-        )
-        existing_by_id = {row["id"]: row for row in existing}
-        if set(correction_ids) != set(existing_by_id):
-            raise HTTPException(status_code=422, detail="One or more corrected fields do not belong to this claim.")
-        for correction in payload.fields:
-            field_id = str(correction.id)
-            previous = existing_by_id[field_id]
-            value = correction.value.strip()
-            if value == previous["normalized_value"]:
-                continue
-            await gateway.rest(
-                "PATCH",
-                "claim_extracted_fields",
-                service=True,
-                params={"id": f"eq.{field_id}", "claim_id": f"eq.{claim['id']}"},
-                json={"raw_value": value, "normalized_value": value, "confidence": 0, "extraction_method": "human_corrected"},
-            )
-            await gateway.rest(
-                "POST",
-                "audit_events",
-                service=True,
-                json={
-                    "claim_id": claim["id"],
-                    "actor_id": user.id,
-                    "event_type": "FIELD_CORRECTED",
-                    "metadata": {"field_name": previous["field_name"], "previous_value": previous["normalized_value"], "corrected_value": value, "source": "mobile_client_confirmation"},
-                },
-            )
-    status_value = await gateway.rest(
-        "POST",
-        "rpc/confirm_claim",
-        token=user.token,
-        json={
-            "p_reference": reference,
-            "p_patient_name": payload.patient_name.strip(),
-            "p_provider_name": payload.provider_name.strip(),
-            "p_documents": [
-                {"id": item.id, "include": item.include, "amount": str(item.amount) if item.amount is not None else None, "currency": item.currency.upper() if item.currency else None}
-                for item in payload.documents
-            ],
-        },
-    )
-    return {"status": str(status_value)}
+    return {"status": await gateway.confirm(claim["id"], payload)}

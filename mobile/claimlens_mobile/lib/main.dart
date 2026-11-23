@@ -20,22 +20,29 @@ class ClaimLensApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) => AuthProvider(client)..initialise()),
-          ChangeNotifierProvider(create: (_) => ClaimsProvider(client)),
-        ],
-        child: MaterialApp(
-          title: 'claimelens',
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xff087f8c), brightness: Brightness.light),
-            useMaterial3: true,
-            scaffoldBackgroundColor: const Color(0xfff5f7fa),
-            inputDecorationTheme: const InputDecorationTheme(border: OutlineInputBorder(), filled: true, fillColor: Colors.white),
-          ),
-          home: const AuthGate(),
+    providers: [
+      ChangeNotifierProvider(create: (_) => AuthProvider(client)..initialise()),
+      ChangeNotifierProvider(create: (_) => ClaimsProvider(client)),
+    ],
+    child: MaterialApp(
+      title: 'claimelens',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xff087f8c),
+          brightness: Brightness.light,
         ),
-      );
+        useMaterial3: true,
+        scaffoldBackgroundColor: const Color(0xfff5f7fa),
+        inputDecorationTheme: const InputDecorationTheme(
+          border: OutlineInputBorder(),
+          filled: true,
+          fillColor: Colors.white,
+        ),
+      ),
+      home: const AuthGate(),
+    ),
+  );
 }
 
 class AuthGate extends StatelessWidget {

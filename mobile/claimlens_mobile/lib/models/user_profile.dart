@@ -16,10 +16,10 @@ class UserProfile {
   bool get isClient => role == 'client';
 
   factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
-        id: json['id'] as String,
-        displayName: json['display_name'] as String,
-        role: json['role'] as String,
-        status: json['status'] as String,
-        email: json['email'] as String?,
-      );
+    id: json['id'] as String,
+    displayName: json['display_name'] as String,
+    role: json['role'] as String,
+    status: json['status'] as String,
+    email: json['email'] as String?,
+  );
 }

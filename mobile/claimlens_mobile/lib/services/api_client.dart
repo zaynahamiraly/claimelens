@@ -7,13 +7,17 @@ import '../config/api_config.dart';
 
 class ApiClient {
   ApiClient()
-      : dio = Dio(BaseOptions(
-          baseUrl: ApiConfig.baseUrl,
-          connectTimeout: const Duration(seconds: 15),
-          receiveTimeout: const Duration(seconds: 120),
-          headers: {'Accept': 'application/json'},
-        )) {
-    dio.interceptors.add(InterceptorsWrapper(onRequest: _onRequest, onError: _onError));
+      : dio = Dio(
+          BaseOptions(
+            baseUrl: ApiConfig.baseUrl,
+            connectTimeout: const Duration(seconds: 15),
+            receiveTimeout: const Duration(seconds: 120),
+            headers: {'Accept': 'application/json'},
+          ),
+        ) {
+    dio.interceptors.add(
+      InterceptorsWrapper(onRequest: _onRequest, onError: _onError),
+    );
   }
 
   final Dio dio;
@@ -46,13 +50,21 @@ class ApiClient {
   }
 
   void _onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    if (_accessToken != null) options.headers['Authorization'] = 'Bearer $_accessToken';
+    if (_accessToken != null) {
+      options.headers['Authorization'] = 'Bearer $_accessToken';
+    }
     handler.next(options);
   }
 
-  Future<void> _onError(DioException error, ErrorInterceptorHandler handler) async {
+  Future<void> _onError(
+    DioException error,
+    ErrorInterceptorHandler handler,
+  ) async {
     final request = error.requestOptions;
-    if (error.response?.statusCode != 401 || request.extra['retried'] == true || _refreshToken == null || request.path.contains('/auth/')) {
+    if (error.response?.statusCode != 401 ||
+        request.extra['retried'] == true ||
+        _refreshToken == null ||
+        request.path.contains('/auth/')) {
       handler.next(error);
       return;
     }
@@ -74,12 +86,16 @@ class ApiClient {
 
   Future<bool> _refresh() async {
     try {
-      final response = await Dio(BaseOptions(baseUrl: ApiConfig.baseUrl)).post<Map<String, dynamic>>(
+      final response = await Dio(BaseOptions(baseUrl: ApiConfig.baseUrl))
+          .post<Map<String, dynamic>>(
         '/auth/refresh',
         data: {'refresh_token': _refreshToken},
       );
       final data = response.data!;
-      await saveSession(data['access_token'] as String, data['refresh_token'] as String);
+      await saveSession(
+        data['access_token'] as String,
+        data['refresh_token'] as String,
+      );
       return true;
     } catch (_) {
       await clearSession();
@@ -93,8 +109,9 @@ String readableApiError(Object error) {
   if (error is DioException) {
     final data = error.response?.data;
     if (data is Map && data['detail'] != null) return data['detail'].toString();
-    if (error.type == DioExceptionType.connectionError || error.type == DioExceptionType.connectionTimeout) {
-      return 'Cannot reach the ClaimLens server. Check the API address and your connection.';
+    if (error.type == DioExceptionType.connectionError ||
+        error.type == DioExceptionType.connectionTimeout) {
+      return 'Cannot reach the claimelens server. Check the API address and your connection.';
     }
     return error.message ?? 'The request could not be completed.';
   }

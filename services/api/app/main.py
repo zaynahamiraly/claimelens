@@ -8,7 +8,7 @@ from .config import get_settings
 from .routers import auth, claims, profile
 
 
-APP_NAME = "ClaimLens AI API"
+APP_NAME = "claimelens API"
 APP_VERSION = "1.0.0"
 
 
@@ -20,7 +20,7 @@ async def lifespan(application: FastAPI):
 
 app = FastAPI(
     title=APP_NAME,
-    description="Mobile API gateway for ClaimLens AI",
+    description="Firebase API for claimelens",
     version=APP_VERSION,
     lifespan=lifespan,
 )

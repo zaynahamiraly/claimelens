@@ -1,102 +1,73 @@
-from __future__ import annotations
-
-from fastapi import APIRouter, Depends, Request, Response, status
-
-from ..schemas import AuthSession, LoginRequest, Profile, RefreshRequest
+import asyncio
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from firebase_admin import auth
+from ..config import get_settings
+from ..firebase import FirebaseGateway, firebase_app
+from ..schemas import AuthSession, LoginRequest, RefreshRequest, SignupRequest, EmailRequest
 from ..security import CurrentUser, get_current_user
-from ..supabase import SupabaseGateway
+
+router = APIRouter(prefix='/auth', tags=['authentication'])
 
 
-router = APIRouter(prefix="/auth", tags=["authentication"])
+async def firebase_request(request, action, payload, *, refresh=False):
+    key=get_settings().firebase_api_key
+    if not key:
+        raise HTTPException(503, 'Authentication is not configured on the server.')
+    url=f'https://securetoken.googleapis.com/v1/token?key={key}' if refresh else f'https://identitytoolkit.googleapis.com/v1/accounts:{action}?key={key}'
+    response=await request.app.state.http.post(url, **({'data':payload} if refresh else {'json':payload}))
+    if not response.is_success:
+        code=response.json().get('error',{}).get('message','AUTHENTICATION_FAILED')
+        messages={'INVALID_LOGIN_CREDENTIALS':'Invalid email or password.', 'EMAIL_NOT_FOUND':'Invalid email or password.', 'INVALID_PASSWORD':'Invalid email or password.', 'EMAIL_EXISTS':'An account already exists. Sign in or reset your password.', 'TOO_MANY_ATTEMPTS_TRY_LATER':'Too many attempts. Please try again later.', 'OPERATION_NOT_ALLOWED':'Email sign-in is not enabled.', 'USER_DISABLED':'This account is disabled.'}
+        raise HTTPException(400,messages.get(code,'Authentication request could not be completed. Please try again.'))
+    return response.json()
 
 
-async def build_session(gateway: SupabaseGateway, data: dict) -> AuthSession:
-    token = data["access_token"]
-    user = data["user"]
-    rows = await gateway.rest(
-        "GET",
-        "profiles",
-        token=token,
-        params={"id": f"eq.{user['id']}", "select": "id,display_name,role,status", "limit": "1"},
-    )
-    if not rows or rows[0].get("status") != "active":
-        from fastapi import HTTPException
-
-        raise HTTPException(status_code=403, detail="This account is not active.")
-    return AuthSession(
-        access_token=token,
-        refresh_token=data["refresh_token"],
-        expires_in=data.get("expires_in", 3600),
-        token_type=data.get("token_type", "bearer"),
-        user=Profile(**rows[0], email=user.get("email")),
-    )
+async def session(request, data):
+    token=data.get('idToken') or data.get('id_token')
+    uid=data.get('localId') or data.get('user_id')
+    firebase_user=await asyncio.to_thread(auth.get_user,uid,app=firebase_app())
+    if firebase_user.disabled:
+        raise HTTPException(403,'This account is disabled.')
+    profile=await FirebaseGateway(request).ensure_profile(uid,firebase_user.display_name,firebase_user.email or '')
+    if profile.get('status') != 'active':
+        raise HTTPException(403,'This account is not active.')
+    return AuthSession(access_token=token,refresh_token=data.get('refreshToken') or data.get('refresh_token'),expires_in=int(data.get('expiresIn') or data.get('expires_in',3600)),user=profile)
 
 
-@router.post("/login", response_model=AuthSession)
-async def login(payload: LoginRequest, request: Request) -> AuthSession:
-    gateway = SupabaseGateway(request)
-    data = await gateway.request_json(
-        "POST",
-        "/auth/v1/token?grant_type=password",
-        json={"email": str(payload.email), "password": payload.password},
-    )
-    return await build_session(gateway, data)
+@router.post('/login',response_model=AuthSession)
+async def login(payload: LoginRequest, request: Request):
+    data=await firebase_request(request,'signInWithPassword',{'email':payload.email.strip().lower(),'password':payload.password,'returnSecureToken':True})
+    return await session(request,data)
 
 
-@router.post("/refresh", response_model=AuthSession)
-async def refresh(payload: RefreshRequest, request: Request) -> AuthSession:
-    gateway = SupabaseGateway(request)
-    data = await gateway.request_json(
-        "POST",
-        "/auth/v1/token?grant_type=refresh_token",
-        json={"refresh_token": payload.refresh_token},
-    )
-    return await build_session(gateway, data)
+@router.post('/refresh',response_model=AuthSession)
+async def refresh(payload: RefreshRequest, request: Request):
+    data=await firebase_request(request,'',{'grant_type':'refresh_token','refresh_token':payload.refresh_token},refresh=True)
+    return await session(request,data)
 
 
-@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
-async def logout(
-    request: Request,
-    user: CurrentUser = Depends(get_current_user),
-) -> Response:
-    gateway = SupabaseGateway(request)
-    await gateway.request_json("POST", "/auth/v1/logout", token=user.token, expected={204})
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+@router.post('/signup')
+async def signup(payload: SignupRequest, request: Request):
+    data=await firebase_request(request,'signUp',{'email':payload.email.strip().lower(),'password':payload.password,'displayName':payload.display_name.strip(),'returnSecureToken':True})
+    await FirebaseGateway(request).ensure_profile(data['localId'],payload.display_name.strip(),payload.email.strip().lower())
+    try:
+        await firebase_request(request,'sendOobCode',{'requestType':'VERIFY_EMAIL','idToken':data['idToken']})
+    except HTTPException:
+        return {'message':'Account created. You can sign in. The confirmation email could not be sent yet.'}
+    return {'message':'Account created. Check your email for confirmation, then sign in.'}
 
 
-# Registration is always a client account; roles are assigned by the database.
-from ..schemas import EmailRequest, SignupRequest, ResetPasswordRequest
+@router.post('/forgot-password')
+async def forgot_password(payload: EmailRequest, request: Request):
+    try:
+        await firebase_request(request,'sendOobCode',{'requestType':'PASSWORD_RESET','email':payload.email.strip().lower()})
+    except HTTPException as error:
+        if error.detail != 'Invalid email or password.':
+            raise
+    return {'message':'If an account exists, Firebase will email you a password reset link. Open it to choose a new password, then return here to sign in.'}
 
 
-@router.post("/signup")
-async def signup(payload: SignupRequest, request: Request) -> dict[str, str]:
-    gateway = SupabaseGateway(request)
-    data = await gateway.request_json("POST", "/auth/v1/signup", json={
-        "email": payload.email.strip().lower(),
-        "password": payload.password,
-        "data": {"display_name": payload.display_name.strip()},
-    })
-    # Do not expose duplicate-account detection or automatically persist a session.
-    if data.get("access_token"):
-        message = "Your account is ready. Return to Sign in."
-    else:
-        message = "Check your email for a confirmation link, then return here to sign in. If you already have an account, use Sign in or Forgot password."
-    return {"message": message}
-
-
-@router.post("/forgot-password")
-async def forgot_password(payload: EmailRequest, request: Request) -> dict[str, str]:
-    gateway = SupabaseGateway(request)
-    await gateway.request_json("POST", "/auth/v1/recover", json={"email": payload.email.strip().lower()})
-    return {"message": "If an account exists for this email, a recovery email will arrive shortly. Enter its code below. Check your spam folder too."}
-
-
-@router.post("/reset-password")
-async def reset_password(payload: ResetPasswordRequest, request: Request) -> dict[str, str]:
-    gateway = SupabaseGateway(request)
-    verified = await gateway.request_json("POST", "/auth/v1/verify", json={
-        "email": payload.email.strip().lower(), "token": payload.code, "type": "recovery",
-    })
-    # Only a session issued by recovery verification can authorize this update.
-    await gateway.request_json("PUT", "/auth/v1/user", token=verified["access_token"], json={"password": payload.password})
-    return {"message": "Password updated. Return to Sign in with your new password."}
+@router.post('/logout', status_code=204)
+async def logout(user: CurrentUser = Depends(get_current_user)):
+    await asyncio.to_thread(auth.revoke_refresh_tokens,user.id,app=firebase_app())
+    return Response(status_code=204)

@@ -1,8 +1,8 @@
-import 'package:claimlens_mobile/models/claim.dart';
+import 'package:claimelens/models/claim.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('claim summary parses numeric Supabase values', () {
+  test('claim summary parses numeric API values', () {
     final claim = ClaimSummary.fromJson({
       'id': 'id',
       'reference': 'CLM-20260925-000001',

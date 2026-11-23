@@ -8,10 +8,9 @@ from typing import Any
 
 from fastapi import HTTPException
 
-from .config import get_settings
 from .extraction import TextDocument, classify_document, extract_fields
 from .schemas import ProcessResult
-from .supabase import SupabaseGateway
+from .firebase import FirebaseGateway
 
 
 def _extract_docx(content: bytes) -> tuple[str, str, float]:
@@ -26,41 +25,9 @@ def _extract_docx(content: bytes) -> tuple[str, str, float]:
 
 
 def _ocr_image(content: bytes) -> tuple[str, str, float]:
-    import cv2
-    import numpy as np
-    import pytesseract
+    from .ocr import extract_image
 
-    settings = get_settings()
-    if settings.tesseract_cmd:
-        pytesseract.pytesseract.tesseract_cmd = settings.tesseract_cmd
-    image = cv2.imdecode(np.frombuffer(content, dtype=np.uint8), cv2.IMREAD_COLOR)
-    if image is None:
-        raise ValueError("The image could not be decoded.")
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    gray = cv2.fastNlMeansDenoising(gray, None, 10, 7, 21)
-    binary = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 31, 15)
-    data = pytesseract.image_to_data(binary, config="--oem 3 --psm 6", output_type=pytesseract.Output.DICT)
-    words: list[str] = []
-    confidence_values: list[float] = []
-    current_line: tuple[int, int, int] | None = None
-    for index, value in enumerate(data["text"]):
-        word = value.strip()
-        if not word:
-            continue
-        line = (data["block_num"][index], data["par_num"][index], data["line_num"][index])
-        if current_line is not None and line != current_line:
-            words.append("\n")
-        words.append(word)
-        current_line = line
-        try:
-            confidence = float(data["conf"][index])
-            if confidence >= 0:
-                confidence_values.append(confidence / 100)
-        except (TypeError, ValueError):
-            pass
-    text = " ".join(words).replace(" \n ", "\n")
-    confidence = sum(confidence_values) / len(confidence_values) if confidence_values else .55
-    return text, "ocr", min(.95, max(.40, confidence))
+    return extract_image(content)
 
 
 def _extract_pdf(content: bytes) -> tuple[str, str, float]:
@@ -77,7 +44,7 @@ def _extract_pdf(content: bytes) -> tuple[str, str, float]:
             page_text, _, confidence = _ocr_image(pixmap.tobytes("png"))
             pages.append(page_text)
             confidences.append(confidence)
-        return "\n".join(pages), "ocr", (sum(confidences) / len(confidences) if confidences else .55)
+        return "\n".join(pages), "paddleocr", (sum(confidences) / len(confidences) if confidences else .55)
 
 
 def extract_document_text(content: bytes, mime_type: str) -> tuple[str, str, float]:
@@ -91,14 +58,14 @@ def extract_document_text(content: bytes, mime_type: str) -> tuple[str, str, flo
 
 
 async def process_claim(
-    gateway: SupabaseGateway,
+    gateway: FirebaseGateway,
     claim: dict[str, Any],
     actor_id: str,
 ) -> ProcessResult:
     claim_id = claim["id"]
     reference = claim["reference"]
     now = datetime.now(timezone.utc).isoformat()
-    jobs = await gateway.rest(
+    jobs = await gateway.records(
         "POST",
         "claim_processing_jobs",
         service=True,
@@ -107,8 +74,8 @@ async def process_claim(
     )
     job_id = jobs[0]["id"]
     try:
-        await gateway.rest("PATCH", "claims", service=True, params={"id": f"eq.{claim_id}"}, json={"status": "PROCESSING"})
-        await gateway.rest(
+        await gateway.records("PATCH", "claims", service=True, params={"id": f"eq.{claim_id}"}, json={"status": "PROCESSING"})
+        await gateway.records(
             "POST",
             "audit_events",
             service=True,
@@ -116,8 +83,8 @@ async def process_claim(
         )
     except Exception as exc:
         error = str(exc)[:1000]
-        await gateway.rest("PATCH", "claims", service=True, params={"id": f"eq.{claim_id}"}, json={"status": "PROCESSING_FAILED"})
-        await gateway.rest(
+        await gateway.records("PATCH", "claims", service=True, params={"id": f"eq.{claim_id}"}, json={"status": "PROCESSING_FAILED"})
+        await gateway.records(
             "PATCH",
             "claim_processing_jobs",
             service=True,
@@ -126,13 +93,13 @@ async def process_claim(
         )
         raise HTTPException(status_code=422, detail=error) from exc
     try:
-        documents = await gateway.rest(
+        documents = await gateway.records(
             "GET",
             "claim_documents",
             service=True,
             params={"claim_id": f"eq.{claim_id}", "select": "*", "order": "created_at.asc"},
         )
-        await gateway.rest("DELETE", "claim_extracted_fields", service=True, params={"claim_id": f"eq.{claim_id}"})
+        await gateway.records("DELETE", "claim_extracted_fields", service=True, params={"claim_id": f"eq.{claim_id}"})
         hashes: dict[str, str] = {}
         field_count = 0
         warning_count = 0
@@ -162,12 +129,12 @@ async def process_claim(
                     for field in fields
                 ]
                 if field_rows:
-                    await gateway.rest("POST", "claim_extracted_fields", service=True, json=field_rows)
+                    await gateway.records("POST", "claim_extracted_fields", service=True, json=field_rows)
                 field_count += len(field_rows)
                 amount_field = next((field for field in fields if field.field_name == "claimed_amount"), None)
                 status = "COMPLETED" if amount and currency else "NEEDS_CONFIRMATION"
                 notes = None if amount else "No reliable payable total was found; please enter the document amount."
-                await gateway.rest(
+                await gateway.records(
                     "PATCH",
                     "claim_documents",
                     service=True,
@@ -186,7 +153,7 @@ async def process_claim(
                 )
             except Exception as exc:
                 warning_count += 1
-                await gateway.rest(
+                await gateway.records(
                     "PATCH",
                     "claim_documents",
                     service=True,
@@ -194,21 +161,21 @@ async def process_claim(
                     json={"extraction_status": "FAILED", "extraction_notes": str(exc)[:500], "extracted_at": now},
                 )
 
-        await gateway.rest(
+        await gateway.records(
             "PATCH",
             "claims",
             service=True,
             params={"id": f"eq.{claim_id}"},
             json={"status": "UPLOADED", "warning_count": warning_count},
         )
-        await gateway.rest(
+        await gateway.records(
             "PATCH",
             "claim_processing_jobs",
             service=True,
             params={"id": f"eq.{job_id}"},
             json={"status": "COMPLETED", "finished_at": datetime.now(timezone.utc).isoformat()},
         )
-        await gateway.rest(
+        await gateway.records(
             "POST",
             "audit_events",
             service=True,
@@ -217,15 +184,15 @@ async def process_claim(
         return ProcessResult(claim_reference=reference, status="UPLOADED", document_count=len(documents), extracted_field_count=field_count)
     except Exception as exc:
         error = str(exc)[:1000]
-        await gateway.rest("PATCH", "claims", service=True, params={"id": f"eq.{claim_id}"}, json={"status": "PROCESSING_FAILED"})
-        await gateway.rest(
+        await gateway.records("PATCH", "claims", service=True, params={"id": f"eq.{claim_id}"}, json={"status": "PROCESSING_FAILED"})
+        await gateway.records(
             "PATCH",
             "claim_processing_jobs",
             service=True,
             params={"id": f"eq.{job_id}"},
             json={"status": "FAILED", "last_error": error, "finished_at": datetime.now(timezone.utc).isoformat()},
         )
-        await gateway.rest(
+        await gateway.records(
             "POST",
             "audit_events",
             service=True,

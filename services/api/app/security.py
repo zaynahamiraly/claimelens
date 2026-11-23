@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import asyncio
+from firebase_admin import auth
 
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from .schemas import Profile
-from .supabase import SupabaseGateway
+from .firebase import FirebaseGateway, firebase_app
 
 
 bearer = HTTPBearer(auto_error=False)
@@ -27,15 +29,15 @@ async def get_current_user(
     if not credentials or credentials.scheme.lower() != "bearer":
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required.")
 
-    gateway = SupabaseGateway(request)
-    user = await gateway.request_json("GET", "/auth/v1/user", token=credentials.credentials)
-    rows = await gateway.rest(
-        "GET",
-        "profiles",
-        token=credentials.credentials,
-        params={"id": f"eq.{user['id']}", "select": "id,display_name,role,status", "limit": "1"},
-    )
-    if not rows or rows[0].get("status") != "active":
+    try:
+        user = await asyncio.to_thread(auth.verify_id_token, credentials.credentials, app=firebase_app(), check_revoked=True)
+    except (auth.InvalidIdTokenError, auth.UserNotFoundError, ValueError):
+        raise HTTPException(401, 'Your session has expired. Please sign in again.')
+    gateway = FirebaseGateway(request)
+    record = await gateway.profile(user['uid'])
+    if not record or record.get("status") != "active":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This account is not active.")
-    profile = Profile(**rows[0], email=user.get("email"))
-    return CurrentUser(id=user["id"], email=user.get("email"), token=credentials.credentials, profile=profile)
+    profile = Profile(**record)
+    current = CurrentUser(id=user['uid'], email=user.get('email'), token=credentials.credentials, profile=profile)
+    request.state.current_user = current
+    return current

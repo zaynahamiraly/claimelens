@@ -6,9 +6,15 @@ class AuthService {
   final ApiClient client;
 
   Future<UserProfile> login(String email, String password) async {
-    final response = await client.dio.post<Map<String, dynamic>>('/auth/login', data: {'email': email.trim(), 'password': password});
+    final response = await client.dio.post<Map<String, dynamic>>(
+      '/auth/login',
+      data: {'email': email.trim(), 'password': password},
+    );
     final data = response.data!;
-    await client.saveSession(data['access_token'] as String, data['refresh_token'] as String);
+    await client.saveSession(
+      data['access_token'] as String,
+      data['refresh_token'] as String,
+    );
     return UserProfile.fromJson(data['user'] as Map<String, dynamic>);
   }
 

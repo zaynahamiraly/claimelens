@@ -15,8 +15,18 @@ class StatusChip extends StatelessWidget {
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(color: color.withValues(alpha: .12), borderRadius: BorderRadius.circular(99)),
-      child: Text(status.replaceAll('_', ' '), style: TextStyle(color: color.shade700, fontSize: 11, fontWeight: FontWeight.w700)),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: .12),
+        borderRadius: BorderRadius.circular(99),
+      ),
+      child: Text(
+        status.replaceAll('_', ' '),
+        style: TextStyle(
+          color: color.shade700,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
     );
   }
 }

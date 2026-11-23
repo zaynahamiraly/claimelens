@@ -24,7 +24,10 @@ class _AppShellState extends State<AppShell> {
       body: IndexedStack(index: index, children: pages),
       floatingActionButton: isClient && index != 2
           ? FloatingActionButton.extended(
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NewClaimScreen())),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const NewClaimScreen()),
+              ),
               icon: const Icon(Icons.add),
               label: const Text('New claim'),
             )
@@ -33,9 +36,21 @@ class _AppShellState extends State<AppShell> {
         selectedIndex: index,
         onDestinationSelected: (value) => setState(() => index = value),
         destinations: const [
-          NavigationDestination(icon: Icon(Icons.dashboard_outlined), selectedIcon: Icon(Icons.dashboard), label: 'Dashboard'),
-          NavigationDestination(icon: Icon(Icons.history_outlined), selectedIcon: Icon(Icons.history), label: 'Claims'),
-          NavigationDestination(icon: Icon(Icons.person_outline), selectedIcon: Icon(Icons.person), label: 'Profile'),
+          NavigationDestination(
+            icon: Icon(Icons.dashboard_outlined),
+            selectedIcon: Icon(Icons.dashboard),
+            label: 'Dashboard',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.history_outlined),
+            selectedIcon: Icon(Icons.history),
+            label: 'Claims',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: 'Profile',
+          ),
         ],
       ),
     );
