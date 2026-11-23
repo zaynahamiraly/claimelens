@@ -21,6 +21,11 @@ class AuthProvider extends ChangeNotifier {
 
   bool get authenticated => user != null;
 
+  void clearError() {
+    error = null;
+    notifyListeners();
+  }
+
   Future<void> initialise() async {
     await client.initialise();
     if (client.hasSession) {

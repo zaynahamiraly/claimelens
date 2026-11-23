@@ -48,6 +48,23 @@ five minutes. The API serves files only through verified download links. Direct
 client access to Firestore is denied by rules. No Firebase Storage subscription
 or billing activation is needed for this development setup.
 
+## Staff accounts
+
+Public registration never assigns staff roles or overwrites an existing profile.
+An authorized project operator can provision a staff account from the API directory:
+
+```powershell
+.venv-paddle/Scripts/python -m app.provision_staff --email staff@example.com --role claims_officer
+```
+
+Roles supported by this command are `administrator`, `claims_officer`, and
+`supervisor`. It requires the server's Firebase Admin credentials. Existing
+passwords and profile status are retained. New accounts receive generated initial
+passwords saved to the operator's private local application-data folder in
+`claimelens/staff-first-login.txt`. The command never prints passwords or emails
+them. That local file is excluded from Git. Clients and staff use the same mobile
+sign-in screen.
+
 ## Tests
 
 ```powershell

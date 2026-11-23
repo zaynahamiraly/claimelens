@@ -95,6 +95,7 @@ running and the USB connection active while testing.
 ## Accounts and documents
 
 - **Create account** registers a Firebase client account.
+- The dedicated sign-up page is `lib/screens/signup_screen.dart`. Clients and staff share the sign-in page; signup never changes existing staff roles.
 - **Forgot password** emails a Firebase-hosted reset link.
 - A project administrator assigns staff roles in Firestore; signup cannot assign them.
 - Existing accounts from the previous backend must be registered in Firebase or explicitly migrated.

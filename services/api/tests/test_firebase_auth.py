@@ -1,9 +1,67 @@
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
+from unittest.mock import Mock
+import asyncio
+import pytest
+from fastapi import HTTPException
 from fastapi.testclient import TestClient
 from app.main import app
 from app.routers import auth
 from app.firebase import can_access_claim
+
+
+@pytest.mark.parametrize(
+    "role", ["administrator", "claims_officer", "supervisor", "client"]
+)
+def test_existing_profile_role_and_status_survive_login_profile_check(
+    monkeypatch, role
+):
+    from app.firebase import FirebaseGateway
+    from app import firebase
+
+    existing = {
+        "id": "existing",
+        "role": role,
+        "status": "inactive",
+        "display_name": "Existing User",
+    }
+    snapshot = SimpleNamespace(exists=True, to_dict=lambda: dict(existing))
+    reference = SimpleNamespace(get=lambda **kwargs: snapshot)
+    transaction = Mock()
+    store = FirebaseGateway.__new__(FirebaseGateway)
+    store.db = SimpleNamespace(
+        collection=lambda name: SimpleNamespace(document=lambda uid: reference),
+        transaction=lambda: transaction,
+    )
+    monkeypatch.setattr(firebase.firestore, "transactional", lambda function: function)
+    actual = asyncio.run(
+        store.ensure_profile("existing", "New name", "existing@example.com")
+    )
+    assert actual == existing
+    transaction.set.assert_not_called()
+    transaction.update.assert_not_called()
+
+
+def test_duplicate_signup_never_changes_staff_profile(monkeypatch):
+    upstream = AsyncMock(
+        side_effect=HTTPException(
+            400, "An account already exists. Sign in or reset your password."
+        )
+    )
+    gateway = Mock()
+    monkeypatch.setattr(auth, "firebase_request", upstream)
+    monkeypatch.setattr(auth, "FirebaseGateway", gateway)
+    with TestClient(app) as client:
+        response = client.post(
+            "/api/v1/auth/signup",
+            json={
+                "email": "admin@claimlens.com",
+                "display_name": "Someone",
+                "password": "long-password",
+            },
+        )
+    assert response.status_code == 400
+    gateway.assert_not_called()
 
 
 def test_claim_access_is_scoped_by_role():

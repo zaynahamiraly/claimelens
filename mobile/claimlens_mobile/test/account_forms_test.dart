@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:claimelens/providers/auth_provider.dart';
-import 'package:claimelens/screens/account_help_screen.dart';
+import 'package:claimelens/screens/signup_screen.dart';
+import 'package:claimelens/screens/password_recovery_screen.dart';
 import 'package:claimelens/services/api_client.dart';
 
 void main() {
   Future<void> open(
     WidgetTester tester,
-    AccountAction action,
+    bool signup,
     List<RequestOptions> calls,
   ) async {
     final client = ApiClient();
@@ -30,7 +31,9 @@ void main() {
     await tester.pumpWidget(
       ChangeNotifierProvider(
         create: (_) => AuthProvider(client),
-        child: MaterialApp(home: AccountHelpScreen(action: action)),
+        child: MaterialApp(
+            home:
+                signup ? const SignupScreen() : const PasswordRecoveryScreen()),
       ),
     );
   }
@@ -39,7 +42,7 @@ void main() {
     tester,
   ) async {
     final calls = <RequestOptions>[];
-    await open(tester, AccountAction.signup, calls);
+    await open(tester, true, calls);
     await tester.enterText(find.byType(TextFormField).at(0), 'Test Client');
     await tester.enterText(
       find.byType(TextFormField).at(1),
@@ -66,7 +69,7 @@ void main() {
     tester,
   ) async {
     final calls = <RequestOptions>[];
-    await open(tester, AccountAction.recovery, calls);
+    await open(tester, false, calls);
     await tester.enterText(
       find.byType(TextFormField).first,
       'client@example.com',

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/auth_provider.dart';
-import 'account_help_screen.dart';
+import 'password_recovery_screen.dart';
+import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,6 +16,17 @@ class _LoginScreenState extends State<LoginScreen> {
   final password = TextEditingController();
   final formKey = GlobalKey<FormState>();
   bool hidden = true;
+
+  Future<void> openSignup() async {
+    context.read<AuthProvider>().clearError();
+    final registeredEmail = await Navigator.push<String>(
+        context,
+        MaterialPageRoute(
+            builder: (_) => SignupScreen(initialEmail: email.text.trim())));
+    if (!mounted || registeredEmail == null) return;
+    email.text = registeredEmail;
+    password.clear();
+  }
 
   @override
   void dispose() {
@@ -47,12 +59,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     Text(
                       'claimelens',
                       textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.headlineMedium
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium
                           ?.copyWith(fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Sign in to submit and track medical claims.',
+                      'Clients and staff sign in here.',
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
@@ -121,29 +135,18 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: auth.busy
                           ? null
                           : () => Navigator.push(
-                              context,
-                              MaterialPageRoute<void>(
-                                builder: (_) => AccountHelpScreen(
-                                  action: AccountAction.recovery,
-                                  initialEmail: email.text.trim(),
+                                context,
+                                MaterialPageRoute<void>(
+                                  builder: (_) => PasswordRecoveryScreen(
+                                    initialEmail: email.text.trim(),
+                                  ),
                                 ),
                               ),
-                            ),
                       child: const Text('Forgot password?'),
                     ),
                     OutlinedButton(
-                      onPressed: auth.busy
-                          ? null
-                          : () => Navigator.push(
-                              context,
-                              MaterialPageRoute<void>(
-                                builder: (_) => AccountHelpScreen(
-                                  action: AccountAction.signup,
-                                  initialEmail: email.text.trim(),
-                                ),
-                              ),
-                            ),
-                      child: const Text('Create an account'),
+                      onPressed: auth.busy ? null : openSignup,
+                      child: const Text('New client? Sign up'),
                     ),
                   ],
                 ),
