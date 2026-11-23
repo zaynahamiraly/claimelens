@@ -25,7 +25,7 @@ class ClaimLensApp extends StatelessWidget {
           ChangeNotifierProvider(create: (_) => ClaimsProvider(client)),
         ],
         child: MaterialApp(
-          title: 'ClaimLens AI',
+          title: 'claimelens',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xff087f8c), brightness: Brightness.light),

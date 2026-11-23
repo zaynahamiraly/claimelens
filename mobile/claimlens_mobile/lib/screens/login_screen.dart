@@ -42,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           size: 54,
                           color: Theme.of(context).colorScheme.primary),
                       const SizedBox(height: 16),
-                      Text('ClaimLens AI',
+                      Text('claimelens',
                           textAlign: TextAlign.center,
                           style: Theme.of(context)
                               .textTheme

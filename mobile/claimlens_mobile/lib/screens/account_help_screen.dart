@@ -90,7 +90,7 @@ class _AccountHelpScreenState extends State<AccountHelpScreen> {
                           color: Theme.of(context).colorScheme.primary),
                       const SizedBox(height: 16),
                       Text(
-                          signup ? 'Join ClaimLens AI' : 'Recover your account',
+                          signup ? 'Join claimelens' : 'Recover your account',
                           style: Theme.of(context).textTheme.headlineSmall,
                           textAlign: TextAlign.center),
                       const SizedBox(height: 12),
