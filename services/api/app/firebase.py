@@ -37,7 +37,10 @@ def can_access_claim(user, claim):
     if user.profile.role == "client":
         return claim.get("client_id") == user.id
     if user.profile.role == "claims_officer":
-        return claim.get("assigned_to") == user.id
+        return claim.get("assigned_to") == user.id or (
+            claim.get("assigned_to") is None
+            and claim.get("status") in {"REVIEW_REQUIRED", "INFORMATION_RECEIVED"}
+        )
     return user.profile.role in {"supervisor", "administrator"}
 
 
@@ -117,10 +120,6 @@ class FirebaseGateway:
             if user and collection == "claims":
                 if user.profile.role == "client":
                     query = query.where(filter=FieldFilter("client_id", "==", user.id))
-                elif user.profile.role == "claims_officer":
-                    query = query.where(
-                        filter=FieldFilter("assigned_to", "==", user.id)
-                    )
             if user and collection != "claims":
                 claim_id = params.get("claim_id") or (
                     json.get("claim_id") if isinstance(json, dict) else None
@@ -174,6 +173,8 @@ class FirebaseGateway:
                     result.append(item)
                 return result
             rows = [s.to_dict() for s in query.stream()]
+            if user and collection == "claims":
+                rows = [row for row in rows if can_access_claim(user, row)]
             if "or" in params:
                 term = params["or"].split("*")[1].lower()
                 rows = [
@@ -288,6 +289,17 @@ class FirebaseGateway:
                 .where(filter=FieldFilter("claim_id", "==", claim_id))
                 .stream(transaction=transaction)
             )
+            watchers = [
+                snapshot.id
+                for snapshot in self.db.collection("profiles")
+                .where(
+                    filter=FieldFilter(
+                        "role", "in", ["claims_officer", "supervisor", "administrator"]
+                    )
+                )
+                .stream(transaction=transaction)
+                if snapshot.to_dict().get("status") == "active"
+            ]
             by_id = {d.id: d for d in docs}
             field_ids = {d.id: d for d in fields}
             if len({d.id for d in payload.documents}) != len(payload.documents) or set(
@@ -380,17 +392,16 @@ class FirebaseGateway:
                     "status": "REVIEW_REQUIRED",
                 },
             )
-            audit = self.db.collection("audit_events").document()
-            transaction.set(
-                audit,
-                {
-                    "id": audit.id,
-                    "claim_id": claim_id,
-                    "actor_id": user.id,
-                    "event_type": "CLAIM_CONFIRMED",
-                    "created_at": now(),
-                    "metadata": {"total": str(total)},
-                },
+            from .workflow import write_event
+
+            write_event(
+                self.db,
+                transaction,
+                claim,
+                user.id,
+                "CLAIM_CONFIRMED",
+                {"total": str(total)},
+                watchers=watchers,
             )
             return "REVIEW_REQUIRED"
 

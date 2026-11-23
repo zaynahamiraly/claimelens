@@ -68,6 +68,8 @@ async def process_claim(
     gateway: FirebaseGateway,
     claim: dict[str, Any],
     actor_id: str,
+    *,
+    return_status: str = "UPLOADED",
 ) -> ProcessResult:
     claim_id = claim["id"]
     reference = claim["reference"]
@@ -131,20 +133,29 @@ async def process_claim(
             service=True,
             params={"claim_id": f"eq.{claim_id}", "order": "created_at.asc"},
         )
-        await gateway.records(
-            "DELETE",
-            "claim_extracted_fields",
-            service=True,
-            params={"claim_id": f"eq.{claim_id}"},
-        )
+        additional_evidence = return_status == "INFORMATION_RECEIVED"
+        if not additional_evidence:
+            await gateway.records(
+                "DELETE",
+                "claim_extracted_fields",
+                service=True,
+                params={"claim_id": f"eq.{claim_id}"},
+            )
         hashes: dict[str, str] = {}
         field_count = 0
-        warning_count = 0
+        warning_count = claim.get("warning_count", 0) if additional_evidence else 0
         for document in documents:
             content = await gateway.download(document["storage_path"])
             digest = hashlib.sha256(content).hexdigest()
             duplicate_of = hashes.get(digest)
             hashes.setdefault(digest, document["id"])
+            if additional_evidence and document.get("extraction_status") not in {
+                "PENDING",
+                "FAILED",
+            }:
+                # Previously reviewed evidence and human corrections must survive
+                # a response containing additional documents.
+                continue
             try:
                 text, method, confidence = await asyncio.to_thread(
                     extract_document_text, content, document["mime_type"]
@@ -226,7 +237,7 @@ async def process_claim(
             "claims",
             service=True,
             params={"id": f"eq.{claim_id}"},
-            json={"status": "UPLOADED", "warning_count": warning_count},
+            json={"status": return_status, "warning_count": warning_count},
         )
         await gateway.records(
             "PATCH",
@@ -251,7 +262,7 @@ async def process_claim(
         )
         return ProcessResult(
             claim_reference=reference,
-            status="UPLOADED",
+            status=return_status,
             document_count=len(documents),
             extracted_field_count=field_count,
         )

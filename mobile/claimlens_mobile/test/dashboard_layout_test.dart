@@ -62,7 +62,8 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
-        await tester.drag(find.byType(ListView), const Offset(0, -1200));
+        await tester.scrollUntilVisible(find.text('Recent claims'), 400,
+            scrollable: find.byType(Scrollable).first, maxScrolls: 30);
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
         expect(find.text('Recent claims'), findsOneWidget);

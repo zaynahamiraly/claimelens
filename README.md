@@ -4,6 +4,28 @@ A Flutter Android app for submitting and tracking medical-insurance claims.
 Upload invoices, receipts, and supporting documents, review extracted values,
 correct mistakes, and submit a claim for review.
 
+The native mobile workspace includes client, claims officer, supervisor, and
+administrator workflows. It does not require the former Vercel website to run.
+
+## Mobile workspace
+
+| Account | Available options |
+| --- | --- |
+| Client | Sign up, upload/camera/gallery, confirm extracted evidence, search/filter claims, follow progress, answer information requests with files, read notifications, edit profile and change password |
+| Claims officer | Assigned and unassigned queues, take assignment, compare private source documents, correct evidence and totals, request information, verify, analytics and audit trail |
+| Supervisor | Assign officers, review evidence, approve/reject with notes and approved amounts, record payment pending and settlement, analytics and audit trail |
+| Administrator | Supervisor tools plus create users, change roles, activate/deactivate accounts, generate private recovery links, delete logins while retaining claim history |
+
+Client navigation: **Overview · Claims · Updates · Account**.
+Staff navigation: **Overview · Claims · Review · Workspace**. Analytics, audit,
+notifications, user access (administrators), and account settings are under Workspace.
+Light/dark/system appearance and notification badge preferences are saved per account.
+
+The API checks every role and status transition and uses Firestore transactions for
+assignment, review, decisions, information responses, and administrator access changes.
+Public signup always creates a client. Existing staff roles are preserved.
+See [workflow details](docs/mobile-workflows.md).
+
 Repository: [zaynahamiraly/claimelens](https://github.com/zaynahamiraly/claimelens).
 
 ## Stack
@@ -92,12 +114,41 @@ flutter run --dart-define=API_BASE_URL=http://127.0.0.1:8000/api/v1
 Enable USB debugging and approve the computer on the phone. Keep the API computer
 running and the USB connection active while testing.
 
+### Internet testing without USB
+
+The app can use Wi-Fi or mobile data through a temporary HTTPS tunnel. From `services/api`:
+
+```powershell
+.\start-internet.ps1
+```
+
+Pass `-PythonPath` if your configured Python environment is elsewhere. The script
+downloads the official Cloudflare connector, starts/reuses a tunnel, updates the
+private `.env` public document URL, and starts the API. It stores runtime settings
+and logs outside the repository under `%LOCALAPPDATA%\claimelens`.
+
+Build the Android app with the generated internet endpoint:
+
+```powershell
+Set-Location mobile/claimlens_mobile
+flutter build apk --debug --dart-define-from-file="$env:LOCALAPPDATA\claimelens\internet-build.json"
+```
+
+Install that APK once; USB is unnecessary while using the installed app. Keep the
+API computer awake and online. This is a development tunnel, not an independently
+hosted production backend. A new tunnel has a new address, so a new build is needed.
+Stable service while the computer is off requires a hosted Python API and persistent
+private document storage. No Vercel service or paid Firebase plan is used here.
+
+Document extraction runs in the background; the app polls status so longer image
+or scanned-PDF processing does not depend on one long internet request.
+
 ## Accounts and documents
 
 - **Create account** registers a Firebase client account.
 - The dedicated sign-up page is `lib/screens/signup_screen.dart`. Clients and staff share the sign-in page; signup never changes existing staff roles.
 - **Forgot password** emails a Firebase-hosted reset link.
-- A project administrator assigns staff roles in Firestore; signup cannot assign them.
+- Administrators manage roles from **Workspace → User access**; public signup cannot assign staff roles.
 - Existing accounts from the previous backend must be registered in Firebase or explicitly migrated.
 - Firebase Authentication and Firestore use the project's free quotas. Billing remains disabled.
 - Uploaded files stay on the API computer, outside Git. They are not uploaded to Firebase Storage.

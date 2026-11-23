@@ -58,7 +58,8 @@ class ClaimService {
   }
 
   Future<void> process(String reference) async {
-    await client.dio.post<Map<String, dynamic>>('/claims/$reference/process');
+    await client.dio.post<Map<String, dynamic>>('/claims/$reference/process',
+        queryParameters: {'background': true});
   }
 
   Future<String> confirm(

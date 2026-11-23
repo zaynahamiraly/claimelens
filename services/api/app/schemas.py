@@ -5,7 +5,7 @@ from decimal import Decimal
 from typing import Any, Literal
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 Role = Literal["client", "claims_officer", "supervisor", "administrator"]
@@ -17,6 +17,9 @@ class Profile(BaseModel):
     role: Role
     status: str
     email: str | None = None
+    phone: str = ""
+    theme: Literal["system", "light", "dark"] = "system"
+    notifications_enabled: bool = True
 
 
 class LoginRequest(BaseModel):
@@ -82,6 +85,9 @@ class ClaimSummary(BaseModel):
 class ClaimDetails(ClaimSummary):
     documents: list[ClaimDocument] = Field(default_factory=list)
     audit_events: list[dict[str, Any]] = Field(default_factory=list)
+    available_actions: list[str] = Field(default_factory=list)
+    information_requests: list[dict[str, Any]] = Field(default_factory=list)
+    workflow: dict[str, Any] = Field(default_factory=dict)
 
 
 class DocumentConfirmation(BaseModel):
@@ -111,6 +117,7 @@ class ProcessResult(BaseModel):
 
 
 class DashboardSummary(BaseModel):
+    by_status: dict[str, int] = Field(default_factory=dict)
     total_claims: int
     processing: int
     review_required: int
@@ -120,9 +127,18 @@ class DashboardSummary(BaseModel):
 
 
 class EmailRequest(BaseModel):
-    email: str = Field(min_length=3, max_length=254, pattern=r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
+    email: str = Field(
+        min_length=3, max_length=254, pattern=r"^[^\s@]+@[^\s@]+\.[^\s@]+$"
+    )
 
 
 class SignupRequest(EmailRequest):
     display_name: str = Field(min_length=2, max_length=120)
     password: str = Field(min_length=8, max_length=128)
+
+    @field_validator("display_name")
+    @classmethod
+    def valid_name(cls, value):
+        if len(value.strip()) < 2:
+            raise ValueError("Enter a name with at least two characters.")
+        return value.strip()

@@ -7,8 +7,18 @@ from collections import Counter
 from io import BytesIO
 from pathlib import Path
 from typing import Any
+from typing import Literal
 
-from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    File,
+    HTTPException,
+    Query,
+    Request,
+    UploadFile,
+)
 
 from ..processing import process_claim
 from ..schemas import (
@@ -22,6 +32,7 @@ from ..schemas import (
 )
 from ..security import CurrentUser, get_current_user
 from ..firebase import FirebaseGateway
+from ..workflow import workflow_details
 
 
 router = APIRouter(prefix="/claims", tags=["claims"])
@@ -73,13 +84,13 @@ async def list_claims(
     request: Request,
     status: str | None = Query(default=None),
     search: str | None = Query(default=None, max_length=100),
+    scope: Literal["all", "mine", "unassigned"] = "all",
+    view: Literal["all", "review"] = "all",
     limit: int = Query(default=50, ge=1, le=200),
     user: CurrentUser = Depends(get_current_user),
 ) -> list[ClaimSummary]:
     gateway = FirebaseGateway(request)
-    params: dict[str, str] = {"order": "created_at.desc", "limit": str(limit)}
-    if user.profile.role == "claims_officer":
-        params["assigned_to"] = f"eq.{user.id}"
+    params: dict[str, str] = {"order": "created_at.desc"}
     if status:
         params["status"] = f"eq.{status.upper()}"
     if search and search.strip():
@@ -89,7 +100,28 @@ async def list_claims(
                 f"(reference.ilike.*{safe}*,patient_name.ilike.*{safe}*,provider_name.ilike.*{safe}*)"
             )
     rows = await gateway.records("GET", "claims", params=params)
-    return [summary(row) for row in rows]
+    if scope == "mine" and user.profile.role != "client":
+        rows = [r for r in rows if r.get("assigned_to") == user.id]
+    if scope == "unassigned":
+        rows = [
+            r
+            for r in rows
+            if not r.get("assigned_to")
+            and r["status"] in {"REVIEW_REQUIRED", "INFORMATION_RECEIVED"}
+        ]
+    if view == "review":
+        rows = [
+            r
+            for r in rows
+            if r["status"]
+            in {
+                "REVIEW_REQUIRED",
+                "INFORMATION_RECEIVED",
+                "INFORMATION_REQUIRED",
+                "VERIFIED",
+            }
+        ]
+    return [summary(row) for row in rows[:limit]]
 
 
 @router.get("/dashboard", response_model=DashboardSummary)
@@ -98,12 +130,11 @@ async def dashboard(
     user: CurrentUser = Depends(get_current_user),
 ) -> DashboardSummary:
     gateway = FirebaseGateway(request)
-    params: dict[str, str] = {"order": "created_at.desc", "limit": "500"}
-    if user.profile.role == "claims_officer":
-        params["assigned_to"] = f"eq.{user.id}"
+    params: dict[str, str] = {"order": "created_at.desc"}
     rows = await gateway.records("GET", "claims", params=params)
     counts = Counter(row["status"] for row in rows)
     return DashboardSummary(
+        by_status=dict(counts),
         total_claims=len(rows),
         processing=counts["PROCESSING"],
         review_required=counts["REVIEW_REQUIRED"],
@@ -263,7 +294,10 @@ async def get_claim(
             )
         )
     return ClaimDetails(
-        **summary(claim).model_dump(), documents=response_documents, audit_events=audit
+        **summary(claim).model_dump(),
+        documents=response_documents,
+        audit_events=audit,
+        **(await workflow_details(gateway, claim)),
     )
 
 
@@ -271,6 +305,8 @@ async def get_claim(
 async def process(
     reference: str,
     request: Request,
+    background_tasks: BackgroundTasks,
+    background: bool = False,
     user: CurrentUser = Depends(get_current_user),
 ) -> ProcessResult:
     gateway = FirebaseGateway(request)
@@ -280,8 +316,27 @@ async def process(
             status_code=409, detail="This claim is not available for processing."
         )
     await gateway.acquire_processing(claim["id"])
+    if background:
+        background_tasks.add_task(finish_processing, gateway, claim, user.id)
+        return ProcessResult(
+            claim_reference=reference,
+            status="PROCESSING",
+            document_count=0,
+            extracted_field_count=0,
+        )
+    return await finish_processing(gateway, claim, user.id)
+
+
+async def finish_processing(gateway, claim, actor_id):
     try:
-        return await process_claim(gateway, claim, user.id)
+        return await process_claim(
+            gateway,
+            claim,
+            actor_id,
+            return_status="INFORMATION_RECEIVED"
+            if claim.get("needs_reconfirmation")
+            else "UPLOADED",
+        )
     except Exception:
         # A failure before the processing job is created must release the claim.
         await gateway.records(

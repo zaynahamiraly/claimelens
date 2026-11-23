@@ -21,6 +21,24 @@ class AuthProvider extends ChangeNotifier {
 
   bool get authenticated => user != null;
 
+  Future<void> updateProfile(Map<String, dynamic> values) async {
+    final response =
+        await client.dio.put<Map<String, dynamic>>('/profile', data: values);
+    user = UserProfile.fromJson(response.data!);
+    notifyListeners();
+  }
+
+  Future<void> changePassword(String current, String password) async {
+    final response = await client.dio.post<Map<String, dynamic>>(
+        '/profile/password',
+        data: {'current_password': current, 'new_password': password});
+    final data = response.data!;
+    await client.saveSession(
+        data['access_token'] as String, data['refresh_token'] as String);
+    user = await service.profile();
+    notifyListeners();
+  }
+
   void clearError() {
     error = null;
     notifyListeners();

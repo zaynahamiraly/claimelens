@@ -1,5 +1,7 @@
 """Lazy, serialized PaddleOCR inference for uploaded images and rasterized PDFs."""
+
 from functools import lru_cache
+import os
 from threading import Lock
 
 from .config import get_settings
@@ -10,6 +12,7 @@ _inference_lock = Lock()
 @lru_cache(maxsize=1)
 def _engine():
     # Keep text-only PDF/DOCX extraction usable without loading the OCR models.
+    os.environ.setdefault("PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK", "True")
     from paddleocr import PaddleOCR
 
     return PaddleOCR(

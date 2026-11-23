@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import get_settings
-from .routers import auth, claims, profile
+from .routers import auth, claims, profile, workspace
 from .documents import router as documents_router
 
 
@@ -18,6 +18,7 @@ async def lifespan(application: FastAPI):
     application.state.http = httpx.AsyncClient(timeout=httpx.Timeout(60.0))
     yield
     await application.state.http.aclose()
+
 
 app = FastAPI(
     title=APP_NAME,
@@ -39,6 +40,7 @@ app.include_router(auth.router, prefix="/api/v1")
 app.include_router(profile.router, prefix="/api/v1")
 app.include_router(claims.router, prefix="/api/v1")
 app.include_router(documents_router, prefix="/api/v1")
+app.include_router(workspace.router, prefix="/api/v1")
 
 
 @app.get("/", tags=["service"])

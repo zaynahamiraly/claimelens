@@ -27,17 +27,17 @@ class ClaimSummary {
   final String? assignedTo;
 
   factory ClaimSummary.fromJson(Map<String, dynamic> json) => ClaimSummary(
-    id: json['id'] as String,
-    reference: json['reference'] as String,
-    patientName: json['patient_name'] as String? ?? '',
-    providerName: json['provider_name'] as String? ?? '',
-    claimedAmount: _number(json['claimed_amount']),
-    currency: json['currency'] as String? ?? 'MUR',
-    status: json['status'] as String,
-    warningCount: json['warning_count'] as int? ?? 0,
-    createdAt: DateTime.parse(json['created_at'] as String),
-    assignedTo: json['assigned_to'] as String?,
-  );
+        id: json['id'] as String,
+        reference: json['reference'] as String,
+        patientName: json['patient_name'] as String? ?? '',
+        providerName: json['provider_name'] as String? ?? '',
+        claimedAmount: _number(json['claimed_amount']),
+        currency: json['currency'] as String? ?? 'MUR',
+        status: json['status'] as String,
+        warningCount: json['warning_count'] as int? ?? 0,
+        createdAt: DateTime.parse(json['created_at'] as String),
+        assignedTo: json['assigned_to'] as String?,
+      );
 }
 
 class ExtractedField {
@@ -58,13 +58,13 @@ class ExtractedField {
   final String? documentId;
 
   factory ExtractedField.fromJson(Map<String, dynamic> json) => ExtractedField(
-    id: json['id'] as String,
-    fieldName: json['field_name'] as String,
-    normalizedValue: json['normalized_value'] as String,
-    confidence: _number(json['confidence']) ?? 0,
-    extractionMethod: json['extraction_method'] as String,
-    documentId: json['document_id'] as String?,
-  );
+        id: json['id'] as String,
+        fieldName: json['field_name'] as String,
+        normalizedValue: json['normalized_value'] as String,
+        confidence: _number(json['confidence']) ?? 0,
+        extractionMethod: json['extraction_method'] as String,
+        documentId: json['document_id'] as String?,
+      );
 }
 
 class ClaimDocument {
@@ -103,24 +103,25 @@ class ClaimDocument {
   final List<ExtractedField> fields;
 
   factory ClaimDocument.fromJson(Map<String, dynamic> json) => ClaimDocument(
-    id: json['id'] as String,
-    originalName: json['original_name'] as String,
-    documentType: json['document_type'] as String,
-    mimeType: json['mime_type'] as String,
-    extractionStatus: json['extraction_status'] as String? ?? 'PENDING',
-    extractedAmount: _number(json['extracted_amount']),
-    extractedCurrency: json['extracted_currency'] as String?,
-    confirmedAmount: _number(json['confirmed_amount']),
-    confirmedCurrency: json['confirmed_currency'] as String?,
-    amountConfidence: _number(json['amount_confidence']),
-    includeInTotal: json['include_in_total'] as bool? ?? false,
-    duplicateOf: json['duplicate_of'] as String?,
-    extractionNotes: json['extraction_notes'] as String?,
-    signedUrl: json['signed_url'] as String?,
-    fields: (json['fields'] as List<dynamic>? ?? const [])
-        .map((item) => ExtractedField.fromJson(item as Map<String, dynamic>))
-        .toList(),
-  );
+        id: json['id'] as String,
+        originalName: json['original_name'] as String,
+        documentType: json['document_type'] as String,
+        mimeType: json['mime_type'] as String,
+        extractionStatus: json['extraction_status'] as String? ?? 'PENDING',
+        extractedAmount: _number(json['extracted_amount']),
+        extractedCurrency: json['extracted_currency'] as String?,
+        confirmedAmount: _number(json['confirmed_amount']),
+        confirmedCurrency: json['confirmed_currency'] as String?,
+        amountConfidence: _number(json['amount_confidence']),
+        includeInTotal: json['include_in_total'] as bool? ?? false,
+        duplicateOf: json['duplicate_of'] as String?,
+        extractionNotes: json['extraction_notes'] as String?,
+        signedUrl: json['signed_url'] as String?,
+        fields: (json['fields'] as List<dynamic>? ?? const [])
+            .map(
+                (item) => ExtractedField.fromJson(item as Map<String, dynamic>))
+            .toList(),
+      );
 }
 
 class ClaimDetails extends ClaimSummary {
@@ -135,12 +136,18 @@ class ClaimDetails extends ClaimSummary {
     required super.createdAt,
     required this.documents,
     required this.auditEvents,
+    this.availableActions = const [],
+    this.informationRequests = const [],
+    this.workflow = const {},
     super.claimedAmount,
     super.assignedTo,
   });
 
   final List<ClaimDocument> documents;
   final List<Map<String, dynamic>> auditEvents;
+  final List<String> availableActions;
+  final List<Map<String, dynamic>> informationRequests;
+  final Map<String, dynamic> workflow;
 
   factory ClaimDetails.fromJson(Map<String, dynamic> json) {
     final base = ClaimSummary.fromJson(json);
@@ -155,6 +162,11 @@ class ClaimDetails extends ClaimSummary {
       warningCount: base.warningCount,
       createdAt: base.createdAt,
       assignedTo: base.assignedTo,
+      availableActions: List<String>.from(json['available_actions'] ?? []),
+      informationRequests: (json['information_requests'] as List? ?? [])
+          .map((r) => Map<String, dynamic>.from(r as Map))
+          .toList(),
+      workflow: Map<String, dynamic>.from(json['workflow'] as Map? ?? {}),
       documents: (json['documents'] as List<dynamic>? ?? const [])
           .map((item) => ClaimDocument.fromJson(item as Map<String, dynamic>))
           .toList(),
@@ -173,6 +185,7 @@ class DashboardData {
     required this.verified,
     required this.failed,
     required this.recent,
+    this.byStatus = const {},
   });
   final int total;
   final int processing;
@@ -180,17 +193,19 @@ class DashboardData {
   final int verified;
   final int failed;
   final List<ClaimSummary> recent;
+  final Map<String, int> byStatus;
 
   factory DashboardData.fromJson(Map<String, dynamic> json) => DashboardData(
-    total: json['total_claims'] as int,
-    processing: json['processing'] as int,
-    reviewRequired: json['review_required'] as int,
-    verified: json['verified'] as int,
-    failed: json['processing_failed'] as int,
-    recent: (json['recent_claims'] as List<dynamic>)
-        .map((item) => ClaimSummary.fromJson(item as Map<String, dynamic>))
-        .toList(),
-  );
+        byStatus: Map<String, int>.from(json['by_status'] as Map? ?? {}),
+        total: json['total_claims'] as int,
+        processing: json['processing'] as int,
+        reviewRequired: json['review_required'] as int,
+        verified: json['verified'] as int,
+        failed: json['processing_failed'] as int,
+        recent: (json['recent_claims'] as List<dynamic>)
+            .map((item) => ClaimSummary.fromJson(item as Map<String, dynamic>))
+            .toList(),
+      );
 }
 
 class DocumentConfirmation {
@@ -206,11 +221,11 @@ class DocumentConfirmation {
   String currency;
 
   Map<String, dynamic> toJson() => {
-    'id': document.id,
-    'include': include,
-    'amount': amount,
-    'currency': currency,
-  };
+        'id': document.id,
+        'include': include,
+        'amount': amount,
+        'currency': currency,
+      };
 }
 
 class FieldCorrection {

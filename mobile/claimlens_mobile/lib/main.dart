@@ -7,6 +7,7 @@ import 'screens/app_shell.dart';
 import 'screens/login_screen.dart';
 import 'screens/splash_screen.dart';
 import 'services/api_client.dart';
+import 'app_theme.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,29 +21,25 @@ class ClaimLensApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MultiProvider(
-    providers: [
-      ChangeNotifierProvider(create: (_) => AuthProvider(client)..initialise()),
-      ChangeNotifierProvider(create: (_) => ClaimsProvider(client)),
-    ],
-    child: MaterialApp(
-      title: 'claimelens',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xff087f8c),
-          brightness: Brightness.light,
-        ),
-        useMaterial3: true,
-        scaffoldBackgroundColor: const Color(0xfff5f7fa),
-        inputDecorationTheme: const InputDecorationTheme(
-          border: OutlineInputBorder(),
-          filled: true,
-          fillColor: Colors.white,
-        ),
-      ),
-      home: const AuthGate(),
-    ),
-  );
+        providers: [
+          ChangeNotifierProvider(
+              create: (_) => AuthProvider(client)..initialise()),
+          ChangeNotifierProvider(create: (_) => ClaimsProvider(client)),
+        ],
+        child: Consumer<AuthProvider>(
+            builder: (context, auth, _) => MaterialApp(
+                  title: 'claimelens',
+                  debugShowCheckedModeBanner: false,
+                  theme: claimelensTheme(Brightness.light),
+                  darkTheme: claimelensTheme(Brightness.dark),
+                  themeMode: switch (auth.user?.theme) {
+                    'light' => ThemeMode.light,
+                    'dark' => ThemeMode.dark,
+                    _ => ThemeMode.system
+                  },
+                  home: const AuthGate(),
+                )),
+      );
 }
 
 class AuthGate extends StatelessWidget {
