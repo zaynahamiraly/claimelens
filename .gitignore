@@ -13,11 +13,6 @@ __pycache__/
 venv/
 .pytest_cache/
 
-# Node / Next.js
-node_modules/
-.next/
-out/
-
 # IDE
 .vscode/
 .idea/
@@ -34,21 +29,12 @@ dist/
 build/
 coverage/
 
-# ClaimLens private data
-datasets/raw/*
-datasets/results/*
-!datasets/raw/.gitkeep
-!datasets/results/.gitkeep
-
 # Uploaded documents
 uploads/
 storage/
-.vercel
-.env*
-!**/.env.example
-**/supabase/.temp/
 firebase-admin*.json
 *-firebase-adminsdk-*.json
 service-account*.json
 firebase-debug.log
 .firebase/
+.ruff_cache/

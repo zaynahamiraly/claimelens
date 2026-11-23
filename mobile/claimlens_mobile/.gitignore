@@ -2,6 +2,7 @@
 .flutter-plugins
 .flutter-plugins-dependencies
 .packages
+devtools_options.yaml
 build/
 coverage/
 android/.gradle/

@@ -45,7 +45,10 @@ def valid_signature(content: bytes, mime_type: str) -> bool:
         return content.startswith(b"\x89PNG\r\n\x1a\n")
     if mime_type == "image/jpeg":
         return content.startswith(b"\xff\xd8\xff")
-    if mime_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+    if (
+        mime_type
+        == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    ):
         try:
             with zipfile.ZipFile(BytesIO(content)) as archive:
                 return "word/document.xml" in archive.namelist()
@@ -54,12 +57,11 @@ def valid_signature(content: bytes, mime_type: str) -> bool:
     return False
 
 
-async def accessible_claim(gateway: FirebaseGateway, token: str, reference: str) -> dict[str, Any]:
+async def accessible_claim(gateway: FirebaseGateway, reference: str) -> dict[str, Any]:
     rows = await gateway.records(
         "GET",
         "claims",
-        token=token,
-        params={"reference": f"eq.{reference}", "select": "*", "limit": "1"},
+        params={"reference": f"eq.{reference}", "limit": "1"},
     )
     if not rows:
         raise HTTPException(status_code=404, detail="Claim not found.")
@@ -75,7 +77,7 @@ async def list_claims(
     user: CurrentUser = Depends(get_current_user),
 ) -> list[ClaimSummary]:
     gateway = FirebaseGateway(request)
-    params: dict[str, str] = {"select": CLAIM_SELECT, "order": "created_at.desc", "limit": str(limit)}
+    params: dict[str, str] = {"order": "created_at.desc", "limit": str(limit)}
     if user.profile.role == "claims_officer":
         params["assigned_to"] = f"eq.{user.id}"
     if status:
@@ -83,8 +85,10 @@ async def list_claims(
     if search and search.strip():
         safe = re.sub(r"[^\w\s-]", "", search.strip())
         if safe:
-            params["or"] = f"(reference.ilike.*{safe}*,patient_name.ilike.*{safe}*,provider_name.ilike.*{safe}*)"
-    rows = await gateway.records("GET", "claims", token=user.token, params=params)
+            params["or"] = (
+                f"(reference.ilike.*{safe}*,patient_name.ilike.*{safe}*,provider_name.ilike.*{safe}*)"
+            )
+    rows = await gateway.records("GET", "claims", params=params)
     return [summary(row) for row in rows]
 
 
@@ -94,10 +98,10 @@ async def dashboard(
     user: CurrentUser = Depends(get_current_user),
 ) -> DashboardSummary:
     gateway = FirebaseGateway(request)
-    params: dict[str, str] = {"select": CLAIM_SELECT, "order": "created_at.desc", "limit": "500"}
+    params: dict[str, str] = {"order": "created_at.desc", "limit": "500"}
     if user.profile.role == "claims_officer":
         params["assigned_to"] = f"eq.{user.id}"
-    rows = await gateway.records("GET", "claims", token=user.token, params=params)
+    rows = await gateway.records("GET", "claims", params=params)
     counts = Counter(row["status"] for row in rows)
     return DashboardSummary(
         total_claims=len(rows),
@@ -118,39 +122,57 @@ async def create_claim(
     gateway = FirebaseGateway(request)
     settings = gateway.settings
     if not files or len(files) > settings.max_claim_documents:
-        raise HTTPException(status_code=422, detail=f"Upload between 1 and {settings.max_claim_documents} documents.")
+        raise HTTPException(
+            status_code=422,
+            detail=f"Upload between 1 and {settings.max_claim_documents} documents.",
+        )
     prepared: list[tuple[UploadFile, bytes]] = []
     for upload in files:
         content = await upload.read(settings.max_file_bytes + 1)
         if upload.content_type not in ALLOWED_MIME_TYPES:
-            raise HTTPException(status_code=422, detail=f"{upload.filename or 'Document'} is not a PDF, PNG, JPEG, or DOCX file.")
+            raise HTTPException(
+                status_code=422,
+                detail=f"{upload.filename or 'Document'} is not a PDF, PNG, JPEG, or DOCX file.",
+            )
         if not content or len(content) > settings.max_file_bytes:
-            raise HTTPException(status_code=422, detail=f"{upload.filename or 'Document'} must be smaller than {settings.max_file_bytes // (1024 * 1024)} MB.")
+            raise HTTPException(
+                status_code=422,
+                detail=f"{upload.filename or 'Document'} must be smaller than {settings.max_file_bytes // (1024 * 1024)} MB.",
+            )
         if not valid_signature(content, upload.content_type):
-            raise HTTPException(status_code=422, detail=f"{upload.filename or 'Document'} does not match its reported file type.")
+            raise HTTPException(
+                status_code=422,
+                detail=f"{upload.filename or 'Document'} does not match its reported file type.",
+            )
         prepared.append((upload, content))
 
     rows = await gateway.records(
         "POST",
         "claims",
-        token=user.token,
-        json={"created_by": user.id, "client_id": user.id, "patient_name": "", "provider_name": "", "currency": "MUR", "status": "UPLOADED"},
-        prefer="return=representation",
+        json={
+            "created_by": user.id,
+            "client_id": user.id,
+            "patient_name": "",
+            "provider_name": "",
+            "currency": "MUR",
+            "status": "UPLOADED",
+        },
     )
     claim = rows[0]
     documents: list[dict[str, Any]] = []
     uploaded_paths: list[str] = []
     try:
         for upload, content in prepared:
-            original = Path(upload.filename or f"document{ALLOWED_MIME_TYPES[upload.content_type]}").name
+            original = Path(
+                upload.filename or f"document{ALLOWED_MIME_TYPES[upload.content_type]}"
+            ).name
             safe_name = re.sub(r"[^A-Za-z0-9._-]", "_", original)[:160]
             storage_path = f"{user.id}/{claim['id']}/{uuid.uuid4().hex}-{safe_name}"
-            await gateway.upload(storage_path, content, upload.content_type, user.token)
+            await gateway.upload(storage_path, content, upload.content_type)
             uploaded_paths.append(storage_path)
             inserted = await gateway.records(
                 "POST",
                 "claim_documents",
-                token=user.token,
                 json={
                     "claim_id": claim["id"],
                     "uploaded_by": user.id,
@@ -160,20 +182,34 @@ async def create_claim(
                     "mime_type": upload.content_type,
                     "size_bytes": len(content),
                 },
-                prefer="return=representation",
             )
             documents.append(inserted[0])
             await gateway.records(
                 "POST",
                 "audit_events",
-                token=user.token,
-                json={"claim_id": claim["id"], "actor_id": user.id, "event_type": "DOCUMENT_UPLOADED", "metadata": {"document_id": inserted[0]["id"], "name": original}},
+                json={
+                    "claim_id": claim["id"],
+                    "actor_id": user.id,
+                    "event_type": "DOCUMENT_UPLOADED",
+                    "metadata": {"document_id": inserted[0]["id"], "name": original},
+                },
             )
-        await gateway.records("POST", "audit_events", token=user.token, json={"claim_id": claim["id"], "actor_id": user.id, "event_type": "CLAIM_CREATED", "metadata": {"document_count": len(documents)}})
+        await gateway.records(
+            "POST",
+            "audit_events",
+            json={
+                "claim_id": claim["id"],
+                "actor_id": user.id,
+                "event_type": "CLAIM_CREATED",
+                "metadata": {"document_count": len(documents)},
+            },
+        )
     except Exception:
         try:
-            await gateway.delete_objects(uploaded_paths, user.token)
-            await gateway.records("DELETE", "claims", token=user.token, params={"id": f"eq.{claim['id']}"})
+            await gateway.delete_objects(uploaded_paths)
+            await gateway.records(
+                "DELETE", "claims", params={"id": f"eq.{claim['id']}"}
+            )
         except Exception:
             pass
         raise
@@ -191,18 +227,44 @@ async def get_claim(
     user: CurrentUser = Depends(get_current_user),
 ) -> ClaimDetails:
     gateway = FirebaseGateway(request)
-    claim = await accessible_claim(gateway, user.token, reference)
-    documents = await gateway.records("GET", "claim_documents", token=user.token, params={"claim_id": f"eq.{claim['id']}", "select": "*", "order": "created_at.asc"})
-    fields = await gateway.records("GET", "claim_extracted_fields", token=user.token, params={"claim_id": f"eq.{claim['id']}", "select": "*", "order": "created_at.asc"})
-    audit = await gateway.records("GET", "audit_events", token=user.token, params={"claim_id": f"eq.{claim['id']}", "select": "id,event_type,metadata,created_at,actor_id", "order": "created_at.desc", "limit": "100"})
+    claim = await accessible_claim(gateway, reference)
+    documents = await gateway.records(
+        "GET",
+        "claim_documents",
+        params={"claim_id": f"eq.{claim['id']}", "order": "created_at.asc"},
+    )
+    fields = await gateway.records(
+        "GET",
+        "claim_extracted_fields",
+        params={"claim_id": f"eq.{claim['id']}", "order": "created_at.asc"},
+    )
+    audit = await gateway.records(
+        "GET",
+        "audit_events",
+        params={
+            "claim_id": f"eq.{claim['id']}",
+            "order": "created_at.desc",
+            "limit": "100",
+        },
+    )
     grouped: dict[str, list[ExtractedField]] = {}
     for field in fields:
-        grouped.setdefault(field.get("document_id") or "", []).append(ExtractedField(**field))
+        grouped.setdefault(field.get("document_id") or "", []).append(
+            ExtractedField(**field)
+        )
     response_documents = []
     for document in documents:
-        signed_url = await gateway.signed_url(document["storage_path"], user.token)
-        response_documents.append(ClaimDocument(**document, signed_url=signed_url, fields=grouped.get(document["id"], [])))
-    return ClaimDetails(**summary(claim).model_dump(), documents=response_documents, audit_events=audit)
+        signed_url = await gateway.signed_url(document["storage_path"])
+        response_documents.append(
+            ClaimDocument(
+                **document,
+                signed_url=signed_url,
+                fields=grouped.get(document["id"], []),
+            )
+        )
+    return ClaimDetails(
+        **summary(claim).model_dump(), documents=response_documents, audit_events=audit
+    )
 
 
 @router.post("/{reference}/process", response_model=ProcessResult)
@@ -212,15 +274,23 @@ async def process(
     user: CurrentUser = Depends(get_current_user),
 ) -> ProcessResult:
     gateway = FirebaseGateway(request)
-    claim = await accessible_claim(gateway, user.token, reference)
+    claim = await accessible_claim(gateway, reference)
     if claim["status"] not in {"UPLOADED", "PROCESSING_FAILED"}:
-        raise HTTPException(status_code=409, detail="This claim is not available for processing.")
+        raise HTTPException(
+            status_code=409, detail="This claim is not available for processing."
+        )
     await gateway.acquire_processing(claim["id"])
     try:
         return await process_claim(gateway, claim, user.id)
     except Exception:
         # A failure before the processing job is created must release the claim.
-        await gateway.records('PATCH', 'claims', service=True, params={'id': f"eq.{claim['id']}"}, json={'status':'PROCESSING_FAILED'})
+        await gateway.records(
+            "PATCH",
+            "claims",
+            service=True,
+            params={"id": f"eq.{claim['id']}"},
+            json={"status": "PROCESSING_FAILED"},
+        )
         raise
 
 
@@ -232,7 +302,13 @@ async def confirm_claim(
     user: CurrentUser = Depends(get_current_user),
 ) -> dict[str, str]:
     gateway = FirebaseGateway(request)
-    claim = await accessible_claim(gateway, user.token, reference)
-    if user.profile.role != "client" or claim.get("client_id") != user.id or claim.get("status") != "UPLOADED":
-        raise HTTPException(status_code=403, detail="Only the claim owner can confirm this draft.")
+    claim = await accessible_claim(gateway, reference)
+    if (
+        user.profile.role != "client"
+        or claim.get("client_id") != user.id
+        or claim.get("status") != "UPLOADED"
+    ):
+        raise HTTPException(
+            status_code=403, detail="Only the claim owner can confirm this draft."
+        )
     return {"status": await gateway.confirm(claim["id"], payload)}
