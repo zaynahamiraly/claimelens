@@ -2,23 +2,24 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from decimal import Decimal
 from functools import lru_cache
 import uuid
 
 from fastapi import HTTPException
-from firebase_admin import credentials, firestore, initialize_app, storage
+from firebase_admin import credentials, firestore, initialize_app
 from google.cloud.firestore_v1.base_query import FieldFilter
 
 from .config import get_settings
+from .documents import document_store
 
 
 @lru_cache
 def firebase_app():
     settings = get_settings()
     credential = credentials.Certificate(settings.firebase_credentials) if settings.firebase_credentials else credentials.ApplicationDefault()
-    return initialize_app(credential, {'projectId': settings.firebase_project_id, 'storageBucket': settings.storage_bucket}, name='claimelens')
+    return initialize_app(credential, {'projectId': settings.firebase_project_id}, name='claimelens')
 
 
 def now():
@@ -144,28 +145,23 @@ class FirebaseGateway:
             return rows
         return await asyncio.to_thread(run)
 
-    def _bucket(self):
-        if not self.settings.storage_bucket:
-            raise HTTPException(503, 'Document storage is not configured yet.')
-        return storage.bucket(app=self.app)
-
     async def upload(self, path, content, content_type, token):
         if not path.startswith(self._user().id+'/'):
             raise HTTPException(403, 'Invalid document path.')
-        await asyncio.to_thread(self._bucket().blob(path).upload_from_string, content, content_type=content_type, if_generation_match=0)
+        await asyncio.to_thread(document_store().upload, path, content, content_type)
 
     async def download(self, path, *, service=True):
-        return await asyncio.to_thread(self._bucket().blob(path).download_as_bytes)
+        return await asyncio.to_thread(document_store().download, path)
 
     async def delete_objects(self, paths, token):
         for path in paths:
             if not path.startswith(self._user().id+'/'):
                 raise HTTPException(403, 'Invalid document path.')
-            await asyncio.to_thread(self._bucket().blob(path).delete)
+            await asyncio.to_thread(document_store().delete, path)
 
     async def signed_url(self, path, token, expires_in=300):
         # Called only after the claim route has authorized access to its documents.
-        return await asyncio.to_thread(self._bucket().blob(path).generate_signed_url, version='v4', expiration=timedelta(seconds=expires_in), method='GET')
+        return await asyncio.to_thread(document_store().signed_url, path, expires_in)
 
     async def acquire_processing(self, claim_id):
         user=self._user()

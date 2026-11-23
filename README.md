@@ -2,14 +2,14 @@
 
 Flutter Android app for submitting and tracking medical-insurance claims.
 Firebase Authentication manages accounts, Firestore stores claims and profiles,
-and private Firebase Storage holds uploaded documents. The Python FastAPI server
+and private local server storage holds uploaded documents without a billing plan. The Python FastAPI server
 enforces access permissions and runs PaddleOCR for images and scanned PDFs.
 
 ## Project structure
 
 - `mobile/claimlens_mobile`: Flutter application (Dart package `claimelens`).
 - `services/api`: authenticated API, Firestore persistence, and PaddleOCR.
-- `firebase`: deny-by-default database and document-storage rules.
+- `firebase`: deny-by-default Firestore rules.
 - `docs/mobile-architecture.md`: data flow, access controls, and migration notes.
 
 The Android application ID stays `ai.claimlens.claimlens_mobile` to update the
@@ -18,9 +18,10 @@ existing installed app. Its visible name and Dart package name are `claimelens`.
 ## Firebase project
 
 Project ID: **claimelens**. Email/password Authentication and the default Firestore
-database are configured. Firebase Storage requires the Blaze plan and a bucket;
-document uploads remain unavailable until those are configured. Billing is never
-activated by the setup scripts. See `services/api/README.md` for server setup.
+database are configured. Billing remains disabled. Documents are stored privately
+on the API computer under `DOCUMENT_STORAGE_PATH`; no Firebase Storage bucket is
+needed. Keep that folder and the API running for phone access. See
+`services/api/README.md` for server setup.
 
 The mobile app talks to the API using Dio; Firebase Admin credentials belong only
 on the server. No Firebase service-account key belongs in Flutter or GitHub.

@@ -117,7 +117,6 @@ async def create_claim(
 ) -> ClaimDetails:
     gateway = FirebaseGateway(request)
     settings = gateway.settings
-    gateway._bucket()  # Reject unconfigured storage before creating an empty draft.
     if not files or len(files) > settings.max_claim_documents:
         raise HTTPException(status_code=422, detail=f"Upload between 1 and {settings.max_claim_documents} documents.")
     prepared: list[tuple[UploadFile, bytes]] = []

@@ -1,6 +1,6 @@
 # claimelens mobile architecture
 
-Flutter -> FastAPI -> Firebase Authentication / Firestore / Firebase Storage.
+Flutter -> FastAPI -> Firebase Authentication / Firestore / private local files.
 FastAPI -> PaddleOCR -> extracted fields -> human correction -> claim confirmation.
 
 The app stores Firebase access/refresh tokens in platform secure storage. The API
@@ -22,7 +22,10 @@ packages to ten documents. Storage objects remain private. Document URLs are sig
 for five minutes only after a permitted claim read. Production must use HTTPS.
 
 Firebase project: `claimelens`; default Firestore location: `eur3`.
-Storage billing and bucket creation must be completed by the project owner.
+Billing stays disabled. Files are stored on the API computer under
+`DOCUMENT_STORAGE_PATH`. Download links use HMAC signatures and expire after five
+minutes. Files are not accessible through a static public directory. Back up the
+storage folder and keep it mounted persistently when deploying the API.
 Firebase credentials are server-only and stored outside Git.
 
 The earlier web platform, Supabase migrations, and research-only tooling were
