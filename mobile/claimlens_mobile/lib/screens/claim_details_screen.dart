@@ -329,6 +329,18 @@ class _ClaimDetailsScreenState extends State<ClaimDetailsScreen> {
                                         .toString()),
                               if (claim!.workflow['paid_at'] != null)
                                 _Value(
+                                    label: 'Payment reference',
+                                    value: claim!.workflow['payment_reference']
+                                            ?.toString() ??
+                                        'Not recorded'),
+                              if (claim!.workflow['payment_method'] != null)
+                                _Value(
+                                    label: 'Payment method',
+                                    value: friendlyLabel(claim!
+                                        .workflow['payment_method']
+                                        .toString())),
+                              if (claim!.workflow['paid_at'] != null)
+                                _Value(
                                     label: 'Paid',
                                     value: claim!.workflow['paid_at']
                                         .toString()
@@ -703,7 +715,7 @@ class _DocumentCard extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           subtitle: Text(
-            '${document.documentType.replaceAll('_', ' ')} Â· ${document.extractionStatus.replaceAll('_', ' ')}',
+            '${document.documentType.replaceAll('_', ' ')} · ${document.extractionStatus.replaceAll('_', ' ')}',
           ),
           childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           children: [

@@ -59,7 +59,12 @@ class _WorkspaceFormState extends State<_WorkspaceForm> {
   @override
   Widget build(BuildContext context) => Padding(
         padding: EdgeInsets.fromLTRB(
-            24, 24, 24, MediaQuery.viewInsetsOf(context).bottom + 24),
+            24,
+            24,
+            24,
+            MediaQuery.viewInsetsOf(context).bottom +
+                MediaQuery.paddingOf(context).bottom +
+                24),
         child: SingleChildScrollView(
             child: Form(
                 key: key,

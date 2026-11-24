@@ -13,10 +13,11 @@ from .routers import auth, claims, profile, workspace
 from .documents import router as documents_router
 from .routers.claim_tools import router as claim_tools_router
 from .push import router as push_router
+from .routers.chat import router as chat_router
 
 
 APP_NAME = "ClaimLens API"
-APP_VERSION = "1.1.0"
+APP_VERSION = "1.2.0"
 
 
 @asynccontextmanager
@@ -77,6 +78,7 @@ app.include_router(documents_router, prefix="/api/v1")
 app.include_router(workspace.router, prefix="/api/v1")
 app.include_router(claim_tools_router, prefix="/api/v1")
 app.include_router(push_router, prefix="/api/v1")
+app.include_router(chat_router, prefix="/api/v1")
 
 
 @app.get("/", tags=["service"])

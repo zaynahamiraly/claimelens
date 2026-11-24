@@ -44,7 +44,7 @@ The earlier 78-test run and the current targeted reruns are distinct checkpoints
 ## Scope still requiring further acceptance testing
 
 - Actual camera capture and selecting a real gallery image, including permission denial/regrant, were not performed. Cancellation was tested; generated-image OCR was tested through the API.
-- Upload interruption halfway through a multipart transfer, simultaneous actions on multiple physical devices, long-duration load and device-specific battery/background behavior need additional coverage. Retrying a completed upload is not evidence for every partial-upload failure.
+- Public multipart interruption/retry and the staff phone hand-off were subsequently checked; see `chat-workflow-qa-2026-11-24.md`. Server-process failure, simultaneous actions on multiple physical devices, long-duration load and device-specific battery/background behavior still need additional coverage.
 - OCR quality on representative insurer documents and poor-quality photographs requires a labeled evaluation dataset. Synthetic test results are not an accuracy benchmark.
 - Expense categories such as hospital/pharmacy/doctor are not yet a dedicated editable taxonomy. Multiple documents and independent claims work, but grouping rules and coverage rules must be agreed with the insurer.
 - Permanent hosting, production signing, provider MFA and real banking integration are not certified by these tests. The temporary API connection depends on the computer remaining online.

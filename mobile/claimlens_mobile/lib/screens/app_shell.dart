@@ -11,6 +11,7 @@ import 'profile_screen.dart';
 import 'workspace_screens.dart';
 import '../services/push_service.dart';
 import 'claim_details_screen.dart';
+import 'chat_screen.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -61,6 +62,7 @@ class _AppShellState extends State<AppShell> {
   Widget build(BuildContext context) {
     final user = context.watch<AuthProvider>().user!;
     final client = user.isClient;
+    final chat = canUseChat(user.role);
     pages.putIfAbsent(
         index,
         () => switch (index) {
@@ -68,10 +70,9 @@ class _AppShellState extends State<AppShell> {
               1 => const HistoryScreen(),
               2 => client
                   ? const NotificationsScreen()
-                  : HistoryScreen(
-                      reviewOnly: !user.isFinance,
-                      initialStatus: user.isFinance ? 'PAYMENT_PENDING' : null),
-              _ => client ? const ProfileScreen() : const WorkspaceMenuScreen()
+                  : HistoryScreen(reviewOnly: !user.isFinance),
+              3 => client ? const ProfileScreen() : const WorkspaceMenuScreen(),
+              _ => const SizedBox.shrink(),
             });
     return Scaffold(
       appBar: index == 0
@@ -112,8 +113,11 @@ class _AppShellState extends State<AppShell> {
           : null,
       body: IndexedStack(
           index: index,
-          children:
-              List.generate(4, (i) => pages[i] ?? const SizedBox.shrink())),
+          children: List.generate(
+              chat ? 5 : 4,
+              (i) => i == 4
+                  ? ChatInboxScreen(active: index == 4)
+                  : pages[i] ?? const SizedBox.shrink())),
       floatingActionButton: client && index < 2
           ? FloatingActionButton.extended(
               onPressed: () async {
@@ -156,7 +160,12 @@ class _AppShellState extends State<AppShell> {
             NavigationDestination(
                 icon: Icon(
                     client ? Icons.person_outline : Icons.grid_view_outlined),
-                label: client ? 'Account' : 'Workspace')
+                label: client ? 'Account' : 'Workspace'),
+            if (chat)
+              const NavigationDestination(
+                  icon: Icon(Icons.chat_bubble_outline),
+                  selectedIcon: Icon(Icons.chat_bubble),
+                  label: 'Chats'),
           ]),
     );
   }

@@ -6,6 +6,8 @@ For detailed implementation questions, attach **ClaimLens_Source_Reference.md** 
 
 **verification-results.json** records the latest known verification status, including incomplete checks. These files describe a working-tree snapshot; they do not certify a production release. Use your own evaluation dataset, results, screenshots, institutional formatting and academic references in the final dissertation. Fill the academic placeholders in the handbook.
 
+Version 1.2 adds **ClaimLens_Support_Chat_Guide.md** and **ClaimLens_Chat_Workflow_QA.md**, covering shared client conversations, permissions, send recovery, interrupted uploads and the physical staff hand-off. **ClaimLens_QA_Report.md** preserves the earlier testing checkpoint.
+
 Regenerate from the repository root using the API Python environment:
 
 ```powershell

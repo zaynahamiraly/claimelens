@@ -16,7 +16,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
-COLLECTIONS = ['profiles', 'claims', 'claim_documents', 'claim_extracted_fields', 'claim_processing_jobs', 'processing_queue', 'document_fingerprints', 'claim_information_requests', 'claim_appeals', 'audit_events', 'notifications', 'configuration']
+COLLECTIONS = ['profiles', 'claims', 'claim_documents', 'claim_extracted_fields', 'claim_processing_jobs', 'processing_queue', 'document_fingerprints', 'claim_information_requests', 'claim_appeals', 'audit_events', 'notifications', 'configuration', 'support_threads', 'support_messages', 'support_message_requests']
 MAGIC = b'CLB1'
 
 

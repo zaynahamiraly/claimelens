@@ -136,23 +136,34 @@
   },
   {
     "path": "mobile/claimlens_mobile/lib/screens/app_shell.dart",
-    "lines": 163,
-    "sha256": "0e7890eb815e81421c39ddaa2e5793b7c437ab68c2ee2574e8d00dce52f9dad7",
+    "lines": 172,
+    "sha256": "770d346cdcbba8b363b684860959f7f9591d0de1076a9ad211169379202fb43a",
     "symbols": [
-      "`AppShell`: L15",
-      "`_AppShellState`: L21"
+      "`AppShell`: L16",
+      "`_AppShellState`: L22"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/screens/chat_screen.dart",
+    "lines": 538,
+    "sha256": "6892b69009d7fa5ba5a0fff9b248cbcd4e9a9a16f914686250a53d21ee29a8c1",
+    "symbols": [
+      "`ChatInboxScreen`: L26",
+      "`_ChatInboxScreenState`: L33",
+      "`ChatThreadScreen`: L218",
+      "`_ChatThreadScreenState`: L225"
     ]
   },
   {
     "path": "mobile/claimlens_mobile/lib/screens/claim_details_screen.dart",
-    "lines": 749,
-    "sha256": "742ed89f8288c126505c3bec4194cca95320ab8f4dade2a42f5c9ce7aac4478b",
+    "lines": 761,
+    "sha256": "1c482a41669368ac68a4af12e321d90c8ab1fc4a921e056133cc4dca6806489c",
     "symbols": [
       "`ClaimDetailsScreen`: L19",
       "`_ClaimDetailsScreenState`: L31",
-      "`_ProgressTimeline`: L603",
-      "`_Value`: L660",
-      "`_DocumentCard`: L691"
+      "`_ProgressTimeline`: L615",
+      "`_Value`: L672",
+      "`_DocumentCard`: L703"
     ]
   },
   {
@@ -291,8 +302,8 @@
   },
   {
     "path": "mobile/claimlens_mobile/lib/screens/staff_review_screen.dart",
-    "lines": 217,
-    "sha256": "3c566b0ee490b2fe102d782b8d7e48bcccb64ceaa1f0c85ccd4f9294b5aa1c94",
+    "lines": 233,
+    "sha256": "7309e08e0c9fd5ca98604fff66589d4f83e968872c76c7bbf63964c97cf09642",
     "symbols": [
       "`StaffReviewScreen`: L7",
       "`_StaffReviewScreenState`: L14"
@@ -394,8 +405,8 @@
   },
   {
     "path": "mobile/claimlens_mobile/lib/widgets/workspace_form.dart",
-    "lines": 158,
-    "sha256": "9a05bb52ae21b5212d0c98278091e62ed6153dfee763d089524c493c71a3859c",
+    "lines": 163,
+    "sha256": "dc68b01a902db276749e377aa7e8b5269908829d8a8a89bee80bf8c80c853e09",
     "symbols": [
       "`FormEntry`: L5",
       "`_WorkspaceForm`: L37",
@@ -405,7 +416,7 @@
   {
     "path": "mobile/claimlens_mobile/pubspec.yaml",
     "lines": 29,
-    "sha256": "248239f6e37ecd90a892ce0f25f3c9b326e06400f5e19185d1e46d2f77bb5f2a",
+    "sha256": "f139f66b81f4085b3dfabfa41fd51c964d097aac015e4a4f1b5defa7e22e1748",
     "symbols": []
   },
   {
@@ -417,7 +428,7 @@
   {
     "path": "services/api/app/backups.py",
     "lines": 157,
-    "sha256": "f3de010c725f97714f20584ca9697162efd436688b0649c782961c376a27668c",
+    "sha256": "5aeae9fc5bf8040a01fd2f5374f5346936bd5c4615ce28261decc49adef28925",
     "symbols": [
       "`derive`: L23\u2013L26",
       "`create_backup`: L29\u2013L55",
@@ -524,13 +535,13 @@
   },
   {
     "path": "services/api/app/main.py",
-    "lines": 97,
-    "sha256": "7dc6fd15347171d0307d9c2d9d06ad300e543397f2736c88a080f30fb5676c87",
+    "lines": 99,
+    "sha256": "651370312a46157e4fbdce6047dd61f7699e8ba4faabcd3eadee3f24ada3c932",
     "symbols": [
-      "`lifespan`: L23\u2013L46",
-      "`validation_error`: L59\u2013L61",
-      "`root`: L83\u2013L88",
-      "`health_check`: L92\u2013L97"
+      "`lifespan`: L24\u2013L47",
+      "`validation_error`: L60\u2013L62",
+      "`root`: L85\u2013L90",
+      "`health_check`: L94\u2013L99"
     ]
   },
   {
@@ -603,6 +614,32 @@
       "`forgot_password`: L129\u2013L141",
       "`logout`: L145\u2013L147",
       "`send_verification`: L151\u2013L159"
+    ]
+  },
+  {
+    "path": "services/api/app/routers/chat.py",
+    "lines": 359,
+    "sha256": "3c9d609eeb77431ebe957615b4411c965c1d99098fee91848bf2b021e8aa81cc",
+    "symbols": [
+      "`allowed`: L18\u2013L22",
+      "`membership`: L25\u2013L30",
+      "`visible`: L33\u2013L45",
+      "`NewConversation`: L48\u2013L56",
+      "`NewMessage`: L59\u2013L68",
+      "`ReadMessages`: L71\u2013L72",
+      "`thread_reference`: L75\u2013L78",
+      "`create_conversation`: L82\u2013L116",
+      "`conversations`: L120\u2013L164",
+      "`messages`: L168\u2013L218",
+      "`send_message`: L222\u2013L321",
+      "`mark_read`: L325\u2013L359",
+      "`clean`: L53\u2013L56",
+      "`clean`: L65\u2013L68",
+      "`create`: L97\u2013L114",
+      "`load`: L129\u2013L162",
+      "`load`: L182\u2013L216",
+      "`send`: L247\u2013L319",
+      "`read`: L336\u2013L357"
     ]
   },
   {

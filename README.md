@@ -9,6 +9,12 @@ administrator workflows. It does not require the former Vercel website to run.
 
 ## Mobile workspace
 
+ClaimLens 1.2 includes **Chats**: clients can ask questions in their own support
+conversation; administrators, supervisors and claims officers share the inbox and
+can see each reply's author, role and timestamp. Conversations have unread counts,
+history pagination and safe send retries. See [the chat guide](docs/support-chat.md)
+and [device/integration verification](docs/chat-workflow-qa-2026-11-24.md).
+
 | Account | Available options |
 | --- | --- |
 | Client | Sign up, upload/camera/gallery, confirm extracted evidence, search/filter claims, follow progress, answer information requests with files, read notifications, edit profile and change password |

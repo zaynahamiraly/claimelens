@@ -2,7 +2,7 @@
 
 Generated from the local working tree. This is an implementation reference, not evidence of production deployment.
 
-Parent Git revision: `40dde30776b365fde028e887de7c06656606d915`. Working-tree changes may be newer; SHA-256 hashes below identify the exact files.
+Parent Git revision: `d296b144386436e270d8f1496429cb1abe6cda5d`. Working-tree changes may be newer; SHA-256 hashes below identify the exact files.
 
 Read ClaimLens_Project_Portfolio.md first. Source lines are exact UTF-8 text, prefixed with line numbers. Private environment files, service-account keys, SDK client configuration, runtime data, uploads and test credentials are excluded. Use this reference to explain code; never infer unimplemented features from function names.
 
@@ -1049,9 +1049,9 @@ Symbols: `ClaimsProvider`: L7
 
 ## mobile/claimlens_mobile/lib/screens/app_shell.dart
 
-163 lines. SHA-256: `0e7890eb815e81421c39ddaa2e5793b7c437ab68c2ee2574e8d00dce52f9dad7`.
+172 lines. SHA-256: `770d346cdcbba8b363b684860959f7f9591d0de1076a9ad211169379202fb43a`.
 
-Symbols: `AppShell`: L15; `_AppShellState`: L21
+Symbols: `AppShell`: L16; `_AppShellState`: L22
 
 ```dart
 0001 | import 'dart:async';
@@ -1067,163 +1067,719 @@ Symbols: `AppShell`: L15; `_AppShellState`: L21
 0011 | import 'workspace_screens.dart';
 0012 | import '../services/push_service.dart';
 0013 | import 'claim_details_screen.dart';
-0014 |
-0015 | class AppShell extends StatefulWidget {
-0016 |   const AppShell({super.key});
-0017 |   @override
-0018 |   State<AppShell> createState() => _AppShellState();
-0019 | }
-0020 |
-0021 | class _AppShellState extends State<AppShell> {
-0022 |   int index = 0, unread = 0;
-0023 |   Timer? timer;
-0024 |   PushService? push;
-0025 |   final Map<int, Widget> pages = {};
-0026 |   @override
-0027 |   void initState() {
-0028 |     super.initState();
-0029 |     refreshBadge();
-0030 |     push = PushService(context.read<AuthProvider>().client);
-0031 |     push!.initialise(onOpen: (reference) {
-0032 |       if (mounted) {
-0033 |         Navigator.push(
-0034 |             context,
-0035 |             MaterialPageRoute(
-0036 |                 builder: (_) => ClaimDetailsScreen(reference: reference)));
-0037 |       }
-0038 |     });
-0039 |     timer = Timer.periodic(const Duration(seconds: 30), (_) => refreshBadge());
-0040 |   }
-0041 |
-0042 |   Future<void> refreshBadge() async {
-0043 |     try {
-0044 |       final result =
-0045 |           await workspaceApi(context).get<List<dynamic>>('/notifications');
-0046 |       if (mounted) {
-0047 |         setState(
-0048 |             () => unread = result.data!.where((r) => r['read'] != true).length);
+0014 | import 'chat_screen.dart';
+0015 |
+0016 | class AppShell extends StatefulWidget {
+0017 |   const AppShell({super.key});
+0018 |   @override
+0019 |   State<AppShell> createState() => _AppShellState();
+0020 | }
+0021 |
+0022 | class _AppShellState extends State<AppShell> {
+0023 |   int index = 0, unread = 0;
+0024 |   Timer? timer;
+0025 |   PushService? push;
+0026 |   final Map<int, Widget> pages = {};
+0027 |   @override
+0028 |   void initState() {
+0029 |     super.initState();
+0030 |     refreshBadge();
+0031 |     push = PushService(context.read<AuthProvider>().client);
+0032 |     push!.initialise(onOpen: (reference) {
+0033 |       if (mounted) {
+0034 |         Navigator.push(
+0035 |             context,
+0036 |             MaterialPageRoute(
+0037 |                 builder: (_) => ClaimDetailsScreen(reference: reference)));
+0038 |       }
+0039 |     });
+0040 |     timer = Timer.periodic(const Duration(seconds: 30), (_) => refreshBadge());
+0041 |   }
+0042 |
+0043 |   Future<void> refreshBadge() async {
+0044 |     try {
+0045 |       final result =
+0046 |           await workspaceApi(context).get<List<dynamic>>('/notifications');
+0047 |       if (mounted) {
+0048 |         setState(
+0049 |             () => unread = result.data!.where((r) => r['read'] != true).length);
+0050 |       }
+0051 |     } catch (_) {/* The notifications page provides errors and retry. */}
+0052 |   }
+0053 |
+0054 |   @override
+0055 |   void dispose() {
+0056 |     timer?.cancel();
+0057 |     push?.dispose();
+0058 |     super.dispose();
+0059 |   }
+0060 |
+0061 |   @override
+0062 |   Widget build(BuildContext context) {
+0063 |     final user = context.watch<AuthProvider>().user!;
+0064 |     final client = user.isClient;
+0065 |     final chat = canUseChat(user.role);
+0066 |     pages.putIfAbsent(
+0067 |         index,
+0068 |         () => switch (index) {
+0069 |               0 => const DashboardScreen(),
+0070 |               1 => const HistoryScreen(),
+0071 |               2 => client
+0072 |                   ? const NotificationsScreen()
+0073 |                   : HistoryScreen(reviewOnly: !user.isFinance),
+0074 |               3 => client ? const ProfileScreen() : const WorkspaceMenuScreen(),
+0075 |               _ => const SizedBox.shrink(),
+0076 |             });
+0077 |     return Scaffold(
+0078 |       appBar: index == 0
+0079 |           ? AppBar(
+0080 |               title: Row(children: [
+0081 |                 const ClaimLensLogo(size: 28),
+0082 |                 const SizedBox(width: 10),
+0083 |                 const Flexible(
+0084 |                     child: Text('ClaimLens',
+0085 |                         overflow: TextOverflow.ellipsis,
+0086 |                         style: TextStyle(fontWeight: FontWeight.w900)))
+0087 |               ]),
+0088 |               actions: [
+0089 |                   if (MediaQuery.sizeOf(context).width >= 390 &&
+0090 |                       MediaQuery.textScalerOf(context).scale(14) < 20)
+0091 |                     Tooltip(
+0092 |                         message: friendlyLabel(user.role),
+0093 |                         child: Chip(
+0094 |                             label: Text(
+0095 |                                 client ? 'Client' : friendlyLabel(user.role),
+0096 |                                 style:
+0097 |                                     Theme.of(context).textTheme.labelSmall))),
+0098 |                   IconButton(
+0099 |                       tooltip: 'Notifications',
+0100 |                       icon: Badge(
+0101 |                           isLabelVisible:
+0102 |                               unread > 0 && user.notificationsEnabled,
+0103 |                           label: Text('$unread'),
+0104 |                           child: const Icon(Icons.notifications_outlined)),
+0105 |                       onPressed: () async {
+0106 |                         await Navigator.push(
+0107 |                             context,
+0108 |                             MaterialPageRoute(
+0109 |                                 builder: (_) => const NotificationsScreen()));
+0110 |                         await refreshBadge();
+0111 |                       })
+0112 |                 ])
+0113 |           : null,
+0114 |       body: IndexedStack(
+0115 |           index: index,
+0116 |           children: List.generate(
+0117 |               chat ? 5 : 4,
+0118 |               (i) => i == 4
+0119 |                   ? ChatInboxScreen(active: index == 4)
+0120 |                   : pages[i] ?? const SizedBox.shrink())),
+0121 |       floatingActionButton: client && index < 2
+0122 |           ? FloatingActionButton.extended(
+0123 |               onPressed: () async {
+0124 |                 await Navigator.push(context,
+0125 |                     MaterialPageRoute(builder: (_) => const NewClaimScreen()));
+0126 |                 if (mounted) {
+0127 |                   setState(() {
+0128 |                     pages.remove(0);
+0129 |                     pages.remove(1);
+0130 |                   });
+0131 |                 }
+0132 |               },
+0133 |               icon: const Icon(Icons.add),
+0134 |               label: const Text('New claim'))
+0135 |           : null,
+0136 |       bottomNavigationBar: NavigationBar(
+0137 |           selectedIndex: index,
+0138 |           onDestinationSelected: (v) => setState(() {
+0139 |                 index = v;
+0140 |                 pages.remove(v);
+0141 |               }),
+0142 |           destinations: [
+0143 |             const NavigationDestination(
+0144 |                 icon: Icon(Icons.space_dashboard_outlined),
+0145 |                 selectedIcon: Icon(Icons.space_dashboard),
+0146 |                 label: 'Overview'),
+0147 |             const NavigationDestination(
+0148 |                 icon: Icon(Icons.folder_outlined),
+0149 |                 selectedIcon: Icon(Icons.folder),
+0150 |                 label: 'Claims'),
+0151 |             NavigationDestination(
+0152 |                 icon: Icon(client
+0153 |                     ? Icons.notifications_outlined
+0154 |                     : Icons.fact_check_outlined),
+0155 |                 label: client
+0156 |                     ? 'Updates'
+0157 |                     : user.isFinance
+0158 |                         ? 'Payments'
+0159 |                         : 'Review'),
+0160 |             NavigationDestination(
+0161 |                 icon: Icon(
+0162 |                     client ? Icons.person_outline : Icons.grid_view_outlined),
+0163 |                 label: client ? 'Account' : 'Workspace'),
+0164 |             if (chat)
+0165 |               const NavigationDestination(
+0166 |                   icon: Icon(Icons.chat_bubble_outline),
+0167 |                   selectedIcon: Icon(Icons.chat_bubble),
+0168 |                   label: 'Chats'),
+0169 |           ]),
+0170 |     );
+0171 |   }
+0172 | }
+```
+
+## mobile/claimlens_mobile/lib/screens/chat_screen.dart
+
+538 lines. SHA-256: `6892b69009d7fa5ba5a0fff9b248cbcd4e9a9a16f914686250a53d21ee29a8c1`.
+
+Symbols: `ChatInboxScreen`: L26; `_ChatInboxScreenState`: L33; `ChatThreadScreen`: L218; `_ChatThreadScreenState`: L225
+
+```dart
+0001 | import 'dart:async';
+0002 | import 'dart:math';
+0003 | import 'package:dio/dio.dart';
+0004 | import 'package:flutter/material.dart';
+0005 | import 'package:provider/provider.dart';
+0006 | import '../providers/auth_provider.dart';
+0007 | import '../services/api_client.dart';
+0008 | import '../services/workspace_service.dart';
+0009 |
+0010 | bool canUseChat(String role) =>
+0011 |     ['client', 'administrator', 'supervisor', 'claims_officer'].contains(role);
+0012 |
+0013 | String chatTime(dynamic value) {
+0014 |   final date = DateTime.tryParse(value?.toString() ?? '')?.toLocal();
+0015 |   if (date == null) return '';
+0016 |   final today = DateTime.now();
+0017 |   final time =
+0018 |       '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+0019 |   return date.year == today.year &&
+0020 |           date.month == today.month &&
+0021 |           date.day == today.day
+0022 |       ? time
+0023 |       : '${date.day}/${date.month}/${date.year} $time';
+0024 | }
+0025 |
+0026 | class ChatInboxScreen extends StatefulWidget {
+0027 |   const ChatInboxScreen({super.key, this.active = true});
+0028 |   final bool active;
+0029 |   @override
+0030 |   State<ChatInboxScreen> createState() => _ChatInboxScreenState();
+0031 | }
+0032 |
+0033 | class _ChatInboxScreenState extends State<ChatInboxScreen>
+0034 |     with WidgetsBindingObserver {
+0035 |   final List<Map<String, dynamic>> rows = [];
+0036 |   String? cursor, error;
+0037 |   bool loading = false, ready = false, creating = false, resumed = true;
+0038 |   Timer? timer;
+0039 |   @override
+0040 |   void initState() {
+0041 |     super.initState();
+0042 |     WidgetsBinding.instance.addObserver(this);
+0043 |     if (widget.active) load();
+0044 |     timer = Timer.periodic(const Duration(seconds: 15), (_) {
+0045 |       if (widget.active &&
+0046 |           resumed &&
+0047 |           ModalRoute.of(context)?.isCurrent == true) {
+0048 |         load();
 0049 |       }
-0050 |     } catch (_) {/* The notifications page provides errors and retry. */}
+0050 |     });
 0051 |   }
 0052 |
 0053 |   @override
-0054 |   void dispose() {
-0055 |     timer?.cancel();
-0056 |     push?.dispose();
-0057 |     super.dispose();
-0058 |   }
-0059 |
-0060 |   @override
-0061 |   Widget build(BuildContext context) {
-0062 |     final user = context.watch<AuthProvider>().user!;
-0063 |     final client = user.isClient;
-0064 |     pages.putIfAbsent(
-0065 |         index,
-0066 |         () => switch (index) {
-0067 |               0 => const DashboardScreen(),
-0068 |               1 => const HistoryScreen(),
-0069 |               2 => client
-0070 |                   ? const NotificationsScreen()
-0071 |                   : HistoryScreen(
-0072 |                       reviewOnly: !user.isFinance,
-0073 |                       initialStatus: user.isFinance ? 'PAYMENT_PENDING' : null),
-0074 |               _ => client ? const ProfileScreen() : const WorkspaceMenuScreen()
-0075 |             });
-0076 |     return Scaffold(
-0077 |       appBar: index == 0
-0078 |           ? AppBar(
-0079 |               title: Row(children: [
-0080 |                 const ClaimLensLogo(size: 28),
-0081 |                 const SizedBox(width: 10),
-0082 |                 const Flexible(
-0083 |                     child: Text('ClaimLens',
-0084 |                         overflow: TextOverflow.ellipsis,
-0085 |                         style: TextStyle(fontWeight: FontWeight.w900)))
-0086 |               ]),
-0087 |               actions: [
-0088 |                   if (MediaQuery.sizeOf(context).width >= 390 &&
-0089 |                       MediaQuery.textScalerOf(context).scale(14) < 20)
-0090 |                     Tooltip(
-0091 |                         message: friendlyLabel(user.role),
-0092 |                         child: Chip(
-0093 |                             label: Text(
-0094 |                                 client ? 'Client' : friendlyLabel(user.role),
-0095 |                                 style:
-0096 |                                     Theme.of(context).textTheme.labelSmall))),
-0097 |                   IconButton(
-0098 |                       tooltip: 'Notifications',
-0099 |                       icon: Badge(
-0100 |                           isLabelVisible:
-0101 |                               unread > 0 && user.notificationsEnabled,
-0102 |                           label: Text('$unread'),
-0103 |                           child: const Icon(Icons.notifications_outlined)),
-0104 |                       onPressed: () async {
-0105 |                         await Navigator.push(
-0106 |                             context,
-0107 |                             MaterialPageRoute(
-0108 |                                 builder: (_) => const NotificationsScreen()));
-0109 |                         await refreshBadge();
-0110 |                       })
-0111 |                 ])
-0112 |           : null,
-0113 |       body: IndexedStack(
-0114 |           index: index,
-0115 |           children:
-0116 |               List.generate(4, (i) => pages[i] ?? const SizedBox.shrink())),
-0117 |       floatingActionButton: client && index < 2
-0118 |           ? FloatingActionButton.extended(
-0119 |               onPressed: () async {
-0120 |                 await Navigator.push(context,
-0121 |                     MaterialPageRoute(builder: (_) => const NewClaimScreen()));
-0122 |                 if (mounted) {
-0123 |                   setState(() {
-0124 |                     pages.remove(0);
-0125 |                     pages.remove(1);
-0126 |                   });
-0127 |                 }
-0128 |               },
-0129 |               icon: const Icon(Icons.add),
-0130 |               label: const Text('New claim'))
-0131 |           : null,
-0132 |       bottomNavigationBar: NavigationBar(
-0133 |           selectedIndex: index,
-0134 |           onDestinationSelected: (v) => setState(() {
-0135 |                 index = v;
-0136 |                 pages.remove(v);
-0137 |               }),
-0138 |           destinations: [
-0139 |             const NavigationDestination(
-0140 |                 icon: Icon(Icons.space_dashboard_outlined),
-0141 |                 selectedIcon: Icon(Icons.space_dashboard),
-0142 |                 label: 'Overview'),
-0143 |             const NavigationDestination(
-0144 |                 icon: Icon(Icons.folder_outlined),
-0145 |                 selectedIcon: Icon(Icons.folder),
-0146 |                 label: 'Claims'),
-0147 |             NavigationDestination(
-0148 |                 icon: Icon(client
-0149 |                     ? Icons.notifications_outlined
-0150 |                     : Icons.fact_check_outlined),
-0151 |                 label: client
-0152 |                     ? 'Updates'
-0153 |                     : user.isFinance
-0154 |                         ? 'Payments'
-0155 |                         : 'Review'),
-0156 |             NavigationDestination(
-0157 |                 icon: Icon(
-0158 |                     client ? Icons.person_outline : Icons.grid_view_outlined),
-0159 |                 label: client ? 'Account' : 'Workspace')
-0160 |           ]),
-0161 |     );
-0162 |   }
-0163 | }
+0054 |   void didUpdateWidget(ChatInboxScreen oldWidget) {
+0055 |     super.didUpdateWidget(oldWidget);
+0056 |     if (widget.active && !oldWidget.active) load();
+0057 |   }
+0058 |
+0059 |   @override
+0060 |   void didChangeAppLifecycleState(AppLifecycleState state) {
+0061 |     resumed = state == AppLifecycleState.resumed;
+0062 |     if (resumed && widget.active) load();
+0063 |   }
+0064 |
+0065 |   Future<void> load({bool more = false}) async {
+0066 |     if (loading || !mounted || context.read<AuthProvider>().locked) return;
+0067 |     setState(() => loading = true);
+0068 |     try {
+0069 |       final response = await workspaceApi(context).get<Map<String, dynamic>>(
+0070 |           '/chat/conversations',
+0071 |           queryParameters: {if (more && cursor != null) 'before': cursor});
+0072 |       if (!mounted) return;
+0073 |       final incoming = (response.data!['conversations'] as List)
+0074 |           .map((x) => Map<String, dynamic>.from(x as Map))
+0075 |           .toList();
+0076 |       setState(() {
+0077 |         if (!more) rows.clear();
+0078 |         for (final row in incoming) {
+0079 |           rows.removeWhere((old) => old['id'] == row['id']);
+0080 |           rows.add(row);
+0081 |         }
+0082 |         cursor = response.data!['next_before'] as String?;
+0083 |         error = null;
+0084 |         ready = true;
+0085 |       });
+0086 |     } catch (e) {
+0087 |       if (mounted) setState(() => error = readableApiError(e));
+0088 |     } finally {
+0089 |       if (mounted) setState(() => loading = false);
+0090 |     }
+0091 |   }
+0092 |
+0093 |   Future<void> open(Map<String, dynamic> row) async {
+0094 |     await Navigator.push(context,
+0095 |         MaterialPageRoute(builder: (_) => ChatThreadScreen(conversation: row)));
+0096 |     if (mounted) await load();
+0097 |   }
+0098 |
+0099 |   Future<void> start() async {
+0100 |     if (creating) return;
+0101 |     setState(() => creating = true);
+0102 |     try {
+0103 |       final response = await workspaceApi(context).post<Map<String, dynamic>>(
+0104 |           '/chat/conversations',
+0105 |           data: {'subject': 'Claim questions'});
+0106 |       if (mounted) await open(response.data!);
+0107 |     } catch (e) {
+0108 |       if (mounted) setState(() => error = readableApiError(e));
+0109 |     } finally {
+0110 |       if (mounted) setState(() => creating = false);
+0111 |     }
+0112 |   }
+0113 |
+0114 |   @override
+0115 |   void dispose() {
+0116 |     timer?.cancel();
+0117 |     WidgetsBinding.instance.removeObserver(this);
+0118 |     super.dispose();
+0119 |   }
+0120 |
+0121 |   @override
+0122 |   Widget build(BuildContext context) {
+0123 |     final client = context.watch<AuthProvider>().user!.isClient;
+0124 |     return Scaffold(
+0125 |       appBar: AppBar(title: const Text('Chats'), actions: [
+0126 |         IconButton(
+0127 |             tooltip: 'Refresh conversations',
+0128 |             onPressed: loading ? null : load,
+0129 |             icon: const Icon(Icons.refresh)),
+0130 |       ]),
+0131 |       body: RefreshIndicator(
+0132 |           onRefresh: load,
+0133 |           child: ListView(
+0134 |             physics: const AlwaysScrollableScrollPhysics(),
+0135 |             padding: EdgeInsets.fromLTRB(
+0136 |                 16, 12, 16, 100 + MediaQuery.paddingOf(context).bottom),
+0137 |             children: [
+0138 |               Text(client ? 'Ask your support team' : 'Shared support inbox',
+0139 |                   style: Theme.of(context).textTheme.headlineSmall),
+0140 |               const SizedBox(height: 8),
+0141 |               Text(client
+0142 |                   ? 'Only you and the support team can view your conversation. Include your claim reference when asking about a claim.'
+0143 |                   : 'Administrators, supervisors and claims officers can follow and reply to client conversations. Every message identifies its author.'),
+0144 |               if (loading && !ready)
+0145 |                 const Padding(
+0146 |                     padding: EdgeInsets.all(24),
+0147 |                     child: Center(child: CircularProgressIndicator())),
+0148 |               if (error != null) ...[
+0149 |                 const SizedBox(height: 12),
+0150 |                 Text(error!,
+0151 |                     style:
+0152 |                         TextStyle(color: Theme.of(context).colorScheme.error)),
+0153 |                 TextButton.icon(
+0154 |                     onPressed: () => load(),
+0155 |                     icon: const Icon(Icons.refresh),
+0156 |                     label: const Text('Retry conversations')),
+0157 |               ],
+0158 |               if (ready && rows.isEmpty)
+0159 |                 Padding(
+0160 |                     padding: const EdgeInsets.symmetric(vertical: 32),
+0161 |                     child: Text(client
+0162 |                         ? 'No messages yet. Start a conversation with your support team.'
+0163 |                         : 'No client conversations yet. New requests will appear here.')),
+0164 |               const SizedBox(height: 12),
+0165 |               for (final row in rows)
+0166 |                 Card(
+0167 |                     child: ListTile(
+0168 |                   contentPadding: const EdgeInsets.all(16),
+0169 |                   leading: CircleAvatar(
+0170 |                       child: Icon(
+0171 |                           client ? Icons.support_agent : Icons.person_outline)),
+0172 |                   title: Text(client
+0173 |                       ? 'ClaimLens support'
+0174 |                       : row['client_name']?.toString() ?? 'Client'),
+0175 |                   subtitle: Column(
+0176 |                       crossAxisAlignment: CrossAxisAlignment.start,
+0177 |                       children: [
+0178 |                         Text(row['subject']?.toString() ?? 'Claim questions'),
+0179 |                         const SizedBox(height: 4),
+0180 |                         Text(
+0181 |                             row['last_message']?.toString().isNotEmpty == true
+0182 |                                 ? '${row['last_sender_name'] ?? ''}: ${row['last_message']}'
+0183 |                                 : 'Start the conversation',
+0184 |                             maxLines: 2,
+0185 |                             overflow: TextOverflow.ellipsis),
+0186 |                         Text(chatTime(row['updated_at']),
+0187 |                             style: Theme.of(context).textTheme.labelSmall),
+0188 |                       ]),
+0189 |                   trailing: (row['unread_count'] as num? ?? 0) > 0
+0190 |                       ? Badge(
+0191 |                           label: Text('${row['unread_count']}'),
+0192 |                           child: const Icon(Icons.chat_bubble_outline))
+0193 |                       : const Icon(Icons.chevron_right),
+0194 |                   onTap: () => open(row),
+0195 |                 )),
+0196 |               if (cursor != null)
+0197 |                 TextButton(
+0198 |                     onPressed: loading ? null : () => load(more: true),
+0199 |                     child: const Text('Load older conversations')),
+0200 |             ],
+0201 |           )),
+0202 |       floatingActionButton: client
+0203 |           ? FloatingActionButton.extended(
+0204 |               onPressed: creating ? null : start,
+0205 |               icon: creating
+0206 |                   ? const SizedBox.square(
+0207 |                       dimension: 20,
+0208 |                       child: CircularProgressIndicator(strokeWidth: 2))
+0209 |                   : const Icon(Icons.chat_outlined),
+0210 |               label:
+0211 |                   Text(rows.isEmpty ? 'Ask a question' : 'Open support chat'),
+0212 |             )
+0213 |           : null,
+0214 |     );
+0215 |   }
+0216 | }
+0217 |
+0218 | class ChatThreadScreen extends StatefulWidget {
+0219 |   const ChatThreadScreen({super.key, required this.conversation});
+0220 |   final Map<String, dynamic> conversation;
+0221 |   @override
+0222 |   State<ChatThreadScreen> createState() => _ChatThreadScreenState();
+0223 | }
+0224 |
+0225 | class _ChatThreadScreenState extends State<ChatThreadScreen>
+0226 |     with WidgetsBindingObserver {
+0227 |   final input = TextEditingController();
+0228 |   final scroll = ScrollController();
+0229 |   final List<Map<String, dynamic>> messages = [];
+0230 |   Timer? timer;
+0231 |   bool loading = false,
+0232 |       initial = true,
+0233 |       sending = false,
+0234 |       older = false,
+0235 |       resumed = true;
+0236 |   int fetched = 0, read = 0;
+0237 |   String? error, pendingText, pendingKey;
+0238 |   String? confirmedKey;
+0239 |   CancelToken? sendCancel;
+0240 |   String get path => '/chat/conversations/${widget.conversation['id']}';
+0241 |
+0242 |   @override
+0243 |   void initState() {
+0244 |     super.initState();
+0245 |     WidgetsBinding.instance.addObserver(this);
+0246 |     load();
+0247 |     timer = Timer.periodic(const Duration(seconds: 5), (_) {
+0248 |       if (resumed && ModalRoute.of(context)?.isCurrent == true) load();
+0249 |     });
+0250 |   }
+0251 |
+0252 |   @override
+0253 |   void didChangeAppLifecycleState(AppLifecycleState state) {
+0254 |     resumed = state == AppLifecycleState.resumed;
+0255 |     if (resumed) load();
+0256 |   }
+0257 |
+0258 |   void merge(Iterable<Map<String, dynamic>> incoming) {
+0259 |     final map = {for (final row in messages) row['id']: row};
+0260 |     for (final row in incoming) {
+0261 |       map[row['id']] = row;
+0262 |     }
+0263 |     messages
+0264 |       ..clear()
+0265 |       ..addAll(map.values);
+0266 |     messages
+0267 |         .sort((a, b) => (a['sequence'] as num).compareTo(b['sequence'] as num));
+0268 |   }
+0269 |
+0270 |   void bottom() {
+0271 |     WidgetsBinding.instance.addPostFrameCallback((_) {
+0272 |       if (mounted && scroll.hasClients && scroll.position.extentAfter > 1) {
+0273 |         scroll.jumpTo(scroll.position.maxScrollExtent);
+0274 |       }
+0275 |     });
+0276 |   }
+0277 |
+0278 |   Future<void> load({bool previous = false}) async {
+0279 |     if (loading || !mounted || context.read<AuthProvider>().locked) return;
+0280 |     final first = initial;
+0281 |     final follow =
+0282 |         first || !scroll.hasClients || scroll.position.extentAfter < 120;
+0283 |     final oldExtent = scroll.hasClients ? scroll.position.maxScrollExtent : 0.0;
+0284 |     final oldOffset = scroll.hasClients ? scroll.offset : 0.0;
+0285 |     setState(() => loading = true);
+0286 |     bool moreNew = false;
+0287 |     try {
+0288 |       final api = workspaceApi(context);
+0289 |       final result = await api
+0290 |           .get<Map<String, dynamic>>('$path/messages', queryParameters: {
+0291 |         if (previous && messages.isNotEmpty)
+0292 |           'before': messages.first['sequence']
+0293 |         else if (!first)
+0294 |           'after': fetched,
+0295 |       });
+0296 |       if (!mounted) return;
+0297 |       final incoming = (result.data!['messages'] as List)
+0298 |           .map((r) => Map<String, dynamic>.from(r as Map))
+0299 |           .toList();
+0300 |       setState(() {
+0301 |         merge(incoming);
+0302 |         for (final message in incoming) {
+0303 |           if (pendingKey != null &&
+0304 |               message['sender_id'] == context.read<AuthProvider>().user?.id &&
+0305 |               message['client_message_id'] == pendingKey) {
+0306 |             confirmedKey = pendingKey;
+0307 |             if (input.text.trim() == pendingText) input.clear();
+0308 |             pendingText = pendingKey = null;
+0309 |             sendCancel?.cancel('Message confirmed in conversation');
+0310 |           }
+0311 |         }
+0312 |         if (first || previous) older = result.data!['has_more'] == true;
+0313 |         if (!previous && incoming.isNotEmpty) {
+0314 |           fetched = (incoming.last['sequence'] as num).toInt();
+0315 |         }
+0316 |         moreNew = !first && !previous && result.data!['has_more'] == true;
+0317 |         initial = false;
+0318 |         error = null;
+0319 |       });
+0320 |       if (previous) {
+0321 |         WidgetsBinding.instance.addPostFrameCallback((_) {
+0322 |           if (mounted && scroll.hasClients) {
+0323 |             scroll.jumpTo(
+0324 |                 (oldOffset + scroll.position.maxScrollExtent - oldExtent)
+0325 |                     .clamp(0.0, scroll.position.maxScrollExtent));
+0326 |           }
+0327 |         });
+0328 |       } else if (follow && (first || incoming.isNotEmpty)) {
+0329 |         bottom();
+0330 |       }
+0331 |       if (fetched > read &&
+0332 |           resumed &&
+0333 |           !context.read<AuthProvider>().locked &&
+0334 |           ModalRoute.of(context)?.isCurrent == true) {
+0335 |         try {
+0336 |           await api
+0337 |               .post<dynamic>('$path/read', data: {'through_sequence': fetched});
+0338 |           read = fetched;
+0339 |         } catch (_) {/* Retry read receipt on the next successful poll. */}
+0340 |       }
+0341 |     } catch (e) {
+0342 |       if (mounted) setState(() => error = readableApiError(e));
+0343 |     } finally {
+0344 |       if (mounted) {
+0345 |         setState(() => loading = false);
+0346 |         if (moreNew) scheduleMicrotask(() => load());
+0347 |       }
+0348 |     }
+0349 |   }
+0350 |
+0351 |   Future<void> send() async {
+0352 |     final text = input.text.trim();
+0353 |     if (sending || text.isEmpty) return;
+0354 |     if (text.length > 4000) {
+0355 |       setState(() => error = 'Messages can contain up to 4,000 characters.');
+0356 |       return;
+0357 |     }
+0358 |     if (pendingText != text || pendingKey == null) {
+0359 |       pendingText = text;
+0360 |       final random = Random.secure();
+0361 |       pendingKey =
+0362 |           List.generate(32, (_) => random.nextInt(16).toRadixString(16)).join();
+0363 |     }
+0364 |     setState(() => sending = true);
+0365 |     final requestKey = pendingKey!;
+0366 |     final cancellation = CancelToken();
+0367 |     sendCancel = cancellation;
+0368 |     try {
+0369 |       final result = await workspaceApi(context).post<Map<String, dynamic>>(
+0370 |           '$path/messages',
+0371 |           data: {'text': text, 'client_message_id': requestKey},
+0372 |           cancelToken: cancellation);
+0373 |       if (!mounted) return;
+0374 |       setState(() {
+0375 |         merge([result.data!]);
+0376 |         confirmedKey = requestKey;
+0377 |         if (input.text.trim() == text) input.clear();
+0378 |         pendingKey = pendingText = null;
+0379 |         error = null;
+0380 |       });
+0381 |       bottom();
+0382 |       await load();
+0383 |     } catch (e) {
+0384 |       if (mounted && confirmedKey != requestKey) {
+0385 |         setState(() => error =
+0386 |             '${readableApiError(e)} Your message is kept below; tap Send to retry.');
+0387 |       }
+0388 |     } finally {
+0389 |       if (identical(sendCancel, cancellation)) sendCancel = null;
+0390 |       if (mounted) setState(() => sending = false);
+0391 |     }
+0392 |   }
+0393 |
+0394 |   @override
+0395 |   void dispose() {
+0396 |     timer?.cancel();
+0397 |     sendCancel?.cancel('Conversation closed');
+0398 |     WidgetsBinding.instance.removeObserver(this);
+0399 |     input.dispose();
+0400 |     scroll.dispose();
+0401 |     super.dispose();
+0402 |   }
+0403 |
+0404 |   @override
+0405 |   Widget build(BuildContext context) {
+0406 |     final user = context.watch<AuthProvider>().user!;
+0407 |     final colors = Theme.of(context).colorScheme;
+0408 |     return Scaffold(
+0409 |       appBar: AppBar(
+0410 |           title: Text(user.isClient
+0411 |               ? 'ClaimLens support'
+0412 |               : widget.conversation['client_name']?.toString() ??
+0413 |                   'Client chat'),
+0414 |           actions: [
+0415 |             IconButton(
+0416 |                 tooltip: 'Refresh messages',
+0417 |                 onPressed: loading ? null : load,
+0418 |                 icon: const Icon(Icons.refresh)),
+0419 |           ]),
+0420 |       body: Column(children: [
+0421 |         Padding(
+0422 |             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+0423 |             child: Text(
+0424 |                 user.isClient
+0425 |                     ? 'Your conversation is shared with administrators, supervisors and claims officers.'
+0426 |                     : 'Shared client conversation. Replies show the staff member’s name and role.',
+0427 |                 style: Theme.of(context).textTheme.bodySmall)),
+0428 |         if (error != null)
+0429 |           Material(
+0430 |               color: colors.errorContainer,
+0431 |               child: Padding(
+0432 |                   padding: const EdgeInsets.all(12),
+0433 |                   child: Column(children: [
+0434 |                     Text(error!,
+0435 |                         style: TextStyle(color: colors.onErrorContainer)),
+0436 |                     TextButton(
+0437 |                         onPressed: () => load(),
+0438 |                         child: const Text('Retry messages')),
+0439 |                   ]))),
+0440 |         Expanded(
+0441 |             child: initial && loading
+0442 |                 ? const Center(child: CircularProgressIndicator())
+0443 |                 : ListView(
+0444 |                     controller: scroll,
+0445 |                     padding: const EdgeInsets.all(12),
+0446 |                     children: [
+0447 |                       if (older)
+0448 |                         Center(
+0449 |                             child: TextButton(
+0450 |                                 onPressed:
+0451 |                                     loading ? null : () => load(previous: true),
+0452 |                                 child: const Text('Load earlier messages'))),
+0453 |                       if (!initial && messages.isEmpty)
+0454 |                         const Padding(
+0455 |                             padding: EdgeInsets.all(24),
+0456 |                             child: Text(
+0457 |                                 'Ask a question about your claim. Your support team can reply here.')),
+0458 |                       for (final message in messages)
+0459 |                         Align(
+0460 |                           alignment: message['sender_id'] == user.id
+0461 |                               ? Alignment.centerRight
+0462 |                               : Alignment.centerLeft,
+0463 |                           child: Container(
+0464 |                             constraints: BoxConstraints(
+0465 |                                 maxWidth:
+0466 |                                     MediaQuery.sizeOf(context).width * .85),
+0467 |                             margin: const EdgeInsets.symmetric(vertical: 5),
+0468 |                             padding: const EdgeInsets.all(12),
+0469 |                             decoration: BoxDecoration(
+0470 |                                 color: message['sender_id'] == user.id
+0471 |                                     ? colors.primaryContainer
+0472 |                                     : colors.surfaceContainerHighest,
+0473 |                                 borderRadius: BorderRadius.circular(16)),
+0474 |                             child: Column(
+0475 |                                 crossAxisAlignment: CrossAxisAlignment.start,
+0476 |                                 children: [
+0477 |                                   Text(
+0478 |                                       '${message['sender_name']} · ${friendlyLabel(message['sender_role'] as String)}',
+0479 |                                       style: Theme.of(context)
+0480 |                                           .textTheme
+0481 |                                           .labelMedium
+0482 |                                           ?.copyWith(
+0483 |                                               fontWeight: FontWeight.bold)),
+0484 |                                   const SizedBox(height: 5),
+0485 |                                   SelectableText(message['text'] as String),
+0486 |                                   const SizedBox(height: 5),
+0487 |                                   Wrap(
+0488 |                                       spacing: 8,
+0489 |                                       crossAxisAlignment:
+0490 |                                           WrapCrossAlignment.center,
+0491 |                                       children: [
+0492 |                                         Text(chatTime(message['sent_at']),
+0493 |                                             style: Theme.of(context)
+0494 |                                                 .textTheme
+0495 |                                                 .labelSmall),
+0496 |                                         if (message['sender_id'] == user.id)
+0497 |                                           const Tooltip(
+0498 |                                               message:
+0499 |                                                   'Saved to the conversation',
+0500 |                                               child:
+0501 |                                                   Icon(Icons.check, size: 15)),
+0502 |                                       ]),
+0503 |                                 ]),
+0504 |                           ),
+0505 |                         ),
+0506 |                     ],
+0507 |                   )),
+0508 |         SafeArea(
+0509 |             top: false,
+0510 |             minimum: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+0511 |             child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+0512 |               Expanded(
+0513 |                   child: TextField(
+0514 |                       controller: input,
+0515 |                       minLines: 1,
+0516 |                       maxLines: 5,
+0517 |                       maxLength: 4000,
+0518 |                       decoration: InputDecoration(
+0519 |                           hintText: user.isClient
+0520 |                               ? 'Message your support team'
+0521 |                               : 'Reply to the client',
+0522 |                           labelText: 'Message',
+0523 |                           counterText: ''),
+0524 |                       keyboardType: TextInputType.multiline)),
+0525 |               const SizedBox(width: 8),
+0526 |               IconButton.filled(
+0527 |                   tooltip: 'Send message',
+0528 |                   onPressed: sending ? null : send,
+0529 |                   icon: sending
+0530 |                       ? const SizedBox.square(
+0531 |                           dimension: 22,
+0532 |                           child: CircularProgressIndicator(strokeWidth: 2))
+0533 |                       : const Icon(Icons.send)),
+0534 |             ])),
+0535 |       ]),
+0536 |     );
+0537 |   }
+0538 | }
 ```
 
 ## mobile/claimlens_mobile/lib/screens/claim_details_screen.dart
 
-749 lines. SHA-256: `742ed89f8288c126505c3bec4194cca95320ab8f4dade2a42f5c9ce7aac4478b`.
+761 lines. SHA-256: `1c482a41669368ac68a4af12e321d90c8ab1fc4a921e056133cc4dca6806489c`.
 
-Symbols: `ClaimDetailsScreen`: L19; `_ClaimDetailsScreenState`: L31; `_ProgressTimeline`: L603; `_Value`: L660; `_DocumentCard`: L691
+Symbols: `ClaimDetailsScreen`: L19; `_ClaimDetailsScreenState`: L31; `_ProgressTimeline`: L615; `_Value`: L672; `_DocumentCard`: L703
 
 ```dart
 0001 | import 'dart:async';
@@ -1557,424 +2113,436 @@ Symbols: `ClaimDetailsScreen`: L19; `_ClaimDetailsScreenState`: L31; `_ProgressT
 0329 |                                         .toString()),
 0330 |                               if (claim!.workflow['paid_at'] != null)
 0331 |                                 _Value(
-0332 |                                     label: 'Paid',
-0333 |                                     value: claim!.workflow['paid_at']
-0334 |                                         .toString()
-0335 |                                         .substring(0, 10)),
-0336 |                               _Value(
-0337 |                                 label: 'Created',
-0338 |                                 value: DateFormat(
-0339 |                                   'dd MMM yyyy, HH:mm',
-0340 |                                 ).format(claim!.createdAt.toLocal()),
-0341 |                                 last: true,
-0342 |                               ),
-0343 |                             ],
-0344 |                           ),
-0345 |                         ),
-0346 |                       ),
-0347 |                       const SizedBox(height: 16),
-0348 |                       _ProgressTimeline(status: claim!.status),
-0349 |                       const SizedBox(height: 16),
-0350 |                       if (claim!.information.isNotEmpty)
-0351 |                         Card(
-0352 |                             child: Padding(
-0353 |                                 padding: const EdgeInsets.all(16),
-0354 |                                 child: Column(
-0355 |                                     crossAxisAlignment:
-0356 |                                         CrossAxisAlignment.stretch,
-0357 |                                     children: [
-0358 |                                       Text('Claim information',
-0359 |                                           style: Theme.of(context)
-0360 |                                               .textTheme
-0361 |                                               .titleMedium),
-0362 |                                       const SizedBox(height: 10),
-0363 |                                       for (final entry
-0364 |                                           in claim!.information.entries)
-0365 |                                         if (entry.value != null &&
-0366 |                                             entry.value.toString().isNotEmpty)
-0367 |                                           Padding(
-0368 |                                               padding:
-0369 |                                                   const EdgeInsets.symmetric(
-0370 |                                                       vertical: 6),
-0371 |                                               child: Text(
-0372 |                                                   '${friendlyLabel(entry.key)}: ${entry.value}'))
-0373 |                                     ]))),
-0374 |                       const SizedBox(height: 12),
-0375 |                       Wrap(spacing: 8, runSpacing: 8, children: [
-0376 |                         if (isClient &&
-0377 |                             ['UPLOADED', 'PROCESSING_FAILED']
-0378 |                                 .contains(claim!.status) &&
-0379 |                             claim!.workflow['needs_reconfirmation'] !=
-0380 |                                 true) ...[
-0381 |                           OutlinedButton.icon(
-0382 |                               onPressed: editInformation,
-0383 |                               icon: const Icon(Icons.edit_note),
-0384 |                               label: const Text('Edit claim information')),
-0385 |                           TextButton.icon(
-0386 |                               onPressed: deleteDraft,
-0387 |                               icon: const Icon(Icons.delete_outline),
-0388 |                               label: const Text('Delete draft'))
-0389 |                         ],
-0390 |                         if (!['UPLOADED', 'PROCESSING', 'PROCESSING_FAILED']
-0391 |                             .contains(claim!.status))
-0392 |                           OutlinedButton.icon(
-0393 |                               onPressed: () => Navigator.push(
-0394 |                                   context,
-0395 |                                   MaterialPageRoute(
-0396 |                                       builder: (_) => DocumentPreviewScreen(
-0397 |                                           reference: claim!.reference,
-0398 |                                           documentId: 'receipt',
-0399 |                                           name: 'Submission receipt'))),
-0400 |                               icon: const Icon(Icons.receipt_long_outlined),
-0401 |                               label: const Text('Submission receipt')),
-0402 |                         if (isClient && claim!.status == 'REJECTED')
-0403 |                           OutlinedButton.icon(
-0404 |                               onPressed: appeal,
-0405 |                               icon: const Icon(Icons.rate_review_outlined),
-0406 |                               label: const Text('Request reconsideration')),
-0407 |                       ]),
-0408 |                       if (!isClient && claim!.availableActions.isNotEmpty) ...[
-0409 |                         const SizedBox(height: 24),
-0410 |                         Text('Review actions',
-0411 |                             style: Theme.of(context).textTheme.titleLarge),
-0412 |                         const SizedBox(height: 12),
-0413 |                         Wrap(
-0414 |                             spacing: 10,
-0415 |                             runSpacing: 10,
-0416 |                             children: claim!.availableActions
-0417 |                                 .where((a) => a != 'respond')
-0418 |                                 .map((action) => FilledButton.tonalIcon(
-0419 |                                     onPressed: () => _action(action),
-0420 |                                     icon: Icon(switch (action) {
-0421 |                                       'correct' => Icons.edit_outlined,
-0422 |                                       'verify' => Icons.fact_check_outlined,
-0423 |                                       'assign' ||
-0424 |                                       'claim' =>
-0425 |                                         Icons.person_add_alt,
-0426 |                                       'approve' => Icons.check_circle_outline,
-0427 |                                       'reject' => Icons.cancel_outlined,
-0428 |                                       'request-information' =>
-0429 |                                         Icons.help_outline,
-0430 |                                       _ => Icons.payments_outlined
-0431 |                                     }),
-0432 |                                     label: Text(action == 'correct'
-0433 |                                         ? 'Review & correct'
-0434 |                                         : action == 'claim'
-0435 |                                             ? 'Assign to me'
-0436 |                                             : friendlyLabel(action))))
-0437 |                                 .toList()),
-0438 |                       ],
-0439 |                       for (final info in claim!.informationRequests)
-0440 |                         Padding(
-0441 |                             padding: const EdgeInsets.only(top: 16),
-0442 |                             child: Card(
-0443 |                                 child: Padding(
-0444 |                                     padding: const EdgeInsets.all(16),
-0445 |                                     child: Column(
-0446 |                                         crossAxisAlignment:
-0447 |                                             CrossAxisAlignment.stretch,
-0448 |                                         children: [
-0449 |                                           Row(children: [
-0450 |                                             const Icon(
-0451 |                                                 Icons.question_answer_outlined),
-0452 |                                             const SizedBox(width: 10),
-0453 |                                             Expanded(
-0454 |                                                 child: Text(
-0455 |                                                     info['status'] == 'OPEN'
-0456 |                                                         ? 'Information needed'
-0457 |                                                         : 'Information received',
-0458 |                                                     style: Theme.of(context)
-0459 |                                                         .textTheme
-0460 |                                                         .titleMedium))
-0461 |                                           ]),
-0462 |                                           const SizedBox(height: 12),
-0463 |                                           Text(
-0464 |                                               info['reason']?.toString() ?? ''),
-0465 |                                           const SizedBox(height: 8),
-0466 |                                           Text(info['questions']?.toString() ??
-0467 |                                               ''),
-0468 |                                           if ((info['required_documents'] ??
-0469 |                                                   '') !=
-0470 |                                               '')
-0471 |                                             Padding(
-0472 |                                                 padding: const EdgeInsets.only(
-0473 |                                                     top: 8),
-0474 |                                                 child: Text(
-0475 |                                                     'Requested documents: ${info['required_documents']}')),
-0476 |                                           if (info['response_deadline'] != null)
-0477 |                                             Text(
-0478 |                                                 'Respond by ${info['response_deadline']}'),
-0479 |                                           if (!isClient &&
-0480 |                                               (info['internal_note'] ?? '') !=
-0481 |                                                   '')
-0482 |                                             Padding(
-0483 |                                                 padding: const EdgeInsets.only(
-0484 |                                                     top: 12),
-0485 |                                                 child: Text(
-0486 |                                                     'Staff note: ${info['internal_note']}')),
-0487 |                                           if (info['response_text'] != null)
-0488 |                                             Padding(
-0489 |                                                 padding: const EdgeInsets.only(
-0490 |                                                     top: 12),
-0491 |                                                 child: Text(
-0492 |                                                     'Client response: ${info['response_text']}')),
-0493 |                                           if (isClient &&
-0494 |                                               info['status'] == 'OPEN' &&
-0495 |                                               claim!.availableActions
-0496 |                                                   .contains('respond'))
-0497 |                                             Padding(
-0498 |                                                 padding: const EdgeInsets.only(
-0499 |                                                     top: 12),
-0500 |                                                 child: FilledButton.icon(
-0501 |                                                     onPressed: () async {
-0502 |                                                       final saved = await Navigator.push<
-0503 |                                                               bool>(
-0504 |                                                           context,
-0505 |                                                           MaterialPageRoute(
-0506 |                                                               builder: (_) =>
-0507 |                                                                   InformationResponseScreen(
-0508 |                                                                       reference:
-0509 |                                                                           claim!
-0510 |                                                                               .reference,
-0511 |                                                                       request:
-0512 |                                                                           info)));
-0513 |                                                       if (saved == true &&
-0514 |                                                           mounted) {
-0515 |                                                         await _load();
-0516 |                                                       }
-0517 |                                                     },
-0518 |                                                     icon:
-0519 |                                                         const Icon(Icons.reply),
-0520 |                                                     label: const Text(
-0521 |                                                         'Provide information'))),
-0522 |                                         ])))),
-0523 |                       if (isClient && claim!.status == 'UPLOADED') ...[
-0524 |                         const SizedBox(height: 12),
-0525 |                         FilledButton.icon(
-0526 |                           onPressed: () => Navigator.push(
-0527 |                             context,
-0528 |                             MaterialPageRoute(
-0529 |                               builder: (_) => ExtractedInfoScreen(
-0530 |                                   reference: claim!.reference),
-0531 |                             ),
-0532 |                           ),
-0533 |                           icon: const Icon(Icons.fact_check_outlined),
-0534 |                           label: const Text('Confirm extracted information'),
-0535 |                         ),
-0536 |                       ],
-0537 |                       if (isClient &&
-0538 |                           (claim!.status == 'PROCESSING_FAILED' ||
-0539 |                               (claim!.status == 'UPLOADED' &&
-0540 |                                   claim!.documents.any(
-0541 |                                     (document) =>
-0542 |                                         document.extractionStatus == 'FAILED',
-0543 |                                   )))) ...[
-0544 |                         const SizedBox(height: 12),
-0545 |                         FilledButton.icon(
-0546 |                           onPressed: () => Navigator.pushReplacement(
-0547 |                             context,
-0548 |                             MaterialPageRoute(
-0549 |                               builder: (_) =>
-0550 |                                   ProcessingScreen(reference: claim!.reference),
-0551 |                             ),
-0552 |                           ),
-0553 |                           icon: const Icon(Icons.refresh),
-0554 |                           label: const Text('Retry processing'),
-0555 |                         ),
-0556 |                       ],
-0557 |                       const SizedBox(height: 24),
-0558 |                       Text(
-0559 |                         'Documents (${claim!.documents.length})',
-0560 |                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-0561 |                               fontWeight: FontWeight.w800,
-0562 |                             ),
-0563 |                       ),
-0564 |                       const SizedBox(height: 10),
-0565 |                       ...claim!.documents.map(
-0566 |                         (document) => _DocumentCard(
-0567 |                             document: document, reference: claim!.reference),
-0568 |                       ),
+0332 |                                     label: 'Payment reference',
+0333 |                                     value: claim!.workflow['payment_reference']
+0334 |                                             ?.toString() ??
+0335 |                                         'Not recorded'),
+0336 |                               if (claim!.workflow['payment_method'] != null)
+0337 |                                 _Value(
+0338 |                                     label: 'Payment method',
+0339 |                                     value: friendlyLabel(claim!
+0340 |                                         .workflow['payment_method']
+0341 |                                         .toString())),
+0342 |                               if (claim!.workflow['paid_at'] != null)
+0343 |                                 _Value(
+0344 |                                     label: 'Paid',
+0345 |                                     value: claim!.workflow['paid_at']
+0346 |                                         .toString()
+0347 |                                         .substring(0, 10)),
+0348 |                               _Value(
+0349 |                                 label: 'Created',
+0350 |                                 value: DateFormat(
+0351 |                                   'dd MMM yyyy, HH:mm',
+0352 |                                 ).format(claim!.createdAt.toLocal()),
+0353 |                                 last: true,
+0354 |                               ),
+0355 |                             ],
+0356 |                           ),
+0357 |                         ),
+0358 |                       ),
+0359 |                       const SizedBox(height: 16),
+0360 |                       _ProgressTimeline(status: claim!.status),
+0361 |                       const SizedBox(height: 16),
+0362 |                       if (claim!.information.isNotEmpty)
+0363 |                         Card(
+0364 |                             child: Padding(
+0365 |                                 padding: const EdgeInsets.all(16),
+0366 |                                 child: Column(
+0367 |                                     crossAxisAlignment:
+0368 |                                         CrossAxisAlignment.stretch,
+0369 |                                     children: [
+0370 |                                       Text('Claim information',
+0371 |                                           style: Theme.of(context)
+0372 |                                               .textTheme
+0373 |                                               .titleMedium),
+0374 |                                       const SizedBox(height: 10),
+0375 |                                       for (final entry
+0376 |                                           in claim!.information.entries)
+0377 |                                         if (entry.value != null &&
+0378 |                                             entry.value.toString().isNotEmpty)
+0379 |                                           Padding(
+0380 |                                               padding:
+0381 |                                                   const EdgeInsets.symmetric(
+0382 |                                                       vertical: 6),
+0383 |                                               child: Text(
+0384 |                                                   '${friendlyLabel(entry.key)}: ${entry.value}'))
+0385 |                                     ]))),
+0386 |                       const SizedBox(height: 12),
+0387 |                       Wrap(spacing: 8, runSpacing: 8, children: [
+0388 |                         if (isClient &&
+0389 |                             ['UPLOADED', 'PROCESSING_FAILED']
+0390 |                                 .contains(claim!.status) &&
+0391 |                             claim!.workflow['needs_reconfirmation'] !=
+0392 |                                 true) ...[
+0393 |                           OutlinedButton.icon(
+0394 |                               onPressed: editInformation,
+0395 |                               icon: const Icon(Icons.edit_note),
+0396 |                               label: const Text('Edit claim information')),
+0397 |                           TextButton.icon(
+0398 |                               onPressed: deleteDraft,
+0399 |                               icon: const Icon(Icons.delete_outline),
+0400 |                               label: const Text('Delete draft'))
+0401 |                         ],
+0402 |                         if (!['UPLOADED', 'PROCESSING', 'PROCESSING_FAILED']
+0403 |                             .contains(claim!.status))
+0404 |                           OutlinedButton.icon(
+0405 |                               onPressed: () => Navigator.push(
+0406 |                                   context,
+0407 |                                   MaterialPageRoute(
+0408 |                                       builder: (_) => DocumentPreviewScreen(
+0409 |                                           reference: claim!.reference,
+0410 |                                           documentId: 'receipt',
+0411 |                                           name: 'Submission receipt'))),
+0412 |                               icon: const Icon(Icons.receipt_long_outlined),
+0413 |                               label: const Text('Submission receipt')),
+0414 |                         if (isClient && claim!.status == 'REJECTED')
+0415 |                           OutlinedButton.icon(
+0416 |                               onPressed: appeal,
+0417 |                               icon: const Icon(Icons.rate_review_outlined),
+0418 |                               label: const Text('Request reconsideration')),
+0419 |                       ]),
+0420 |                       if (!isClient && claim!.availableActions.isNotEmpty) ...[
+0421 |                         const SizedBox(height: 24),
+0422 |                         Text('Review actions',
+0423 |                             style: Theme.of(context).textTheme.titleLarge),
+0424 |                         const SizedBox(height: 12),
+0425 |                         Wrap(
+0426 |                             spacing: 10,
+0427 |                             runSpacing: 10,
+0428 |                             children: claim!.availableActions
+0429 |                                 .where((a) => a != 'respond')
+0430 |                                 .map((action) => FilledButton.tonalIcon(
+0431 |                                     onPressed: () => _action(action),
+0432 |                                     icon: Icon(switch (action) {
+0433 |                                       'correct' => Icons.edit_outlined,
+0434 |                                       'verify' => Icons.fact_check_outlined,
+0435 |                                       'assign' ||
+0436 |                                       'claim' =>
+0437 |                                         Icons.person_add_alt,
+0438 |                                       'approve' => Icons.check_circle_outline,
+0439 |                                       'reject' => Icons.cancel_outlined,
+0440 |                                       'request-information' =>
+0441 |                                         Icons.help_outline,
+0442 |                                       _ => Icons.payments_outlined
+0443 |                                     }),
+0444 |                                     label: Text(action == 'correct'
+0445 |                                         ? 'Review & correct'
+0446 |                                         : action == 'claim'
+0447 |                                             ? 'Assign to me'
+0448 |                                             : friendlyLabel(action))))
+0449 |                                 .toList()),
+0450 |                       ],
+0451 |                       for (final info in claim!.informationRequests)
+0452 |                         Padding(
+0453 |                             padding: const EdgeInsets.only(top: 16),
+0454 |                             child: Card(
+0455 |                                 child: Padding(
+0456 |                                     padding: const EdgeInsets.all(16),
+0457 |                                     child: Column(
+0458 |                                         crossAxisAlignment:
+0459 |                                             CrossAxisAlignment.stretch,
+0460 |                                         children: [
+0461 |                                           Row(children: [
+0462 |                                             const Icon(
+0463 |                                                 Icons.question_answer_outlined),
+0464 |                                             const SizedBox(width: 10),
+0465 |                                             Expanded(
+0466 |                                                 child: Text(
+0467 |                                                     info['status'] == 'OPEN'
+0468 |                                                         ? 'Information needed'
+0469 |                                                         : 'Information received',
+0470 |                                                     style: Theme.of(context)
+0471 |                                                         .textTheme
+0472 |                                                         .titleMedium))
+0473 |                                           ]),
+0474 |                                           const SizedBox(height: 12),
+0475 |                                           Text(
+0476 |                                               info['reason']?.toString() ?? ''),
+0477 |                                           const SizedBox(height: 8),
+0478 |                                           Text(info['questions']?.toString() ??
+0479 |                                               ''),
+0480 |                                           if ((info['required_documents'] ??
+0481 |                                                   '') !=
+0482 |                                               '')
+0483 |                                             Padding(
+0484 |                                                 padding: const EdgeInsets.only(
+0485 |                                                     top: 8),
+0486 |                                                 child: Text(
+0487 |                                                     'Requested documents: ${info['required_documents']}')),
+0488 |                                           if (info['response_deadline'] != null)
+0489 |                                             Text(
+0490 |                                                 'Respond by ${info['response_deadline']}'),
+0491 |                                           if (!isClient &&
+0492 |                                               (info['internal_note'] ?? '') !=
+0493 |                                                   '')
+0494 |                                             Padding(
+0495 |                                                 padding: const EdgeInsets.only(
+0496 |                                                     top: 12),
+0497 |                                                 child: Text(
+0498 |                                                     'Staff note: ${info['internal_note']}')),
+0499 |                                           if (info['response_text'] != null)
+0500 |                                             Padding(
+0501 |                                                 padding: const EdgeInsets.only(
+0502 |                                                     top: 12),
+0503 |                                                 child: Text(
+0504 |                                                     'Client response: ${info['response_text']}')),
+0505 |                                           if (isClient &&
+0506 |                                               info['status'] == 'OPEN' &&
+0507 |                                               claim!.availableActions
+0508 |                                                   .contains('respond'))
+0509 |                                             Padding(
+0510 |                                                 padding: const EdgeInsets.only(
+0511 |                                                     top: 12),
+0512 |                                                 child: FilledButton.icon(
+0513 |                                                     onPressed: () async {
+0514 |                                                       final saved = await Navigator.push<
+0515 |                                                               bool>(
+0516 |                                                           context,
+0517 |                                                           MaterialPageRoute(
+0518 |                                                               builder: (_) =>
+0519 |                                                                   InformationResponseScreen(
+0520 |                                                                       reference:
+0521 |                                                                           claim!
+0522 |                                                                               .reference,
+0523 |                                                                       request:
+0524 |                                                                           info)));
+0525 |                                                       if (saved == true &&
+0526 |                                                           mounted) {
+0527 |                                                         await _load();
+0528 |                                                       }
+0529 |                                                     },
+0530 |                                                     icon:
+0531 |                                                         const Icon(Icons.reply),
+0532 |                                                     label: const Text(
+0533 |                                                         'Provide information'))),
+0534 |                                         ])))),
+0535 |                       if (isClient && claim!.status == 'UPLOADED') ...[
+0536 |                         const SizedBox(height: 12),
+0537 |                         FilledButton.icon(
+0538 |                           onPressed: () => Navigator.push(
+0539 |                             context,
+0540 |                             MaterialPageRoute(
+0541 |                               builder: (_) => ExtractedInfoScreen(
+0542 |                                   reference: claim!.reference),
+0543 |                             ),
+0544 |                           ),
+0545 |                           icon: const Icon(Icons.fact_check_outlined),
+0546 |                           label: const Text('Confirm extracted information'),
+0547 |                         ),
+0548 |                       ],
+0549 |                       if (isClient &&
+0550 |                           (claim!.status == 'PROCESSING_FAILED' ||
+0551 |                               (claim!.status == 'UPLOADED' &&
+0552 |                                   claim!.documents.any(
+0553 |                                     (document) =>
+0554 |                                         document.extractionStatus == 'FAILED',
+0555 |                                   )))) ...[
+0556 |                         const SizedBox(height: 12),
+0557 |                         FilledButton.icon(
+0558 |                           onPressed: () => Navigator.pushReplacement(
+0559 |                             context,
+0560 |                             MaterialPageRoute(
+0561 |                               builder: (_) =>
+0562 |                                   ProcessingScreen(reference: claim!.reference),
+0563 |                             ),
+0564 |                           ),
+0565 |                           icon: const Icon(Icons.refresh),
+0566 |                           label: const Text('Retry processing'),
+0567 |                         ),
+0568 |                       ],
 0569 |                       const SizedBox(height: 24),
 0570 |                       Text(
-0571 |                         'Audit history',
+0571 |                         'Documents (${claim!.documents.length})',
 0572 |                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
 0573 |                               fontWeight: FontWeight.w800,
 0574 |                             ),
 0575 |                       ),
 0576 |                       const SizedBox(height: 10),
-0577 |                       if (claim!.auditEvents.isEmpty)
-0578 |                         const Text('No audit events are available.'),
-0579 |                       ...claim!.auditEvents.map(
-0580 |                         (event) => ListTile(
-0581 |                           contentPadding: EdgeInsets.zero,
-0582 |                           leading: const Icon(Icons.circle, size: 10),
-0583 |                           title: Text(
-0584 |                             (event['event_type'] as String)
-0585 |                                 .replaceAll('_', ' '),
-0586 |                           ),
-0587 |                           subtitle: Text(
-0588 |                             DateFormat('dd MMM yyyy, HH:mm').format(
-0589 |                               DateTime.parse(
-0590 |                                 event['created_at'] as String,
-0591 |                               ).toLocal(),
-0592 |                             ),
-0593 |                           ),
-0594 |                         ),
-0595 |                       ),
-0596 |                     ],
-0597 |                   ),
-0598 |                 ),
-0599 |     );
-0600 |   }
-0601 | }
-0602 |
-0603 | class _ProgressTimeline extends StatelessWidget {
-0604 |   const _ProgressTimeline({required this.status});
-0605 |   final String status;
-0606 |   @override
-0607 |   Widget build(BuildContext context) {
-0608 |     final stage = switch (status) {
-0609 |       'UPLOADED' || 'PROCESSING' || 'PROCESSING_FAILED' => 0,
-0610 |       'REVIEW_REQUIRED' ||
-0611 |       'INFORMATION_REQUIRED' ||
-0612 |       'INFORMATION_RECEIVED' =>
-0613 |         1,
-0614 |       'VERIFIED' => 2,
-0615 |       'APPROVED' || 'PAYMENT_PENDING' || 'REJECTED' => 3,
-0616 |       'PAID' => 4,
-0617 |       _ => 0
-0618 |     };
-0619 |     return Card(
-0620 |         child: Padding(
-0621 |             padding: const EdgeInsets.all(16),
-0622 |             child: Column(
-0623 |                 crossAxisAlignment: CrossAxisAlignment.stretch,
-0624 |                 children: [
-0625 |                   Text('Claim progress',
-0626 |                       style: Theme.of(context).textTheme.titleMedium),
-0627 |                   const SizedBox(height: 14),
-0628 |                   for (final (index, label) in [
-0629 |                     'Documents uploaded',
-0630 |                     'Evidence review',
-0631 |                     'Verified',
-0632 |                     status == 'REJECTED' ? 'Rejected' : 'Decision',
-0633 |                     'Payment completed'
-0634 |                   ].indexed)
-0635 |                     Padding(
-0636 |                         padding: const EdgeInsets.symmetric(vertical: 5),
-0637 |                         child: Row(children: [
-0638 |                           Icon(
-0639 |                               index < stage || status == 'PAID'
-0640 |                                   ? Icons.check_circle
-0641 |                                   : index == stage
-0642 |                                       ? Icons.radio_button_checked
-0643 |                                       : Icons.radio_button_unchecked,
-0644 |                               size: 20,
-0645 |                               color: index <= stage
-0646 |                                   ? Theme.of(context).colorScheme.primary
-0647 |                                   : Theme.of(context).colorScheme.outline),
-0648 |                           const SizedBox(width: 12),
-0649 |                           Expanded(
-0650 |                               child: Text(label,
-0651 |                                   style: TextStyle(
-0652 |                                       fontWeight: index == stage
-0653 |                                           ? FontWeight.bold
-0654 |                                           : FontWeight.normal)))
-0655 |                         ]))
-0656 |                 ])));
-0657 |   }
-0658 | }
-0659 |
-0660 | class _Value extends StatelessWidget {
-0661 |   const _Value({required this.label, required this.value, this.last = false});
-0662 |   final String label;
-0663 |   final String value;
-0664 |   final bool last;
-0665 |   @override
-0666 |   Widget build(BuildContext context) => Container(
-0667 |         padding: const EdgeInsets.symmetric(vertical: 10),
-0668 |         decoration: BoxDecoration(
-0669 |           border: last
-0670 |               ? null
-0671 |               : Border(bottom: BorderSide(color: Colors.grey.shade200)),
-0672 |         ),
-0673 |         child: Row(
-0674 |           crossAxisAlignment: CrossAxisAlignment.start,
-0675 |           children: [
-0676 |             SizedBox(
-0677 |               width: 90,
-0678 |               child: Text(label, style: TextStyle(color: Colors.grey.shade700)),
-0679 |             ),
-0680 |             Expanded(
-0681 |               child: Text(
-0682 |                 value,
-0683 |                 style: const TextStyle(fontWeight: FontWeight.w700),
-0684 |               ),
-0685 |             ),
-0686 |           ],
-0687 |         ),
-0688 |       );
-0689 | }
-0690 |
-0691 | class _DocumentCard extends StatelessWidget {
-0692 |   const _DocumentCard({required this.document, required this.reference});
-0693 |   final ClaimDocument document;
-0694 |   final String reference;
-0695 |   @override
-0696 |   Widget build(BuildContext context) => Card(
-0697 |         margin: const EdgeInsets.only(bottom: 10),
-0698 |         child: ExpansionTile(
-0699 |           leading: const Icon(Icons.description_outlined),
-0700 |           title: Text(
-0701 |             document.originalName,
-0702 |             maxLines: 2,
-0703 |             overflow: TextOverflow.ellipsis,
-0704 |           ),
-0705 |           subtitle: Text(
-0706 |             '${document.documentType.replaceAll('_', ' ')} Â· ${document.extractionStatus.replaceAll('_', ' ')}',
-0707 |           ),
-0708 |           childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-0709 |           children: [
-0710 |             if (document.signedUrl != null)
-0711 |               Align(
-0712 |                 alignment: Alignment.centerLeft,
-0713 |                 child: TextButton.icon(
-0714 |                   onPressed: () => Navigator.push(
-0715 |                       context,
-0716 |                       MaterialPageRoute(
-0717 |                           builder: (_) => DocumentPreviewScreen(
-0718 |                               reference: reference,
-0719 |                               documentId: document.id,
-0720 |                               name: document.originalName))),
-0721 |                   icon: const Icon(Icons.open_in_new),
-0722 |                   label: const Text('View source document'),
-0723 |                 ),
-0724 |               ),
-0725 |             if (document.extractionNotes != null)
-0726 |               Align(
-0727 |                 alignment: Alignment.centerLeft,
-0728 |                 child: Text(
-0729 |                   document.extractionNotes!,
-0730 |                   style: TextStyle(color: Theme.of(context).colorScheme.error),
-0731 |                 ),
-0732 |               ),
-0733 |             if (document.fields.isEmpty)
-0734 |               const Align(
-0735 |                 alignment: Alignment.centerLeft,
-0736 |                 child: Text('No fields were extracted from this document.'),
-0737 |               ),
-0738 |             ...document.fields.map(
-0739 |               (field) => ListTile(
-0740 |                 contentPadding: EdgeInsets.zero,
-0741 |                 title: Text(field.fieldName.replaceAll('_', ' ')),
-0742 |                 subtitle: Text(field.normalizedValue),
-0743 |                 trailing: Text('${(field.confidence * 100).round()}%'),
+0577 |                       ...claim!.documents.map(
+0578 |                         (document) => _DocumentCard(
+0579 |                             document: document, reference: claim!.reference),
+0580 |                       ),
+0581 |                       const SizedBox(height: 24),
+0582 |                       Text(
+0583 |                         'Audit history',
+0584 |                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
+0585 |                               fontWeight: FontWeight.w800,
+0586 |                             ),
+0587 |                       ),
+0588 |                       const SizedBox(height: 10),
+0589 |                       if (claim!.auditEvents.isEmpty)
+0590 |                         const Text('No audit events are available.'),
+0591 |                       ...claim!.auditEvents.map(
+0592 |                         (event) => ListTile(
+0593 |                           contentPadding: EdgeInsets.zero,
+0594 |                           leading: const Icon(Icons.circle, size: 10),
+0595 |                           title: Text(
+0596 |                             (event['event_type'] as String)
+0597 |                                 .replaceAll('_', ' '),
+0598 |                           ),
+0599 |                           subtitle: Text(
+0600 |                             DateFormat('dd MMM yyyy, HH:mm').format(
+0601 |                               DateTime.parse(
+0602 |                                 event['created_at'] as String,
+0603 |                               ).toLocal(),
+0604 |                             ),
+0605 |                           ),
+0606 |                         ),
+0607 |                       ),
+0608 |                     ],
+0609 |                   ),
+0610 |                 ),
+0611 |     );
+0612 |   }
+0613 | }
+0614 |
+0615 | class _ProgressTimeline extends StatelessWidget {
+0616 |   const _ProgressTimeline({required this.status});
+0617 |   final String status;
+0618 |   @override
+0619 |   Widget build(BuildContext context) {
+0620 |     final stage = switch (status) {
+0621 |       'UPLOADED' || 'PROCESSING' || 'PROCESSING_FAILED' => 0,
+0622 |       'REVIEW_REQUIRED' ||
+0623 |       'INFORMATION_REQUIRED' ||
+0624 |       'INFORMATION_RECEIVED' =>
+0625 |         1,
+0626 |       'VERIFIED' => 2,
+0627 |       'APPROVED' || 'PAYMENT_PENDING' || 'REJECTED' => 3,
+0628 |       'PAID' => 4,
+0629 |       _ => 0
+0630 |     };
+0631 |     return Card(
+0632 |         child: Padding(
+0633 |             padding: const EdgeInsets.all(16),
+0634 |             child: Column(
+0635 |                 crossAxisAlignment: CrossAxisAlignment.stretch,
+0636 |                 children: [
+0637 |                   Text('Claim progress',
+0638 |                       style: Theme.of(context).textTheme.titleMedium),
+0639 |                   const SizedBox(height: 14),
+0640 |                   for (final (index, label) in [
+0641 |                     'Documents uploaded',
+0642 |                     'Evidence review',
+0643 |                     'Verified',
+0644 |                     status == 'REJECTED' ? 'Rejected' : 'Decision',
+0645 |                     'Payment completed'
+0646 |                   ].indexed)
+0647 |                     Padding(
+0648 |                         padding: const EdgeInsets.symmetric(vertical: 5),
+0649 |                         child: Row(children: [
+0650 |                           Icon(
+0651 |                               index < stage || status == 'PAID'
+0652 |                                   ? Icons.check_circle
+0653 |                                   : index == stage
+0654 |                                       ? Icons.radio_button_checked
+0655 |                                       : Icons.radio_button_unchecked,
+0656 |                               size: 20,
+0657 |                               color: index <= stage
+0658 |                                   ? Theme.of(context).colorScheme.primary
+0659 |                                   : Theme.of(context).colorScheme.outline),
+0660 |                           const SizedBox(width: 12),
+0661 |                           Expanded(
+0662 |                               child: Text(label,
+0663 |                                   style: TextStyle(
+0664 |                                       fontWeight: index == stage
+0665 |                                           ? FontWeight.bold
+0666 |                                           : FontWeight.normal)))
+0667 |                         ]))
+0668 |                 ])));
+0669 |   }
+0670 | }
+0671 |
+0672 | class _Value extends StatelessWidget {
+0673 |   const _Value({required this.label, required this.value, this.last = false});
+0674 |   final String label;
+0675 |   final String value;
+0676 |   final bool last;
+0677 |   @override
+0678 |   Widget build(BuildContext context) => Container(
+0679 |         padding: const EdgeInsets.symmetric(vertical: 10),
+0680 |         decoration: BoxDecoration(
+0681 |           border: last
+0682 |               ? null
+0683 |               : Border(bottom: BorderSide(color: Colors.grey.shade200)),
+0684 |         ),
+0685 |         child: Row(
+0686 |           crossAxisAlignment: CrossAxisAlignment.start,
+0687 |           children: [
+0688 |             SizedBox(
+0689 |               width: 90,
+0690 |               child: Text(label, style: TextStyle(color: Colors.grey.shade700)),
+0691 |             ),
+0692 |             Expanded(
+0693 |               child: Text(
+0694 |                 value,
+0695 |                 style: const TextStyle(fontWeight: FontWeight.w700),
+0696 |               ),
+0697 |             ),
+0698 |           ],
+0699 |         ),
+0700 |       );
+0701 | }
+0702 |
+0703 | class _DocumentCard extends StatelessWidget {
+0704 |   const _DocumentCard({required this.document, required this.reference});
+0705 |   final ClaimDocument document;
+0706 |   final String reference;
+0707 |   @override
+0708 |   Widget build(BuildContext context) => Card(
+0709 |         margin: const EdgeInsets.only(bottom: 10),
+0710 |         child: ExpansionTile(
+0711 |           leading: const Icon(Icons.description_outlined),
+0712 |           title: Text(
+0713 |             document.originalName,
+0714 |             maxLines: 2,
+0715 |             overflow: TextOverflow.ellipsis,
+0716 |           ),
+0717 |           subtitle: Text(
+0718 |             '${document.documentType.replaceAll('_', ' ')} · ${document.extractionStatus.replaceAll('_', ' ')}',
+0719 |           ),
+0720 |           childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+0721 |           children: [
+0722 |             if (document.signedUrl != null)
+0723 |               Align(
+0724 |                 alignment: Alignment.centerLeft,
+0725 |                 child: TextButton.icon(
+0726 |                   onPressed: () => Navigator.push(
+0727 |                       context,
+0728 |                       MaterialPageRoute(
+0729 |                           builder: (_) => DocumentPreviewScreen(
+0730 |                               reference: reference,
+0731 |                               documentId: document.id,
+0732 |                               name: document.originalName))),
+0733 |                   icon: const Icon(Icons.open_in_new),
+0734 |                   label: const Text('View source document'),
+0735 |                 ),
+0736 |               ),
+0737 |             if (document.extractionNotes != null)
+0738 |               Align(
+0739 |                 alignment: Alignment.centerLeft,
+0740 |                 child: Text(
+0741 |                   document.extractionNotes!,
+0742 |                   style: TextStyle(color: Theme.of(context).colorScheme.error),
+0743 |                 ),
 0744 |               ),
-0745 |             ),
-0746 |           ],
-0747 |         ),
-0748 |       );
-0749 | }
+0745 |             if (document.fields.isEmpty)
+0746 |               const Align(
+0747 |                 alignment: Alignment.centerLeft,
+0748 |                 child: Text('No fields were extracted from this document.'),
+0749 |               ),
+0750 |             ...document.fields.map(
+0751 |               (field) => ListTile(
+0752 |                 contentPadding: EdgeInsets.zero,
+0753 |                 title: Text(field.fieldName.replaceAll('_', ' ')),
+0754 |                 subtitle: Text(field.normalizedValue),
+0755 |                 trailing: Text('${(field.confidence * 100).round()}%'),
+0756 |               ),
+0757 |             ),
+0758 |           ],
+0759 |         ),
+0760 |       );
+0761 | }
 ```
 
 ## mobile/claimlens_mobile/lib/screens/claim_review_screen.dart
@@ -4940,7 +5508,7 @@ Symbols: `SplashScreen`: L4
 
 ## mobile/claimlens_mobile/lib/screens/staff_review_screen.dart
 
-217 lines. SHA-256: `3c566b0ee490b2fe102d782b8d7e48bcccb64ceaa1f0c85ccd4f9294b5aa1c94`.
+233 lines. SHA-256: `7309e08e0c9fd5ca98604fff66589d4f83e968872c76c7bbf63964c97cf09642`.
 
 Symbols: `StaffReviewScreen`: L7; `_StaffReviewScreenState`: L14
 
@@ -5044,124 +5612,140 @@ Symbols: `StaffReviewScreen`: L7; `_StaffReviewScreenState`: L14
 0097 |       appBar: AppBar(title: const Text('Review & correct')),
 0098 |       body: Form(
 0099 |           key: key,
-0100 |           child: ListView(padding: const EdgeInsets.all(20), children: [
-0101 |             const Text(
-0102 |                 'Compare every value with the source document. Corrections are recorded in the audit trail.'),
-0103 |             const SizedBox(height: 20),
-0104 |             TextFormField(
-0105 |                 controller: patient,
-0106 |                 decoration: const InputDecoration(labelText: 'Patient name'),
-0107 |                 validator: name),
-0108 |             const SizedBox(height: 16),
-0109 |             TextFormField(
-0110 |                 controller: provider,
-0111 |                 decoration: const InputDecoration(labelText: 'Provider name'),
-0112 |                 validator: name),
-0113 |             const SizedBox(height: 24),
-0114 |             for (final d in widget.claim.documents)
-0115 |               Padding(
-0116 |                   padding: const EdgeInsets.only(bottom: 16),
-0117 |                   child: Card(
-0118 |                       child: Padding(
-0119 |                           padding: const EdgeInsets.all(16),
-0120 |                           child: Column(
-0121 |                               crossAxisAlignment: CrossAxisAlignment.stretch,
-0122 |                               children: [
-0123 |                                 Text(d.originalName,
-0124 |                                     style: Theme.of(context)
-0125 |                                         .textTheme
-0126 |                                         .titleMedium),
-0127 |                                 Text(
-0128 |                                     'OCR amount: ${d.extractedCurrency ?? widget.claim.currency} ${d.extractedAmount?.toStringAsFixed(2) ?? "Not found"}'),
-0129 |                                 Text(
-0130 |                                     'Client proposal: ${d.clientProposedCurrency ?? d.confirmedCurrency ?? widget.claim.currency} ${(d.clientProposedAmount ?? d.confirmedAmount)?.toStringAsFixed(2) ?? "Not supplied"}'),
-0131 |                                 if (d.clientReportedIncorrectAmount)
-0132 |                                   const Text(
-0133 |                                       'Client reported an incorrect OCR amount. Compare the proposal with the source document.'),
-0134 |                                 Text(
-0135 |                                     '${friendlyLabel(d.documentType)} • ${friendlyLabel(d.extractionStatus)}'),
-0136 |                                 if (d.signedUrl != null)
-0137 |                                   TextButton.icon(
-0138 |                                       onPressed: () => Navigator.push(
-0139 |                                           context,
-0140 |                                           MaterialPageRoute(
-0141 |                                               builder: (_) =>
-0142 |                                                   DocumentPreviewScreen(
-0143 |                                                       reference: widget
-0144 |                                                           .claim.reference,
-0145 |                                                       documentId: d.id,
-0146 |                                                       name: d.originalName))),
-0147 |                                       icon: const Icon(Icons.open_in_new),
-0148 |                                       label: const Text(
-0149 |                                           'Compare source document')),
-0150 |                                 if (d.duplicateOf != null)
-0151 |                                   const Text(
-0152 |                                       'Duplicate evidence is excluded from the total.'),
-0153 |                                 SwitchListTile(
-0154 |                                     contentPadding: EdgeInsets.zero,
-0155 |                                     title: const Text('Include in claim total'),
-0156 |                                     value: included[d.id]!,
-0157 |                                     onChanged: busy || d.duplicateOf != null
-0158 |                                         ? null
-0159 |                                         : (v) =>
-0160 |                                             setState(() => included[d.id] = v)),
-0161 |                                 TextFormField(
-0162 |                                     controller: amounts[d.id],
-0163 |                                     keyboardType:
-0164 |                                         const TextInputType.numberWithOptions(
-0165 |                                             decimal: true),
-0166 |                                     decoration: const InputDecoration(
-0167 |                                         labelText: 'Confirmed amount'),
-0168 |                                     validator: (v) => included[d.id] == true &&
-0169 |                                             (double.tryParse(v ?? '') == null ||
-0170 |                                                 double.parse(v!) <= 0)
-0171 |                                         ? 'Enter a positive amount'
-0172 |                                         : null),
-0173 |                                 const SizedBox(height: 12),
-0174 |                                 TextFormField(
-0175 |                                     controller: currencies[d.id],
-0176 |                                     decoration: const InputDecoration(
-0177 |                                         labelText: 'Currency (three letters)'),
-0178 |                                     validator: (v) => included[d.id] == true &&
-0179 |                                             !RegExp(r'^[A-Za-z]{3}$')
-0180 |                                                 .hasMatch(v ?? '')
-0181 |                                         ? 'Enter a three-letter currency'
-0182 |                                         : null),
-0183 |                                 if (d.fields.isNotEmpty)
-0184 |                                   ExpansionTile(
-0185 |                                       title: const Text('Extracted fields'),
-0186 |                                       tilePadding: EdgeInsets.zero,
-0187 |                                       children: [
-0188 |                                         for (final f in d.fields)
-0189 |                                           Padding(
-0190 |                                               padding: const EdgeInsets.only(
-0191 |                                                   bottom: 12),
-0192 |                                               child: TextFormField(
-0193 |                                                   controller: fields[f.id],
-0194 |                                                   decoration: InputDecoration(
-0195 |                                                       labelText: friendlyLabel(
-0196 |                                                           f.fieldName),
-0197 |                                                       helperText:
-0198 |                                                           '${(f.confidence * 100).round()}% extraction confidence'),
-0199 |                                                   validator: (v) => v == null ||
-0200 |                                                           v.trim().isEmpty
-0201 |                                                       ? 'Enter a value'
-0202 |                                                       : null))
-0203 |                                       ]),
-0204 |                               ])))),
-0205 |             if (error != null)
-0206 |               Text(error!,
-0207 |                   style: TextStyle(color: Theme.of(context).colorScheme.error)),
-0208 |             const SizedBox(height: 16),
-0209 |             FilledButton.icon(
-0210 |                 onPressed: busy ? null : save,
-0211 |                 icon: const Icon(Icons.save_outlined),
-0212 |                 label: Text(busy ? 'Saving…' : 'Save reviewed information')),
-0213 |           ])));
-0214 |   String? name(String? value) => value == null || value.trim().length < 2
-0215 |       ? 'Enter at least 2 characters'
-0216 |       : null;
-0217 | }
+0100 |           child: ListView(
+0101 |               padding: EdgeInsets.fromLTRB(
+0102 |                   20, 20, 20, 20 + MediaQuery.paddingOf(context).bottom),
+0103 |               children: [
+0104 |                 const Text(
+0105 |                     'Compare every value with the source document. Corrections are recorded in the audit trail.'),
+0106 |                 const SizedBox(height: 20),
+0107 |                 TextFormField(
+0108 |                     controller: patient,
+0109 |                     decoration:
+0110 |                         const InputDecoration(labelText: 'Patient name'),
+0111 |                     validator: name),
+0112 |                 const SizedBox(height: 16),
+0113 |                 TextFormField(
+0114 |                     controller: provider,
+0115 |                     decoration:
+0116 |                         const InputDecoration(labelText: 'Provider name'),
+0117 |                     validator: name),
+0118 |                 const SizedBox(height: 24),
+0119 |                 for (final d in widget.claim.documents)
+0120 |                   Padding(
+0121 |                       padding: const EdgeInsets.only(bottom: 16),
+0122 |                       child: Card(
+0123 |                           child: Padding(
+0124 |                               padding: const EdgeInsets.all(16),
+0125 |                               child: Column(
+0126 |                                   crossAxisAlignment:
+0127 |                                       CrossAxisAlignment.stretch,
+0128 |                                   children: [
+0129 |                                     Text(d.originalName,
+0130 |                                         style: Theme.of(context)
+0131 |                                             .textTheme
+0132 |                                             .titleMedium),
+0133 |                                     Text(
+0134 |                                         'OCR amount: ${d.extractedCurrency ?? widget.claim.currency} ${d.extractedAmount?.toStringAsFixed(2) ?? "Not found"}'),
+0135 |                                     Text(
+0136 |                                         'Client proposal: ${d.clientProposedCurrency ?? d.confirmedCurrency ?? widget.claim.currency} ${(d.clientProposedAmount ?? d.confirmedAmount)?.toStringAsFixed(2) ?? "Not supplied"}'),
+0137 |                                     if (d.clientReportedIncorrectAmount)
+0138 |                                       const Text(
+0139 |                                           'Client reported an incorrect OCR amount. Compare the proposal with the source document.'),
+0140 |                                     Text(
+0141 |                                         '${friendlyLabel(d.documentType)} • ${friendlyLabel(d.extractionStatus)}'),
+0142 |                                     if (d.signedUrl != null)
+0143 |                                       TextButton.icon(
+0144 |                                           onPressed: () => Navigator.push(
+0145 |                                               context,
+0146 |                                               MaterialPageRoute(
+0147 |                                                   builder: (_) =>
+0148 |                                                       DocumentPreviewScreen(
+0149 |                                                           reference: widget
+0150 |                                                               .claim.reference,
+0151 |                                                           documentId: d.id,
+0152 |                                                           name:
+0153 |                                                               d.originalName))),
+0154 |                                           icon: const Icon(Icons.open_in_new),
+0155 |                                           label: const Text(
+0156 |                                               'Compare source document')),
+0157 |                                     if (d.duplicateOf != null)
+0158 |                                       const Text(
+0159 |                                           'Duplicate evidence is excluded from the total.'),
+0160 |                                     SwitchListTile(
+0161 |                                         contentPadding: EdgeInsets.zero,
+0162 |                                         title: const Text(
+0163 |                                             'Include in claim total'),
+0164 |                                         value: included[d.id]!,
+0165 |                                         onChanged: busy || d.duplicateOf != null
+0166 |                                             ? null
+0167 |                                             : (v) => setState(
+0168 |                                                 () => included[d.id] = v)),
+0169 |                                     TextFormField(
+0170 |                                         controller: amounts[d.id],
+0171 |                                         keyboardType: const TextInputType
+0172 |                                             .numberWithOptions(decimal: true),
+0173 |                                         decoration: const InputDecoration(
+0174 |                                             labelText: 'Confirmed amount'),
+0175 |                                         validator: (v) =>
+0176 |                                             included[d.id] == true &&
+0177 |                                                     (double.tryParse(v ?? '') ==
+0178 |                                                             null ||
+0179 |                                                         double.parse(v!) <= 0)
+0180 |                                                 ? 'Enter a positive amount'
+0181 |                                                 : null),
+0182 |                                     const SizedBox(height: 12),
+0183 |                                     TextFormField(
+0184 |                                         controller: currencies[d.id],
+0185 |                                         decoration: const InputDecoration(
+0186 |                                             labelText:
+0187 |                                                 'Currency (three letters)'),
+0188 |                                         validator: (v) => included[d.id] ==
+0189 |                                                     true &&
+0190 |                                                 !RegExp(r'^[A-Za-z]{3}$')
+0191 |                                                     .hasMatch(v ?? '')
+0192 |                                             ? 'Enter a three-letter currency'
+0193 |                                             : null),
+0194 |                                     if (d.fields.isNotEmpty)
+0195 |                                       ExpansionTile(
+0196 |                                           title: const Text('Extracted fields'),
+0197 |                                           tilePadding: EdgeInsets.zero,
+0198 |                                           children: [
+0199 |                                             for (final f in d.fields)
+0200 |                                               Padding(
+0201 |                                                   padding:
+0202 |                                                       const EdgeInsets.only(
+0203 |                                                           bottom: 12),
+0204 |                                                   child: TextFormField(
+0205 |                                                       controller: fields[f.id],
+0206 |                                                       decoration: InputDecoration(
+0207 |                                                           labelText:
+0208 |                                                               friendlyLabel(
+0209 |                                                                   f.fieldName),
+0210 |                                                           helperText:
+0211 |                                                               '${(f.confidence * 100).round()}% extraction confidence'),
+0212 |                                                       validator: (v) => v ==
+0213 |                                                                   null ||
+0214 |                                                               v.trim().isEmpty
+0215 |                                                           ? 'Enter a value'
+0216 |                                                           : null))
+0217 |                                           ]),
+0218 |                                   ])))),
+0219 |                 if (error != null)
+0220 |                   Text(error!,
+0221 |                       style: TextStyle(
+0222 |                           color: Theme.of(context).colorScheme.error)),
+0223 |                 const SizedBox(height: 16),
+0224 |                 FilledButton.icon(
+0225 |                     onPressed: busy ? null : save,
+0226 |                     icon: const Icon(Icons.save_outlined),
+0227 |                     label:
+0228 |                         Text(busy ? 'Saving…' : 'Save reviewed information')),
+0229 |               ])));
+0230 |   String? name(String? value) => value == null || value.trim().length < 2
+0231 |       ? 'Enter at least 2 characters'
+0232 |       : null;
+0233 | }
 ```
 
 ## mobile/claimlens_mobile/lib/screens/workspace_screens.dart
@@ -6591,7 +7175,7 @@ Symbols: `StatusChip`: L3
 
 ## mobile/claimlens_mobile/lib/widgets/workspace_form.dart
 
-158 lines. SHA-256: `9a05bb52ae21b5212d0c98278091e62ed6153dfee763d089524c493c71a3859c`.
+163 lines. SHA-256: `dc68b01a902db276749e377aa7e8b5269908829d8a8a89bee80bf8c80c853e09`.
 
 Symbols: `FormEntry`: L5; `_WorkspaceForm`: L37; `_WorkspaceFormState`: L52
 
@@ -6657,108 +7241,113 @@ Symbols: `FormEntry`: L5; `_WorkspaceForm`: L37; `_WorkspaceFormState`: L52
 0059 |   @override
 0060 |   Widget build(BuildContext context) => Padding(
 0061 |         padding: EdgeInsets.fromLTRB(
-0062 |             24, 24, 24, MediaQuery.viewInsetsOf(context).bottom + 24),
-0063 |         child: SingleChildScrollView(
-0064 |             child: Form(
-0065 |                 key: key,
-0066 |                 child: Column(
-0067 |                     mainAxisSize: MainAxisSize.min,
-0068 |                     crossAxisAlignment: CrossAxisAlignment.stretch,
-0069 |                     children: [
-0070 |                       Text(widget.title,
-0071 |                           style: Theme.of(context).textTheme.headlineSmall),
-0072 |                       if (widget.explanation != null)
-0073 |                         Padding(
-0074 |                             padding: const EdgeInsets.only(top: 12),
-0075 |                             child: Text(widget.explanation!)),
-0076 |                       const SizedBox(height: 20),
-0077 |                       for (final field in widget.fields)
+0062 |             24,
+0063 |             24,
+0064 |             24,
+0065 |             MediaQuery.viewInsetsOf(context).bottom +
+0066 |                 MediaQuery.paddingOf(context).bottom +
+0067 |                 24),
+0068 |         child: SingleChildScrollView(
+0069 |             child: Form(
+0070 |                 key: key,
+0071 |                 child: Column(
+0072 |                     mainAxisSize: MainAxisSize.min,
+0073 |                     crossAxisAlignment: CrossAxisAlignment.stretch,
+0074 |                     children: [
+0075 |                       Text(widget.title,
+0076 |                           style: Theme.of(context).textTheme.headlineSmall),
+0077 |                       if (widget.explanation != null)
 0078 |                         Padding(
-0079 |                             padding: const EdgeInsets.only(bottom: 16),
-0080 |                             child: field.options != null
-0081 |                                 ? DropdownButtonFormField<String>(
-0082 |                                     isExpanded: true,
-0083 |                                     initialValue:
-0084 |                                         field.options!.containsKey(field.value)
-0085 |                                             ? field.value
-0086 |                                             : null,
-0087 |                                     decoration:
-0088 |                                         InputDecoration(labelText: field.label),
-0089 |                                     items: field.options!.entries
-0090 |                                         .map((entry) => DropdownMenuItem(
-0091 |                                             value: entry.key,
-0092 |                                             child: Text(entry.value,
-0093 |                                                 overflow:
-0094 |                                                     TextOverflow.ellipsis)))
-0095 |                                         .toList(),
-0096 |                                     onChanged: busy
-0097 |                                         ? null
-0098 |                                         : (v) =>
-0099 |                                             values[field.keyName] = v ?? '',
-0100 |                                     validator: (v) =>
-0101 |                                         field.required && (v == null || v.isEmpty)
-0102 |                                             ? 'Choose ${field.label.toLowerCase()}'
-0103 |                                             : null)
-0104 |                                 : TextFormField(
-0105 |                                     initialValue: field.value,
-0106 |                                     enabled: !busy,
-0107 |                                     obscureText: field.secret,
-0108 |                                     maxLines: field.secret ? 1 : field.lines,
-0109 |                                     keyboardType: field.numeric ? const TextInputType.numberWithOptions(decimal: true) : null,
-0110 |                                     decoration: InputDecoration(labelText: field.label),
-0111 |                                     onChanged: (v) => values[field.keyName] = v,
-0112 |                                     validator: (v) => field.required && (v == null || v.trim().isEmpty) ? 'Enter ${field.label.toLowerCase()}' : null)),
-0113 |                       if (error != null)
-0114 |                         Padding(
-0115 |                             padding: const EdgeInsets.only(bottom: 16),
-0116 |                             child: Text(error!,
-0117 |                                 style: TextStyle(
-0118 |                                     color:
-0119 |                                         Theme.of(context).colorScheme.error))),
-0120 |                       FilledButton(
-0121 |                           onPressed: busy
-0122 |                               ? null
-0123 |                               : () async {
-0124 |                                   if (!key.currentState!.validate()) return;
-0125 |                                   setState(() {
-0126 |                                     busy = true;
-0127 |                                     error = null;
-0128 |                                   });
-0129 |                                   try {
-0130 |                                     await widget.submit(values);
-0131 |                                     if (context.mounted) {
-0132 |                                       Navigator.pop(context, true);
-0133 |                                     }
-0134 |                                   } catch (exception) {
-0135 |                                     if (mounted) {
-0136 |                                       setState(() {
-0137 |                                         busy = false;
-0138 |                                         error = readableApiError(exception);
-0139 |                                       });
-0140 |                                     }
-0141 |                                   }
-0142 |                                 },
-0143 |                           child: busy
-0144 |                               ? const SizedBox(
-0145 |                                   width: 20,
-0146 |                                   height: 20,
-0147 |                                   child:
-0148 |                                       CircularProgressIndicator(strokeWidth: 2))
-0149 |                               : Text(widget.button)),
-0150 |                       TextButton(
-0151 |                           onPressed: busy ? null : () => Navigator.pop(context),
-0152 |                           child: const Text('Cancel')),
-0153 |                     ]))),
-0154 |       );
-0155 | }
-0156 |
-0157 | Map<String, String> labelOptions(Iterable<String> values) =>
-0158 |     {for (final value in values) value: friendlyLabel(value)};
+0079 |                             padding: const EdgeInsets.only(top: 12),
+0080 |                             child: Text(widget.explanation!)),
+0081 |                       const SizedBox(height: 20),
+0082 |                       for (final field in widget.fields)
+0083 |                         Padding(
+0084 |                             padding: const EdgeInsets.only(bottom: 16),
+0085 |                             child: field.options != null
+0086 |                                 ? DropdownButtonFormField<String>(
+0087 |                                     isExpanded: true,
+0088 |                                     initialValue:
+0089 |                                         field.options!.containsKey(field.value)
+0090 |                                             ? field.value
+0091 |                                             : null,
+0092 |                                     decoration:
+0093 |                                         InputDecoration(labelText: field.label),
+0094 |                                     items: field.options!.entries
+0095 |                                         .map((entry) => DropdownMenuItem(
+0096 |                                             value: entry.key,
+0097 |                                             child: Text(entry.value,
+0098 |                                                 overflow:
+0099 |                                                     TextOverflow.ellipsis)))
+0100 |                                         .toList(),
+0101 |                                     onChanged: busy
+0102 |                                         ? null
+0103 |                                         : (v) =>
+0104 |                                             values[field.keyName] = v ?? '',
+0105 |                                     validator: (v) =>
+0106 |                                         field.required && (v == null || v.isEmpty)
+0107 |                                             ? 'Choose ${field.label.toLowerCase()}'
+0108 |                                             : null)
+0109 |                                 : TextFormField(
+0110 |                                     initialValue: field.value,
+0111 |                                     enabled: !busy,
+0112 |                                     obscureText: field.secret,
+0113 |                                     maxLines: field.secret ? 1 : field.lines,
+0114 |                                     keyboardType: field.numeric ? const TextInputType.numberWithOptions(decimal: true) : null,
+0115 |                                     decoration: InputDecoration(labelText: field.label),
+0116 |                                     onChanged: (v) => values[field.keyName] = v,
+0117 |                                     validator: (v) => field.required && (v == null || v.trim().isEmpty) ? 'Enter ${field.label.toLowerCase()}' : null)),
+0118 |                       if (error != null)
+0119 |                         Padding(
+0120 |                             padding: const EdgeInsets.only(bottom: 16),
+0121 |                             child: Text(error!,
+0122 |                                 style: TextStyle(
+0123 |                                     color:
+0124 |                                         Theme.of(context).colorScheme.error))),
+0125 |                       FilledButton(
+0126 |                           onPressed: busy
+0127 |                               ? null
+0128 |                               : () async {
+0129 |                                   if (!key.currentState!.validate()) return;
+0130 |                                   setState(() {
+0131 |                                     busy = true;
+0132 |                                     error = null;
+0133 |                                   });
+0134 |                                   try {
+0135 |                                     await widget.submit(values);
+0136 |                                     if (context.mounted) {
+0137 |                                       Navigator.pop(context, true);
+0138 |                                     }
+0139 |                                   } catch (exception) {
+0140 |                                     if (mounted) {
+0141 |                                       setState(() {
+0142 |                                         busy = false;
+0143 |                                         error = readableApiError(exception);
+0144 |                                       });
+0145 |                                     }
+0146 |                                   }
+0147 |                                 },
+0148 |                           child: busy
+0149 |                               ? const SizedBox(
+0150 |                                   width: 20,
+0151 |                                   height: 20,
+0152 |                                   child:
+0153 |                                       CircularProgressIndicator(strokeWidth: 2))
+0154 |                               : Text(widget.button)),
+0155 |                       TextButton(
+0156 |                           onPressed: busy ? null : () => Navigator.pop(context),
+0157 |                           child: const Text('Cancel')),
+0158 |                     ]))),
+0159 |       );
+0160 | }
+0161 |
+0162 | Map<String, String> labelOptions(Iterable<String> values) =>
+0163 |     {for (final value in values) value: friendlyLabel(value)};
 ```
 
 ## mobile/claimlens_mobile/pubspec.yaml
 
-29 lines. SHA-256: `248239f6e37ecd90a892ce0f25f3c9b326e06400f5e19185d1e46d2f77bb5f2a`.
+29 lines. SHA-256: `f139f66b81f4085b3dfabfa41fd51c964d097aac015e4a4f1b5defa7e22e1748`.
 
 Symbols: Configuration/resource file.
 
@@ -6766,7 +7355,7 @@ Symbols: Configuration/resource file.
 0001 | name: claimlens
 0002 | description: ClaimLens mobile client for claim submission and review.
 0003 | publish_to: none
-0004 | version: 1.1.0+2
+0004 | version: 1.2.0+3
 0005 |
 0006 | environment:
 0007 |   sdk: ">=3.4.0 <4.0.0"
@@ -6806,7 +7395,7 @@ Symbols: Configuration/resource file.
 
 ## services/api/app/backups.py
 
-157 lines. SHA-256: `f3de010c725f97714f20584ca9697162efd436688b0649c782961c376a27668c`.
+157 lines. SHA-256: `5aeae9fc5bf8040a01fd2f5374f5346936bd5c4615ce28261decc49adef28925`.
 
 Symbols: `derive`: L23–L26; `create_backup`: L29–L55; `open_backup`: L58–L88; `main`: L91–L153
 
@@ -6829,7 +7418,7 @@ Symbols: `derive`: L23–L26; `create_backup`: L29–L55; `open_backup`: L58–L
 0016 | from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 0017 | from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 0018 |
-0019 | COLLECTIONS = ['profiles', 'claims', 'claim_documents', 'claim_extracted_fields', 'claim_processing_jobs', 'processing_queue', 'document_fingerprints', 'claim_information_requests', 'claim_appeals', 'audit_events', 'notifications', 'configuration']
+0019 | COLLECTIONS = ['profiles', 'claims', 'claim_documents', 'claim_extracted_fields', 'claim_processing_jobs', 'processing_queue', 'document_fingerprints', 'claim_information_requests', 'claim_appeals', 'audit_events', 'notifications', 'configuration', 'support_threads', 'support_messages', 'support_message_requests']
 0020 | MAGIC = b'CLB1'
 0021 |
 0022 |
@@ -8275,9 +8864,9 @@ Symbols: `queue_record`: L15–L23; `enqueue`: L26–L30; `take_job`: L33–L82;
 
 ## services/api/app/main.py
 
-97 lines. SHA-256: `7dc6fd15347171d0307d9c2d9d06ad300e543397f2736c88a080f30fb5676c87`.
+99 lines. SHA-256: `651370312a46157e4fbdce6047dd61f7699e8ba4faabcd3eadee3f24ada3c932`.
 
-Symbols: `lifespan`: L23–L46; `validation_error`: L59–L61; `root`: L83–L88; `health_check`: L92–L97
+Symbols: `lifespan`: L24–L47; `validation_error`: L60–L62; `root`: L85–L90; `health_check`: L94–L99
 
 ```python
 0001 | from contextlib import asynccontextmanager
@@ -8295,88 +8884,90 @@ Symbols: `lifespan`: L23–L46; `validation_error`: L59–L61; `root`: L83–L88
 0013 | from .documents import router as documents_router
 0014 | from .routers.claim_tools import router as claim_tools_router
 0015 | from .push import router as push_router
-0016 |
+0016 | from .routers.chat import router as chat_router
 0017 |
-0018 | APP_NAME = "ClaimLens API"
-0019 | APP_VERSION = "1.1.0"
-0020 |
+0018 |
+0019 | APP_NAME = "ClaimLens API"
+0020 | APP_VERSION = "1.2.0"
 0021 |
-0022 | @asynccontextmanager
-0023 | async def lifespan(application: FastAPI):
-0024 |     application.state.http = httpx.AsyncClient(timeout=httpx.Timeout(60.0))
-0025 |     from .jobs import worker_loop
-0026 |
-0027 |     worker = (
-0028 |         asyncio.create_task(worker_loop())
-0029 |         if os.getenv("PROCESSING_WORKER_ENABLED", "true").lower() == "true"
-0030 |         else None
-0031 |     )
-0032 |     from .push import push_loop
-0033 |
-0034 |     push_worker = (
-0035 |         asyncio.create_task(push_loop())
-0036 |         if os.getenv("PUSH_WORKER_ENABLED", "true").lower() == "true"
-0037 |         else None
-0038 |     )
-0039 |     yield
-0040 |     if worker:
-0041 |         worker.cancel()
-0042 |         await asyncio.gather(worker, return_exceptions=True)
-0043 |     if push_worker:
-0044 |         push_worker.cancel()
-0045 |         await asyncio.gather(push_worker, return_exceptions=True)
-0046 |     await application.state.http.aclose()
-0047 |
+0022 |
+0023 | @asynccontextmanager
+0024 | async def lifespan(application: FastAPI):
+0025 |     application.state.http = httpx.AsyncClient(timeout=httpx.Timeout(60.0))
+0026 |     from .jobs import worker_loop
+0027 |
+0028 |     worker = (
+0029 |         asyncio.create_task(worker_loop())
+0030 |         if os.getenv("PROCESSING_WORKER_ENABLED", "true").lower() == "true"
+0031 |         else None
+0032 |     )
+0033 |     from .push import push_loop
+0034 |
+0035 |     push_worker = (
+0036 |         asyncio.create_task(push_loop())
+0037 |         if os.getenv("PUSH_WORKER_ENABLED", "true").lower() == "true"
+0038 |         else None
+0039 |     )
+0040 |     yield
+0041 |     if worker:
+0042 |         worker.cancel()
+0043 |         await asyncio.gather(worker, return_exceptions=True)
+0044 |     if push_worker:
+0045 |         push_worker.cancel()
+0046 |         await asyncio.gather(push_worker, return_exceptions=True)
+0047 |     await application.state.http.aclose()
 0048 |
-0049 | app = FastAPI(
-0050 |     title=APP_NAME,
-0051 |     description="Firebase API for ClaimLens",
-0052 |     version=APP_VERSION,
-0053 |     lifespan=lifespan,
-0054 | )
-0055 |
-0056 | settings = get_settings()
-0057 |
-0058 | @app.exception_handler(RequestValidationError)
-0059 | async def validation_error(request, error):
-0060 |     # Do not echo passwords, tokens or medical input in validation errors.
-0061 |     return JSONResponse({'detail': [{'loc': list(item['loc']), 'msg': item['msg'], 'type': item['type']} for item in error.errors()]}, status_code=422)
-0062 | from .hardening import security_defaults
-0063 |
-0064 | app.middleware("http")(security_defaults)
-0065 | app.add_middleware(
-0066 |     CORSMiddleware,
-0067 |     allow_origins=settings.cors_origins,
-0068 |     allow_credentials=True,
-0069 |     allow_methods=["*"],
-0070 |     allow_headers=["*"],
-0071 | )
-0072 |
-0073 | app.include_router(auth.router, prefix="/api/v1")
-0074 | app.include_router(profile.router, prefix="/api/v1")
-0075 | app.include_router(claims.router, prefix="/api/v1")
-0076 | app.include_router(documents_router, prefix="/api/v1")
-0077 | app.include_router(workspace.router, prefix="/api/v1")
-0078 | app.include_router(claim_tools_router, prefix="/api/v1")
-0079 | app.include_router(push_router, prefix="/api/v1")
-0080 |
-0081 |
-0082 | @app.get("/", tags=["service"])
-0083 | def root() -> dict[str, str]:
-0084 |     return {
-0085 |         "name": APP_NAME,
-0086 |         "version": APP_VERSION,
-0087 |         "status": "running",
-0088 |     }
-0089 |
-0090 |
-0091 | @app.get("/api/v1/health", tags=["service"])
-0092 | def health_check() -> dict[str, str]:
-0093 |     return {
-0094 |         "status": "healthy",
-0095 |         "service": APP_NAME,
-0096 |         "version": APP_VERSION,
-0097 |     }
+0049 |
+0050 | app = FastAPI(
+0051 |     title=APP_NAME,
+0052 |     description="Firebase API for ClaimLens",
+0053 |     version=APP_VERSION,
+0054 |     lifespan=lifespan,
+0055 | )
+0056 |
+0057 | settings = get_settings()
+0058 |
+0059 | @app.exception_handler(RequestValidationError)
+0060 | async def validation_error(request, error):
+0061 |     # Do not echo passwords, tokens or medical input in validation errors.
+0062 |     return JSONResponse({'detail': [{'loc': list(item['loc']), 'msg': item['msg'], 'type': item['type']} for item in error.errors()]}, status_code=422)
+0063 | from .hardening import security_defaults
+0064 |
+0065 | app.middleware("http")(security_defaults)
+0066 | app.add_middleware(
+0067 |     CORSMiddleware,
+0068 |     allow_origins=settings.cors_origins,
+0069 |     allow_credentials=True,
+0070 |     allow_methods=["*"],
+0071 |     allow_headers=["*"],
+0072 | )
+0073 |
+0074 | app.include_router(auth.router, prefix="/api/v1")
+0075 | app.include_router(profile.router, prefix="/api/v1")
+0076 | app.include_router(claims.router, prefix="/api/v1")
+0077 | app.include_router(documents_router, prefix="/api/v1")
+0078 | app.include_router(workspace.router, prefix="/api/v1")
+0079 | app.include_router(claim_tools_router, prefix="/api/v1")
+0080 | app.include_router(push_router, prefix="/api/v1")
+0081 | app.include_router(chat_router, prefix="/api/v1")
+0082 |
+0083 |
+0084 | @app.get("/", tags=["service"])
+0085 | def root() -> dict[str, str]:
+0086 |     return {
+0087 |         "name": APP_NAME,
+0088 |         "version": APP_VERSION,
+0089 |         "status": "running",
+0090 |     }
+0091 |
+0092 |
+0093 | @app.get("/api/v1/health", tags=["service"])
+0094 | def health_check() -> dict[str, str]:
+0095 |     return {
+0096 |         "status": "healthy",
+0097 |         "service": APP_NAME,
+0098 |         "version": APP_VERSION,
+0099 |     }
 ```
 
 ## services/api/app/ocr.py
@@ -9198,6 +9789,374 @@ Symbols: `firebase_request`: L18–L47; `session`: L50–L67; `login`: L71–L81
 0157 |         request, "sendOobCode", {"requestType": "VERIFY_EMAIL", "idToken": user.token}
 0158 |     )
 0159 |     return {"message": "Verification email sent. Check your inbox and spam folder."}
+```
+
+## services/api/app/routers/chat.py
+
+359 lines. SHA-256: `3c9d609eeb77431ebe957615b4411c965c1d99098fee91848bf2b021e8aa81cc`.
+
+Symbols: `allowed`: L18–L22; `membership`: L25–L30; `visible`: L33–L45; `NewConversation`: L48–L56; `NewMessage`: L59–L68; `ReadMessages`: L71–L72; `thread_reference`: L75–L78; `create_conversation`: L82–L116; `conversations`: L120–L164; `messages`: L168–L218; `send_message`: L222–L321; `mark_read`: L325–L359; `clean`: L53–L56; `clean`: L65–L68; `create`: L97–L114; `load`: L129–L162; `load`: L182–L216; `send`: L247–L319; `read`: L336–L357
+
+```python
+0001 | """Private client support threads with a shared, attributed staff inbox."""
+0002 |
+0003 | import asyncio
+0004 | import hashlib
+0005 | from datetime import datetime
+0006 |
+0007 | from fastapi import APIRouter, Depends, HTTPException, Request, Query
+0008 | from pydantic import BaseModel, Field, field_validator
+0009 | from firebase_admin import firestore
+0010 |
+0011 | from ..firebase import FirebaseGateway, now
+0012 | from ..security import CurrentUser, get_current_user
+0013 |
+0014 | router = APIRouter(prefix="/chat", tags=["support chat"])
+0015 | STAFF = {"administrator", "supervisor", "claims_officer"}
+0016 |
+0017 |
+0018 | def allowed(user):
+0019 |     if user.profile.role not in STAFF | {"client"}:
+0020 |         raise HTTPException(
+0021 |             403, "Support chat is available to clients and support staff."
+0022 |         )
+0023 |
+0024 |
+0025 | def membership(user, thread):
+0026 |     allowed(user)
+0027 |     if not thread or (
+0028 |         user.profile.role == "client" and thread.get("client_id") != user.id
+0029 |     ):
+0030 |         raise HTTPException(404, "Conversation not found.")
+0031 |
+0032 |
+0033 | def visible(thread, user):
+0034 |     result = {
+0035 |         key: value
+0036 |         for key, value in thread.items()
+0037 |         if key not in {"staff_seen", "client_seen"}
+0038 |     }
+0039 |     seen = (
+0040 |         thread.get("client_seen", 0)
+0041 |         if user.profile.role == "client"
+0042 |         else thread.get("staff_seen", {}).get(user.id, 0)
+0043 |     )
+0044 |     result["unread_count"] = max(0, thread.get("last_sequence", 0) - seen)
+0045 |     return result
+0046 |
+0047 |
+0048 | class NewConversation(BaseModel):
+0049 |     subject: str = Field(default="Claim questions", min_length=2, max_length=120)
+0050 |
+0051 |     @field_validator("subject")
+0052 |     @classmethod
+0053 |     def clean(cls, value):
+0054 |         if len(value.strip()) < 2:
+0055 |             raise ValueError("Enter a subject with at least two characters.")
+0056 |         return value.strip()
+0057 |
+0058 |
+0059 | class NewMessage(BaseModel):
+0060 |     client_message_id: str = Field(pattern=r"^[a-f0-9]{32}$")
+0061 |     text: str = Field(min_length=1, max_length=4000)
+0062 |
+0063 |     @field_validator("text")
+0064 |     @classmethod
+0065 |     def clean(cls, value):
+0066 |         if not value.strip():
+0067 |             raise ValueError("Enter a message.")
+0068 |         return value.strip()
+0069 |
+0070 |
+0071 | class ReadMessages(BaseModel):
+0072 |     through_sequence: int = Field(ge=0, le=999999999999)
+0073 |
+0074 |
+0075 | def thread_reference(store, identifier):
+0076 |     if len(identifier) != 64 or any(c not in "0123456789abcdef" for c in identifier):
+0077 |         raise HTTPException(404, "Conversation not found.")
+0078 |     return store.db.collection("support_threads").document(identifier)
+0079 |
+0080 |
+0081 | @router.post("/conversations", status_code=201)
+0082 | async def create_conversation(
+0083 |     payload: NewConversation,
+0084 |     request: Request,
+0085 |     user: CurrentUser = Depends(get_current_user),
+0086 | ):
+0087 |     allowed(user)
+0088 |     if user.profile.role != "client":
+0089 |         raise HTTPException(
+0090 |             403, "Clients start support conversations; staff reply from the inbox."
+0091 |         )
+0092 |     store = FirebaseGateway(request)
+0093 |     identifier = hashlib.sha256(user.id.encode()).hexdigest()
+0094 |     ref = thread_reference(store, identifier)
+0095 |
+0096 |     @firestore.transactional
+0097 |     def create(tx):
+0098 |         old = ref.get(transaction=tx)
+0099 |         if old.exists:
+0100 |             return visible(old.to_dict(), user)
+0101 |         record = {
+0102 |             "id": identifier,
+0103 |             "client_id": user.id,
+0104 |             "client_name": user.profile.display_name,
+0105 |             "subject": payload.subject,
+0106 |             "created_at": now(),
+0107 |             "updated_at": now(),
+0108 |             "last_sequence": 0,
+0109 |             "last_message": "",
+0110 |             "staff_seen": {},
+0111 |             "client_seen": 0,
+0112 |         }
+0113 |         tx.set(ref, record)
+0114 |         return visible(record, user)
+0115 |
+0116 |     return await asyncio.to_thread(create, store.db.transaction())
+0117 |
+0118 |
+0119 | @router.get("/conversations")
+0120 | async def conversations(
+0121 |     request: Request,
+0122 |     before: str | None = None,
+0123 |     limit: int = Query(default=30, ge=1, le=100),
+0124 |     user: CurrentUser = Depends(get_current_user),
+0125 | ):
+0126 |     allowed(user)
+0127 |     store = FirebaseGateway(request)
+0128 |
+0129 |     def load():
+0130 |         if user.profile.role == "client":
+0131 |             identifier = hashlib.sha256(user.id.encode()).hexdigest()
+0132 |             snap = thread_reference(store, identifier).get()
+0133 |             rows = [snap.to_dict()] if snap.exists else []
+0134 |             return {
+0135 |                 "conversations": [visible(r, user) for r in rows],
+0136 |                 "next_before": None,
+0137 |             }
+0138 |         query = store.db.collection("support_threads").order_by(
+0139 |             "updated_at", direction=firestore.Query.DESCENDING
+0140 |         )
+0141 |         if before:
+0142 |             try:
+0143 |                 stamp, identifier = before.split("|", 1)
+0144 |                 datetime.fromisoformat(stamp)
+0145 |                 ref = thread_reference(store, identifier)
+0146 |             except (ValueError, HTTPException):
+0147 |                 raise HTTPException(422, "Invalid conversation page cursor.")
+0148 |             query = query.order_by(
+0149 |                 "__name__", direction=firestore.Query.DESCENDING
+0150 |             ).start_after({"updated_at": stamp, "__name__": ref})
+0151 |         else:
+0152 |             query = query.order_by("__name__", direction=firestore.Query.DESCENDING)
+0153 |         rows = [s.to_dict() for s in query.limit(limit + 1).stream()]
+0154 |         cursor = (
+0155 |             f"{rows[limit - 1]['updated_at']}|{rows[limit - 1]['id']}"
+0156 |             if len(rows) > limit
+0157 |             else None
+0158 |         )
+0159 |         return {
+0160 |             "conversations": [visible(r, user) for r in rows[:limit]],
+0161 |             "next_before": cursor,
+0162 |         }
+0163 |
+0164 |     return await asyncio.to_thread(load)
+0165 |
+0166 |
+0167 | @router.get("/conversations/{identifier}/messages")
+0168 | async def messages(
+0169 |     identifier: str,
+0170 |     request: Request,
+0171 |     after: int | None = Query(default=None, ge=0, le=999999999999),
+0172 |     before: int | None = Query(default=None, ge=1, le=999999999999),
+0173 |     limit: int = Query(default=50, ge=1, le=100),
+0174 |     user: CurrentUser = Depends(get_current_user),
+0175 | ):
+0176 |     allowed(user)
+0177 |     if after is not None and before is not None:
+0178 |         raise HTTPException(422, "Use either before or after, not both.")
+0179 |     store = FirebaseGateway(request)
+0180 |     ref = thread_reference(store, identifier)
+0181 |
+0182 |     def load():
+0183 |         snap = ref.get()
+0184 |         thread = snap.to_dict() if snap.exists else None
+0185 |         membership(user, thread)
+0186 |         if after is not None and after >= thread.get("last_sequence", 0):
+0187 |             return {
+0188 |                 "conversation": visible(thread, user),
+0189 |                 "messages": [],
+0190 |                 "has_more": False,
+0191 |             }
+0192 |         collection = store.db.collection("support_messages")
+0193 |         # Sequence IDs are allocated atomically with each message. Bounded batch
+0194 |         # reads avoid downloading the whole history or requiring custom indexes.
+0195 |         last = thread.get("last_sequence", 0)
+0196 |         if after is not None:
+0197 |             low, high = after + 1, min(last, after + limit)
+0198 |             more = high < last
+0199 |         else:
+0200 |             high = min(last, before - 1 if before is not None else last)
+0201 |             low = max(1, high - limit + 1)
+0202 |             more = low > 1
+0203 |         references = [
+0204 |             collection.document(f"{identifier}_{n:012d}") for n in range(low, high + 1)
+0205 |         ]
+0206 |         rows = (
+0207 |             [s.to_dict() for s in store.db.get_all(references) if s.exists]
+0208 |             if references
+0209 |             else []
+0210 |         )
+0211 |         rows.sort(key=lambda row: row["sequence"])
+0212 |         return {
+0213 |             "conversation": visible(thread, user),
+0214 |             "messages": rows,
+0215 |             "has_more": more,
+0216 |         }
+0217 |
+0218 |     return await asyncio.to_thread(load)
+0219 |
+0220 |
+0221 | @router.post("/conversations/{identifier}/messages", status_code=201)
+0222 | async def send_message(
+0223 |     identifier: str,
+0224 |     payload: NewMessage,
+0225 |     request: Request,
+0226 |     user: CurrentUser = Depends(get_current_user),
+0227 | ):
+0228 |     allowed(user)
+0229 |     from .. import hardening
+0230 |
+0231 |     wait = await asyncio.to_thread(hardening.consume, "chat:" + user.id, 60, 60)
+0232 |     if wait:
+0233 |         raise HTTPException(
+0234 |             429,
+0235 |             "Too many messages. Please wait before sending again.",
+0236 |             headers={"Retry-After": str(wait)},
+0237 |         )
+0238 |     store = FirebaseGateway(request)
+0239 |     ref = thread_reference(store, identifier)
+0240 |     # Retries keep the same request key. The key is scoped to sender + thread.
+0241 |     key = hashlib.sha256(
+0242 |         f"{identifier}:{user.id}:{payload.client_message_id}".encode()
+0243 |     ).hexdigest()
+0244 |     receipt = store.db.collection("support_message_requests").document(key)
+0245 |
+0246 |     @firestore.transactional
+0247 |     def send(tx):
+0248 |         snap = ref.get(transaction=tx)
+0249 |         thread = snap.to_dict() if snap.exists else None
+0250 |         membership(user, thread)
+0251 |         prior = receipt.get(transaction=tx)
+0252 |         if prior.exists:
+0253 |             prior_message = (
+0254 |                 store.db.collection("support_messages")
+0255 |                 .document(prior.to_dict()["message_id"])
+0256 |                 .get(transaction=tx)
+0257 |                 .to_dict()
+0258 |             )
+0259 |             if prior_message["text"] != payload.text:
+0260 |                 raise HTTPException(
+0261 |                     409, "This send key was used for a different message."
+0262 |                 )
+0263 |             return prior_message
+0264 |         sequence = thread.get("last_sequence", 0) + 1
+0265 |         if sequence > 999999999999:
+0266 |             raise HTTPException(
+0267 |                 409, "Conversation limit reached. Contact your administrator."
+0268 |             )
+0269 |         message_ref = store.db.collection("support_messages").document(
+0270 |             f"{identifier}_{sequence:012d}"
+0271 |         )
+0272 |         message = {
+0273 |             "id": message_ref.id,
+0274 |             "conversation_id": identifier,
+0275 |             "sequence": sequence,
+0276 |             "client_message_id": payload.client_message_id,
+0277 |             "sender_id": user.id,
+0278 |             "sender_name": user.profile.display_name,
+0279 |             "sender_role": user.profile.role,
+0280 |             "text": payload.text,
+0281 |             "sent_at": now(),
+0282 |         }
+0283 |         patch = {
+0284 |             "last_sequence": sequence,
+0285 |             "last_message": payload.text[:160],
+0286 |             "last_sender_name": user.profile.display_name,
+0287 |             "last_sender_role": user.profile.role,
+0288 |             "updated_at": message["sent_at"],
+0289 |         }
+0290 |         if user.profile.role == "client":
+0291 |             patch["client_seen"] = sequence
+0292 |             patch["client_name"] = user.profile.display_name
+0293 |         else:
+0294 |             patch["staff_seen"] = {**thread.get("staff_seen", {}), user.id: sequence}
+0295 |         audit = store.db.collection("audit_events").document()
+0296 |         tx.set(message_ref, message)
+0297 |         tx.set(
+0298 |             receipt,
+0299 |             {
+0300 |                 "message_id": message_ref.id,
+0301 |                 "conversation_id": identifier,
+0302 |                 "sender_id": user.id,
+0303 |             },
+0304 |         )
+0305 |         tx.update(ref, patch)
+0306 |         tx.set(
+0307 |             audit,
+0308 |             {
+0309 |                 "id": audit.id,
+0310 |                 "actor_id": user.id,
+0311 |                 "event_type": "CHAT_MESSAGE_SENT",
+0312 |                 "created_at": message["sent_at"],
+0313 |                 "metadata": {
+0314 |                     "conversation_id": identifier,
+0315 |                     "message_id": message_ref.id,
+0316 |                 },
+0317 |             },
+0318 |         )
+0319 |         return message
+0320 |
+0321 |     return await asyncio.to_thread(send, store.db.transaction())
+0322 |
+0323 |
+0324 | @router.post("/conversations/{identifier}/read")
+0325 | async def mark_read(
+0326 |     identifier: str,
+0327 |     payload: ReadMessages,
+0328 |     request: Request,
+0329 |     user: CurrentUser = Depends(get_current_user),
+0330 | ):
+0331 |     allowed(user)
+0332 |     store = FirebaseGateway(request)
+0333 |     ref = thread_reference(store, identifier)
+0334 |
+0335 |     @firestore.transactional
+0336 |     def read(tx):
+0337 |         snap = ref.get(transaction=tx)
+0338 |         thread = snap.to_dict() if snap.exists else None
+0339 |         membership(user, thread)
+0340 |         if payload.through_sequence > thread.get("last_sequence", 0):
+0341 |             raise HTTPException(422, "Read position is beyond the conversation.")
+0342 |         if user.profile.role == "client":
+0343 |             patch = {
+0344 |                 "client_seen": max(
+0345 |                     thread.get("client_seen", 0), payload.through_sequence
+0346 |                 )
+0347 |             }
+0348 |         else:
+0349 |             seen = thread.get("staff_seen", {})
+0350 |             patch = {
+0351 |                 "staff_seen": {
+0352 |                     **seen,
+0353 |                     user.id: max(seen.get(user.id, 0), payload.through_sequence),
+0354 |                 }
+0355 |             }
+0356 |         tx.update(ref, patch)
+0357 |         return {"message": "Read position saved."}
+0358 |
+0359 |     return await asyncio.to_thread(read, store.db.transaction())
 ```
 
 ## services/api/app/routers/claim_tools.py
@@ -11481,6 +12440,7 @@ Symbols: Configuration/resource file.
 ## Test-file inventory
 
 - `mobile/claimlens_mobile/test/account_forms_test.dart`
+- `mobile/claimlens_mobile/test/chat_test.dart`
 - `mobile/claimlens_mobile/test/claim_model_test.dart`
 - `mobile/claimlens_mobile/test/dashboard_layout_test.dart`
 - `mobile/claimlens_mobile/test/extraction_workflow_test.dart`
@@ -11489,14 +12449,18 @@ Symbols: Configuration/resource file.
 - `mobile/claimlens_mobile/test/readiness_ui_test.dart`
 - `mobile/claimlens_mobile/test/server_configuration_test.dart`
 - `mobile/claimlens_mobile/test/signup_navigation_test.dart`
+- `mobile/claimlens_mobile/test/staff_review_layout_test.dart`
 - `mobile/claimlens_mobile/test/workspace_navigation_test.dart`
 - `services/api/tests/conftest.py`
 - `services/api/tests/test_auth_guard.py`
+- `services/api/tests/test_chat.py`
+- `services/api/tests/test_chat_live.py`
 - `services/api/tests/test_extraction.py`
 - `services/api/tests/test_firebase_auth.py`
 - `services/api/tests/test_firebase_live.py`
 - `services/api/tests/test_health.py`
 - `services/api/tests/test_internet_live.py`
+- `services/api/tests/test_interrupted_upload_live.py`
 - `services/api/tests/test_job_recovery.py`
 - `services/api/tests/test_local_documents.py`
 - `services/api/tests/test_multi_expense_live.py`

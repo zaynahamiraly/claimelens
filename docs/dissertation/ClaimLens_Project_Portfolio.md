@@ -1,9 +1,9 @@
-# ClaimLens â€” Project Portfolio and Technical Handbook
+# ClaimLens — Project Portfolio and Technical Handbook
 
 **Project:** ClaimLens  
 **Artifact:** Flutter Android application and Python API for medical-insurance claims  
 **Documentation date:** 24 November 2026  
-**Application version:** 1.1.0+2; API version 1.1.0  
+**Application version:** 1.2.0+3; API version 1.2.0
 **Author / student ID / programme / supervisor:** complete these academic details yourself.
 
 This handbook describes the implemented project, explains its source-code responsibilities, and provides a structure for a dissertation portfolio. It is not evidence of a completed user study, an insurance accreditation, or a production security certification. Research findings, participant counts, approval letters, usability scores and OCR accuracy must come from work you actually conduct.
@@ -27,6 +27,14 @@ A separate Android test build now uses an HTTPS API endpoint over Wi-Fi or mobil
 ### Scenario verification and dispute update
 
 The client must report an incorrect OCR amount before editing its proposal. The API detects amount differences independently, preserves the original OCR result and client proposal, and sends the claim to officer review. Staff can compare these with the reviewed amount. Live tests cover hospital/pharmacy/doctor documents together, independent claims for one patient and duplicate evidence. Offline startup now retains saved credentials with a retry option. See `docs/qa-2026-11-24.md` for evidence, fixes and untested boundaries.
+
+### Shared support chat in version 1.2
+
+The Chats tab gives each client one private-to-support conversation. Administrators, supervisors and claims officers share the inbox, can read the history and can reply with their authenticated names/roles attached. Clients cannot read each other's conversations; finance accounts do not receive unrestricted support-chat access. Message bubbles include timestamps, and each participant has an independent unread position.
+
+The API uses `support_threads`, `support_messages` and `support_message_requests`. Transactional sequence allocation keeps concurrent sends ordered; sender-scoped retry keys prevent duplicate messages. A subsequent conversation refresh can acknowledge a saved message whose POST response was lost. The audit trail records message/actor identifiers without copying message text. Backups include the new collections. The UI fetches bounded history and pauses when inactive/locked. This release is text-only: chat-specific background push, attachments and calls remain future work.
+
+See the bundled chat guide and follow-up QA report for the API/data contract and evidence. The physical staff hand-off reached PAID on the Samsung, and the public interrupted-upload retry test passed. These results do not certify all production scenarios.
 
 ## 2. Problem definition and context
 
@@ -750,13 +758,23 @@ Generated from the FastAPI OpenAPI schema. Security and role checks must also be
 
 | DELETE | `/api/v1/devices` | Unregister |
 
+| POST | `/api/v1/chat/conversations` | Create Conversation |
+
+| GET | `/api/v1/chat/conversations` | Conversations |
+
+| GET | `/api/v1/chat/conversations/{identifier}/messages` | Messages |
+
+| POST | `/api/v1/chat/conversations/{identifier}/messages` | Send Message |
+
+| POST | `/api/v1/chat/conversations/{identifier}/read` | Mark Read |
+
 | GET | `/` | Root |
 
 | GET | `/api/v1/health` | Health Check |
 
 ### 31.2 API model inventory
 
-`AdminPassword`, `Appeal`, `AuthSession`, `Body_create_claim_api_v1_claims_post`, `Body_information_response_api_v1_claims__reference__information__request_id__respond_post`, `BusinessSettings`, `ClaimDetails`, `ClaimDocument`, `ClaimInformation`, `ClaimSummary`, `ConfirmClaimRequest`, `DashboardSummary`, `Device`, `DocumentConfirmation`, `EmailRequest`, `ExtractedField`, `FieldCorrection`, `HTTPValidationError`, `LoginRequest`, `PasswordEdit`, `ProcessResult`, `Profile`, `ProfileEdit`, `RefreshRequest`, `SignupRequest`, `UnlockRequest`, `UserCreate`, `UserEdit`, `ValidationError`, `WorkflowInput`
+`AdminPassword`, `Appeal`, `AuthSession`, `Body_create_claim_api_v1_claims_post`, `Body_information_response_api_v1_claims__reference__information__request_id__respond_post`, `BusinessSettings`, `ClaimDetails`, `ClaimDocument`, `ClaimInformation`, `ClaimSummary`, `ConfirmClaimRequest`, `DashboardSummary`, `Device`, `DocumentConfirmation`, `EmailRequest`, `ExtractedField`, `FieldCorrection`, `HTTPValidationError`, `LoginRequest`, `NewConversation`, `NewMessage`, `PasswordEdit`, `ProcessResult`, `Profile`, `ProfileEdit`, `ReadMessages`, `RefreshRequest`, `SignupRequest`, `UnlockRequest`, `UserCreate`, `UserEdit`, `ValidationError`, `WorkflowInput`
 
 ### 31.3 Dependency manifests
 
@@ -766,7 +784,7 @@ Generated from the FastAPI OpenAPI schema. Security and role checks must also be
 name: claimlens
 description: ClaimLens mobile client for claim submission and review.
 publish_to: none
-version: 1.1.0+2
+version: 1.2.0+3
 
 environment:
   sdk: ">=3.4.0 <4.0.0"
@@ -860,9 +878,11 @@ cryptography==50.0.2
 
 | `mobile/claimlens_mobile/lib/providers/claims_provider.dart` | 43 |
 
-| `mobile/claimlens_mobile/lib/screens/app_shell.dart` | 163 |
+| `mobile/claimlens_mobile/lib/screens/app_shell.dart` | 172 |
 
-| `mobile/claimlens_mobile/lib/screens/claim_details_screen.dart` | 749 |
+| `mobile/claimlens_mobile/lib/screens/chat_screen.dart` | 538 |
+
+| `mobile/claimlens_mobile/lib/screens/claim_details_screen.dart` | 761 |
 
 | `mobile/claimlens_mobile/lib/screens/claim_review_screen.dart` | 194 |
 
@@ -894,7 +914,7 @@ cryptography==50.0.2
 
 | `mobile/claimlens_mobile/lib/screens/splash_screen.dart` | 32 |
 
-| `mobile/claimlens_mobile/lib/screens/staff_review_screen.dart` | 217 |
+| `mobile/claimlens_mobile/lib/screens/staff_review_screen.dart` | 233 |
 
 | `mobile/claimlens_mobile/lib/screens/workspace_screens.dart` | 612 |
 
@@ -916,7 +936,7 @@ cryptography==50.0.2
 
 | `mobile/claimlens_mobile/lib/widgets/status_chip.dart` | 38 |
 
-| `mobile/claimlens_mobile/lib/widgets/workspace_form.dart` | 158 |
+| `mobile/claimlens_mobile/lib/widgets/workspace_form.dart` | 163 |
 
 | `mobile/claimlens_mobile/pubspec.yaml` | 29 |
 
@@ -936,7 +956,7 @@ cryptography==50.0.2
 
 | `services/api/app/jobs.py` | 128 |
 
-| `services/api/app/main.py` | 97 |
+| `services/api/app/main.py` | 99 |
 
 | `services/api/app/ocr.py` | 54 |
 
@@ -951,6 +971,8 @@ cryptography==50.0.2
 | `services/api/app/routers/__init__.py` | 1 |
 
 | `services/api/app/routers/auth.py` | 159 |
+
+| `services/api/app/routers/chat.py` | 359 |
 
 | `services/api/app/routers/claim_tools.py` | 321 |
 

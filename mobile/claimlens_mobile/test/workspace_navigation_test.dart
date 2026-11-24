@@ -84,6 +84,9 @@ void main() {
         expect(find.text('Awaiting assignment'),
             findsNothing); // Dropdown is closed.
         expect(find.text('All accessible claims'), findsOneWidget);
+        if (role == 'finance') {
+          expect(find.text('All statuses'), findsOneWidget);
+        }
         await tester.tap(find.text('Workspace'));
         await tester.pumpAndSettle();
         expect(find.text('Analytics'), findsOneWidget);

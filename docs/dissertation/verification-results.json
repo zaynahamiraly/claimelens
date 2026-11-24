@@ -2,9 +2,9 @@
   "snapshot_date": "2026-11-24",
   "scope": "Development working tree; not a production certification",
   "api_isolated": {
-    "passed": 73,
-    "skipped": 6,
-    "status": "passed after new dispute persistence changes"
+    "passed": 85,
+    "skipped": 8,
+    "status": "passed; new chat unit tests included"
   },
   "firebase_integrations": {
     "claim_workflow": "passed",
@@ -16,9 +16,9 @@
     "passed": 13
   },
   "flutter_full_suite": {
-    "passed": 38,
+    "passed": 44,
     "failed": 0,
-    "status": "passed; extraction dispute workflow, navigation insets and offline session recovery included"
+    "status": "complete suite passed including shared chat, lost send acknowledgement, staff bottom inset and finance defaults"
   },
   "android_current_apk": "Built and installed HTTPS internet debug APK on SM-A556E",
   "physical_phone_current_version": {
@@ -65,5 +65,43 @@
     "camera/gallery cancellation",
     "administrator session restored; temporary account and two claims removed"
   ],
-  "qa_report": "../qa-2026-11-24.md"
+  "qa_report": "../qa-2026-11-24.md",
+  "application_version": "1.2.0+3",
+  "api_version": "1.2.0",
+  "chat_unit_and_live": {
+    "passed": 13,
+    "duration_seconds": 90.44,
+    "note": "12 unit cases overlap the isolated suite; one live Firebase scenario covers all support roles, privacy, author attribution, pagination, concurrency, unread counters and retry keys"
+  },
+  "interrupted_upload_public_https": {
+    "passed": 1,
+    "duration_seconds": 25.78,
+    "scenario": "TLS connection closed during multipart body; complete retry and idempotent replay produced one claim, which could be deleted"
+  },
+  "phone_staff_workflow": {
+    "claim_type": "synthetic 1200 MUR",
+    "initial_creation_and_submission": "API fixture",
+    "officer_review_save_verify": "phone passed",
+    "supervisor_approval": "phone passed",
+    "finance_payment_pending_and_paid": "phone passed",
+    "bank_transfer_executed": false
+  },
+  "phone_chat": {
+    "admin_reply": "passed",
+    "officer_and_supervisor_read_shared_history": "passed",
+    "client_reads_staff_reply_and_replies": "passed",
+    "admin_unread_count_after_client_reply": 2,
+    "confirmed_send_clears_composer": true
+  },
+  "chat_scope": {
+    "type": "shared client-support text conversations",
+    "support_roles": [
+      "administrator",
+      "supervisor",
+      "claims_officer"
+    ],
+    "chat_background_push": false,
+    "attachments": false,
+    "calls": false
+  }
 }
