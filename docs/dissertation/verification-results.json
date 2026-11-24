@@ -16,12 +16,31 @@
     "passed": 13
   },
   "flutter_full_suite": {
-    "passed": 31,
+    "passed": 35,
     "failed": 0,
-    "status": "passed; navigation test scrolls to the account row below the verification panel"
+    "status": "passed with API-server migration and logo layout regressions included"
   },
-  "android_current_apk": "Not built during this push; device acceptance remains pending",
-  "physical_phone_current_version": "Not yet verified",
-  "permanent_hosting": "Deferred by project owner",
-  "research_evaluation": "No representative OCR benchmark, user study or measured production performance is claimed"
+  "android_current_apk": "Built and installed HTTPS internet debug APK on SM-A556E",
+  "physical_phone_current_version": {
+    "device": "Samsung SM-A556E",
+    "network": "mobile LTE data",
+    "usb_reverse_mappings": 0,
+    "administrator_login": "passed",
+    "dashboard_and_user_list": "passed",
+    "scope": "USB was used for installation and UI inspection; API requests used public HTTPS over mobile data"
+  },
+  "permanent_hosting": "Not deployed; active temporary HTTPS tunnel to the development computer. Computer must remain awake and online.",
+  "research_evaluation": "No representative OCR benchmark, user study or measured production performance is claimed",
+  "public_https_integration": {
+    "passed": 1,
+    "duration_seconds": 44.51,
+    "checks": [
+      "authentication",
+      "synthetic image upload",
+      "background real PaddleOCR",
+      "extracted amount 1250 MUR",
+      "private signed download",
+      "tampered signed-link rejection"
+    ]
+  }
 }

@@ -24,7 +24,22 @@ if (Test-Path -LiteralPath $tunnelPidFile) {
 }
 if ($runningTunnel -and (Test-Path -LiteralPath $endpointFile)) {
     $endpoint = (Get-Content -LiteralPath $endpointFile -Raw).Trim()
-} else {
+    # A connector process can survive after its temporary tunnel has expired.
+    # Check the endpoint itself before reusing a saved development address.
+    $tunnelReachable = $false
+    try {
+        $probe = Invoke-WebRequest -Uri ($endpoint + '/api/v1/health') -TimeoutSec 10 -UseBasicParsing
+        $tunnelReachable = $probe.StatusCode -eq 200
+    } catch {
+        # A live tunnel may return 502 when its local API has not started yet.
+        $tunnelReachable = $_.Exception.Response -and [int]$_.Exception.Response.StatusCode -eq 502
+    }
+    if (-not $tunnelReachable) {
+        Stop-Process -Id $runningTunnel.ProcessId
+        $runningTunnel = $null
+    }
+}
+if (-not $runningTunnel -or -not (Test-Path -LiteralPath $endpointFile)) {
     $tunnelLog = Join-Path $runtimeHome 'tunnel.stderr.log'
     $tunnelProcess = Start-Process -FilePath $connector -ArgumentList @('tunnel', '--url', 'http://127.0.0.1:8000', '--no-autoupdate', '--protocol', 'http2') -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $runtimeHome 'tunnel.stdout.log') -RedirectStandardError $tunnelLog
     $tunnelProcess.Id | Set-Content -LiteralPath $tunnelPidFile

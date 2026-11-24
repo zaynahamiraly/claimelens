@@ -20,6 +20,10 @@ The active user interface is Flutter. FastAPI hosts the application rules and do
 
 The present delivery target is cable debugging on a Samsung Android phone. A debug connection setting also supports a local Wi-Fi/hotspot server or a future HTTPS endpoint. Permanent hosting is deferred at the project owner's request. Neither the current debug APK nor a temporary tunnel should be presented as an independently hosted production service.
 
+### Current internet-test update
+
+A separate Android test build now uses an HTTPS API endpoint over Wi-Fi or mobile data. Startup tracks the build-configured API address, replacing an older saved USB endpoint when a new build changes servers and clearing the previous server session. Explicit user-selected endpoints persist within the same build configuration. The computer still runs FastAPI, PaddleOCR and private document storage; this connection is a temporary development tunnel rather than independently hosted infrastructure. The tunnel startup script checks saved tunnel reachability and recreates an expired connection. See the verification report for device-test evidence.
+
 ## 2. Problem definition and context
 
 A medical claim can contain several different kinds of evidence. Some documents contain payable amounts, others describe treatment, and others repeat the same receipt. A single total copied from every document can therefore overstate a claim. Names, dates, currencies and amounts may also need correction after OCR. Meanwhile, clients need to know whether a claim is waiting for information, being reviewed, approved, rejected or paid.
@@ -890,7 +894,7 @@ cryptography==50.0.2
 
 | `mobile/claimlens_mobile/lib/screens/workspace_screens.dart` | 612 |
 
-| `mobile/claimlens_mobile/lib/services/api_client.dart` | 167 |
+| `mobile/claimlens_mobile/lib/services/api_client.dart` | 178 |
 
 | `mobile/claimlens_mobile/lib/services/auth_service.dart` | 33 |
 
@@ -902,7 +906,7 @@ cryptography==50.0.2
 
 | `mobile/claimlens_mobile/lib/widgets/claim_card.dart` | 78 |
 
-| `mobile/claimlens_mobile/lib/widgets/claimlens_logo.dart` | 46 |
+| `mobile/claimlens_mobile/lib/widgets/claimlens_logo.dart` | 50 |
 
 | `mobile/claimlens_mobile/lib/widgets/session_guard.dart` | 157 |
 

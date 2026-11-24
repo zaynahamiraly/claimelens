@@ -1,10 +1,10 @@
-# claimelens
+# ClaimLens
 
 A Flutter Android app for submitting and tracking medical-insurance claims.
 Upload invoices, receipts, and supporting documents, review extracted values,
 correct mistakes, and submit a claim for review.
 
-The native mobile workspace includes client, claims officer, supervisor, and
+The native mobile workspace includes client, claims officer, supervisor, finance, and
 administrator workflows. It does not require the former Vercel website to run.
 
 ## Mobile workspace
@@ -13,8 +13,9 @@ administrator workflows. It does not require the former Vercel website to run.
 | --- | --- |
 | Client | Sign up, upload/camera/gallery, confirm extracted evidence, search/filter claims, follow progress, answer information requests with files, read notifications, edit profile and change password |
 | Claims officer | Assigned and unassigned queues, take assignment, compare private source documents, correct evidence and totals, request information, verify, analytics and audit trail |
-| Supervisor | Assign officers, review evidence, approve/reject with notes and approved amounts, record payment pending and settlement, analytics and audit trail |
-| Administrator | Supervisor tools plus create users, change roles, activate/deactivate accounts, generate private recovery links, delete logins while retaining claim history |
+| Supervisor | Assign officers, review evidence, approve/reject another verifier's work with notes and approved amounts, analytics and audit trail |
+| Finance | Access approved/payment claims, record payment pending and settlement with method/reference, analytics and audit trail |
+| Administrator | Create users, assign roles/additional rights, activate/deactivate accounts, set temporary passwords, configure claim requirements and retain claim history. Review/decision/payment rights require explicit grants. |
 
 Client navigation: **Overview · Claims · Updates · Account**.
 Staff navigation: **Overview · Claims · Review · Workspace**. Analytics, audit,
@@ -53,7 +54,7 @@ development; a deployed version needs a reachable HTTPS API and persistent stora
 ## Project layout
 
 ```text
-mobile/claimlens_mobile/   Flutter app; Dart package name: claimelens
+mobile/claimlens_mobile/   Flutter app; Dart package name: claimlens
 services/api/             FastAPI, Firebase integration, and PaddleOCR
 firebase/                 Private Firestore access rules
 docs/                     Mobile architecture and security notes
@@ -61,7 +62,8 @@ docs/                     Mobile architecture and security notes
 
 The existing folder name and Android ID `ai.claimlens.claimlens_mobile` are retained
 so this build can update the app already installed on the test phone. Its displayed
-name, Dart package, Firebase project, and GitHub repository are **claimelens**.
+name is **ClaimLens** and its Dart package is **claimlens**. The Firebase project
+ID and existing GitHub repository retain the legacy technical name `claimelens`.
 
 ## Run locally
 
@@ -136,7 +138,11 @@ flutter build apk --debug --dart-define-from-file="$env:LOCALAPPDATA\claimelens\
 
 Install that APK once; USB is unnecessary while using the installed app. Keep the
 API computer awake and online. This is a development tunnel, not an independently
-hosted production backend. A new tunnel has a new address, so a new build is needed.
+hosted production backend. A new tunnel has a new address: install a build made
+with the new configuration, or update **Development connection** on the sign-in
+screen. A newly configured build replaces the earlier saved USB address and asks
+for sign-in again. App installation alone does not install FastAPI/PaddleOCR on
+Android. Disabling USB forwarding is part of the cable-free acceptance test.
 Stable service while the computer is off requires a hosted Python API and persistent
 private document storage. No Vercel service or paid Firebase plan is used here.
 

@@ -32,8 +32,19 @@ class ApiClient {
   Future<bool> refreshSession() => _refresh();
 
   Future<void> initialise() async {
-    dio.options.baseUrl =
-        await _storage.read(key: 'server_url') ?? ApiConfig.baseUrl;
+    final savedServer = await _storage.read(key: 'server_url');
+    final previousBuildServer = await _storage.read(key: 'build_server_url');
+    // A newly installed build may move from USB to an internet API. Do not let
+    // an older saved development address override that build's configuration.
+    final buildChanged = previousBuildServer != ApiConfig.baseUrl;
+    final server =
+        buildChanged ? ApiConfig.baseUrl : savedServer ?? ApiConfig.baseUrl;
+    if (savedServer != null && savedServer != server) {
+      await clearSession();
+    }
+    await _storage.write(key: 'build_server_url', value: ApiConfig.baseUrl);
+    await _storage.write(key: 'server_url', value: server);
+    dio.options.baseUrl = server;
     _accessToken = await _storage.read(key: 'access_token');
     _refreshToken = await _storage.read(key: 'refresh_token');
   }

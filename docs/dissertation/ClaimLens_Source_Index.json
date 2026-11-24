@@ -320,8 +320,8 @@
   },
   {
     "path": "mobile/claimlens_mobile/lib/services/api_client.dart",
-    "lines": 167,
-    "sha256": "92faf08186f66375ac0bc2e481504d8190d518cd5cf2a95fbfd32857f87ee537",
+    "lines": 178,
+    "sha256": "be9e3e952e7e335d94ddbcef697d867fdb6efaabba7b4529d5d9d1e826ec36fa",
     "symbols": [
       "`ApiClient`: L9"
     ]
@@ -366,11 +366,11 @@
   },
   {
     "path": "mobile/claimlens_mobile/lib/widgets/claimlens_logo.dart",
-    "lines": 46,
-    "sha256": "19ee42b84fc7a1860662ab2c931002a2200d7155e8df42202bcd3fbe4b022efe",
+    "lines": 50,
+    "sha256": "82cb3233899f96230bc4ccb993e341e4d4fa7b5e7f16b926bf107e5b198d5c01",
     "symbols": [
       "`ClaimLensLogo`: L3",
-      "`_LogoPainter`: L12"
+      "`_LogoPainter`: L16"
     ]
   },
   {

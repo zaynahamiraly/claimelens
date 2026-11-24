@@ -103,6 +103,7 @@ def test_public_https_login_image_upload_background_ocr_and_private_download():
                     if path:
                         document_store().delete(path)
                     document.reference.delete()
+            db.collection("processing_queue").document(claim_id).delete()
             db.collection("claims").document(claim_id).delete()
         if account:
             db.collection("profiles").document(account.uid).delete()

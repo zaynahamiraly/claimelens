@@ -2,7 +2,7 @@
 
 Generated from the local working tree. This is an implementation reference, not evidence of production deployment.
 
-Parent Git revision: `b71d8b848dadd9a92eb3261dea4d8bccd95ec20b`. Working-tree changes may be newer; SHA-256 hashes below identify the exact files.
+Parent Git revision: `431f2869db3b9588fc61b4d163b1926e596ec3c8`. Working-tree changes may be newer; SHA-256 hashes below identify the exact files.
 
 Read ClaimLens_Project_Portfolio.md first. Source lines are exact UTF-8 text, prefixed with line numbers. Private environment files, service-account keys, SDK client configuration, runtime data, uploads and test credentials are excluded. Use this reference to explain code; never infer unimplemented features from function names.
 
@@ -5720,7 +5720,7 @@ Symbols: `WorkspaceMenuScreen`: L13; `WorkspaceData`: L79; `_WorkspaceDataState`
 
 ## mobile/claimlens_mobile/lib/services/api_client.dart
 
-167 lines. SHA-256: `92faf08186f66375ac0bc2e481504d8190d518cd5cf2a95fbfd32857f87ee537`.
+178 lines. SHA-256: `be9e3e952e7e335d94ddbcef697d867fdb6efaabba7b4529d5d9d1e826ec36fa`.
 
 Symbols: `ApiClient`: L9
 
@@ -5759,139 +5759,150 @@ Symbols: `ApiClient`: L9
 0032 |   Future<bool> refreshSession() => _refresh();
 0033 | 
 0034 |   Future<void> initialise() async {
-0035 |     dio.options.baseUrl =
-0036 |         await _storage.read(key: 'server_url') ?? ApiConfig.baseUrl;
-0037 |     _accessToken = await _storage.read(key: 'access_token');
-0038 |     _refreshToken = await _storage.read(key: 'refresh_token');
-0039 |   }
-0040 | 
-0041 |   Future<void> saveSession(String accessToken, String refreshToken) async {
-0042 |     _accessToken = accessToken;
-0043 |     _refreshToken = refreshToken;
-0044 |     await Future.wait([
-0045 |       _storage.write(key: 'access_token', value: accessToken),
-0046 |       _storage.write(key: 'refresh_token', value: refreshToken),
-0047 |     ]);
-0048 |   }
-0049 | 
-0050 |   Future<void> clearSession() async {
-0051 |     _accessToken = null;
-0052 |     _refreshToken = null;
-0053 |     await Future.wait([
-0054 |       _storage.delete(key: 'access_token'),
-0055 |       _storage.delete(key: 'refresh_token')
-0056 |     ]);
-0057 |   }
-0058 | 
-0059 |   void _onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-0060 |     if (_accessToken != null) {
-0061 |       options.headers['Authorization'] = 'Bearer $_accessToken';
-0062 |     }
-0063 |     handler.next(options);
-0064 |   }
-0065 | 
-0066 |   Future<void> _onError(
-0067 |     DioException error,
-0068 |     ErrorInterceptorHandler handler,
-0069 |   ) async {
-0070 |     final request = error.requestOptions;
-0071 |     if (error.response?.statusCode != 401 ||
-0072 |         request.extra['retried'] == true ||
-0073 |         _refreshToken == null ||
-0074 |         request.path.contains('/auth/')) {
-0075 |       handler.next(error);
-0076 |       return;
-0077 |     }
-0078 |     _refreshOperation ??= _refresh();
-0079 |     final refreshed = await _refreshOperation!;
-0080 |     _refreshOperation = null;
-0081 |     if (!refreshed) {
-0082 |       handler.next(error);
-0083 |       return;
-0084 |     }
-0085 |     request.headers['Authorization'] = 'Bearer $_accessToken';
-0086 |     request.extra['retried'] = true;
-0087 |     try {
-0088 |       handler.resolve(await dio.fetch<dynamic>(request));
-0089 |     } on DioException catch (retryError) {
-0090 |       handler.next(retryError);
-0091 |     }
-0092 |   }
-0093 | 
-0094 |   Future<bool> _refresh() async {
-0095 |     try {
-0096 |       final response = await Dio(BaseOptions(baseUrl: dio.options.baseUrl))
-0097 |           .post<Map<String, dynamic>>(
-0098 |         '/auth/refresh',
-0099 |         data: {'refresh_token': _refreshToken},
-0100 |       );
-0101 |       final data = response.data!;
-0102 |       await saveSession(
-0103 |         data['access_token'] as String,
-0104 |         data['refresh_token'] as String,
-0105 |       );
-0106 |       return true;
-0107 |     } catch (_) {
-0108 |       await clearSession();
-0109 |       onSessionExpired?.call();
-0110 |       return false;
-0111 |     }
-0112 |   }
-0113 | 
-0114 |   Future<void> configureServer(String value) async {
-0115 |     final uri = Uri.tryParse(value.trim());
-0116 |     if (uri == null ||
-0117 |         uri.host.isEmpty ||
-0118 |         uri.userInfo.isNotEmpty ||
-0119 |         uri.hasQuery ||
-0120 |         uri.hasFragment ||
-0121 |         !['https', 'http'].contains(uri.scheme)) {
-0122 |       throw Exception('Enter a valid server URL.');
-0123 |     }
-0124 |     final host = uri.host;
-0125 |     final local = host == 'localhost' ||
-0126 |         host == '127.0.0.1' ||
-0127 |         host.startsWith('10.') ||
-0128 |         host.startsWith('192.168.') ||
-0129 |         RegExp(r'^172\.(1[6-9]|2[0-9]|3[01])\.').hasMatch(host);
-0130 |     if (uri.scheme != 'https' && !(kDebugMode && local)) {
-0131 |       throw Exception('Internet connections must use HTTPS.');
-0132 |     }
-0133 |     final base = uri.replace(path: '/api/v1').toString();
-0134 |     final health = await Dio().get<Map<String, dynamic>>('$base/health',
-0135 |         options: Options(receiveTimeout: const Duration(seconds: 15)));
-0136 |     if (!['ClaimLens API', 'claimelens API']
-0137 |         .contains(health.data?['service'])) {
-0138 |       throw Exception('This address is not a ClaimLens server.');
-0139 |     }
-0140 |     await clearSession();
-0141 |     await _storage.write(key: 'server_url', value: base);
-0142 |     dio.options.baseUrl = base;
-0143 |   }
-0144 | }
-0145 | 
-0146 | String readableApiError(Object error) {
-0147 |   if (error is DioException) {
-0148 |     final data = error.response?.data;
-0149 |     if (data is Map && data['detail'] != null) {
-0150 |       final detail = data['detail'];
-0151 |       if (detail is List) {
-0152 |         return detail
-0153 |             .whereType<Map>()
-0154 |             .map(
-0155 |                 (entry) => entry['msg']?.toString() ?? 'Check the form fields.')
-0156 |             .join('\n');
-0157 |       }
-0158 |       return detail.toString();
-0159 |     }
-0160 |     if (error.type == DioExceptionType.connectionError ||
-0161 |         error.type == DioExceptionType.connectionTimeout) {
-0162 |       return 'Cannot reach the ClaimLens server. Check the API address and your connection.';
-0163 |     }
-0164 |     return error.message ?? 'The request could not be completed.';
-0165 |   }
-0166 |   return error.toString().replaceFirst('Exception: ', '');
-0167 | }
+0035 |     final savedServer = await _storage.read(key: 'server_url');
+0036 |     final previousBuildServer = await _storage.read(key: 'build_server_url');
+0037 |     // A newly installed build may move from USB to an internet API. Do not let
+0038 |     // an older saved development address override that build's configuration.
+0039 |     final buildChanged = previousBuildServer != ApiConfig.baseUrl;
+0040 |     final server =
+0041 |         buildChanged ? ApiConfig.baseUrl : savedServer ?? ApiConfig.baseUrl;
+0042 |     if (savedServer != null && savedServer != server) {
+0043 |       await clearSession();
+0044 |     }
+0045 |     await _storage.write(key: 'build_server_url', value: ApiConfig.baseUrl);
+0046 |     await _storage.write(key: 'server_url', value: server);
+0047 |     dio.options.baseUrl = server;
+0048 |     _accessToken = await _storage.read(key: 'access_token');
+0049 |     _refreshToken = await _storage.read(key: 'refresh_token');
+0050 |   }
+0051 | 
+0052 |   Future<void> saveSession(String accessToken, String refreshToken) async {
+0053 |     _accessToken = accessToken;
+0054 |     _refreshToken = refreshToken;
+0055 |     await Future.wait([
+0056 |       _storage.write(key: 'access_token', value: accessToken),
+0057 |       _storage.write(key: 'refresh_token', value: refreshToken),
+0058 |     ]);
+0059 |   }
+0060 | 
+0061 |   Future<void> clearSession() async {
+0062 |     _accessToken = null;
+0063 |     _refreshToken = null;
+0064 |     await Future.wait([
+0065 |       _storage.delete(key: 'access_token'),
+0066 |       _storage.delete(key: 'refresh_token')
+0067 |     ]);
+0068 |   }
+0069 | 
+0070 |   void _onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+0071 |     if (_accessToken != null) {
+0072 |       options.headers['Authorization'] = 'Bearer $_accessToken';
+0073 |     }
+0074 |     handler.next(options);
+0075 |   }
+0076 | 
+0077 |   Future<void> _onError(
+0078 |     DioException error,
+0079 |     ErrorInterceptorHandler handler,
+0080 |   ) async {
+0081 |     final request = error.requestOptions;
+0082 |     if (error.response?.statusCode != 401 ||
+0083 |         request.extra['retried'] == true ||
+0084 |         _refreshToken == null ||
+0085 |         request.path.contains('/auth/')) {
+0086 |       handler.next(error);
+0087 |       return;
+0088 |     }
+0089 |     _refreshOperation ??= _refresh();
+0090 |     final refreshed = await _refreshOperation!;
+0091 |     _refreshOperation = null;
+0092 |     if (!refreshed) {
+0093 |       handler.next(error);
+0094 |       return;
+0095 |     }
+0096 |     request.headers['Authorization'] = 'Bearer $_accessToken';
+0097 |     request.extra['retried'] = true;
+0098 |     try {
+0099 |       handler.resolve(await dio.fetch<dynamic>(request));
+0100 |     } on DioException catch (retryError) {
+0101 |       handler.next(retryError);
+0102 |     }
+0103 |   }
+0104 | 
+0105 |   Future<bool> _refresh() async {
+0106 |     try {
+0107 |       final response = await Dio(BaseOptions(baseUrl: dio.options.baseUrl))
+0108 |           .post<Map<String, dynamic>>(
+0109 |         '/auth/refresh',
+0110 |         data: {'refresh_token': _refreshToken},
+0111 |       );
+0112 |       final data = response.data!;
+0113 |       await saveSession(
+0114 |         data['access_token'] as String,
+0115 |         data['refresh_token'] as String,
+0116 |       );
+0117 |       return true;
+0118 |     } catch (_) {
+0119 |       await clearSession();
+0120 |       onSessionExpired?.call();
+0121 |       return false;
+0122 |     }
+0123 |   }
+0124 | 
+0125 |   Future<void> configureServer(String value) async {
+0126 |     final uri = Uri.tryParse(value.trim());
+0127 |     if (uri == null ||
+0128 |         uri.host.isEmpty ||
+0129 |         uri.userInfo.isNotEmpty ||
+0130 |         uri.hasQuery ||
+0131 |         uri.hasFragment ||
+0132 |         !['https', 'http'].contains(uri.scheme)) {
+0133 |       throw Exception('Enter a valid server URL.');
+0134 |     }
+0135 |     final host = uri.host;
+0136 |     final local = host == 'localhost' ||
+0137 |         host == '127.0.0.1' ||
+0138 |         host.startsWith('10.') ||
+0139 |         host.startsWith('192.168.') ||
+0140 |         RegExp(r'^172\.(1[6-9]|2[0-9]|3[01])\.').hasMatch(host);
+0141 |     if (uri.scheme != 'https' && !(kDebugMode && local)) {
+0142 |       throw Exception('Internet connections must use HTTPS.');
+0143 |     }
+0144 |     final base = uri.replace(path: '/api/v1').toString();
+0145 |     final health = await Dio().get<Map<String, dynamic>>('$base/health',
+0146 |         options: Options(receiveTimeout: const Duration(seconds: 15)));
+0147 |     if (!['ClaimLens API', 'claimelens API']
+0148 |         .contains(health.data?['service'])) {
+0149 |       throw Exception('This address is not a ClaimLens server.');
+0150 |     }
+0151 |     await clearSession();
+0152 |     await _storage.write(key: 'server_url', value: base);
+0153 |     dio.options.baseUrl = base;
+0154 |   }
+0155 | }
+0156 | 
+0157 | String readableApiError(Object error) {
+0158 |   if (error is DioException) {
+0159 |     final data = error.response?.data;
+0160 |     if (data is Map && data['detail'] != null) {
+0161 |       final detail = data['detail'];
+0162 |       if (detail is List) {
+0163 |         return detail
+0164 |             .whereType<Map>()
+0165 |             .map(
+0166 |                 (entry) => entry['msg']?.toString() ?? 'Check the form fields.')
+0167 |             .join('\n');
+0168 |       }
+0169 |       return detail.toString();
+0170 |     }
+0171 |     if (error.type == DioExceptionType.connectionError ||
+0172 |         error.type == DioExceptionType.connectionTimeout) {
+0173 |       return 'Cannot reach the ClaimLens server. Check the API address and your connection.';
+0174 |     }
+0175 |     return error.message ?? 'The request could not be completed.';
+0176 |   }
+0177 |   return error.toString().replaceFirst('Exception: ', '');
+0178 | }
 ```
 
 ## mobile/claimlens_mobile/lib/services/auth_service.dart
@@ -6237,9 +6248,9 @@ Symbols: `ClaimCard`: L8
 
 ## mobile/claimlens_mobile/lib/widgets/claimlens_logo.dart
 
-46 lines. SHA-256: `19ee42b84fc7a1860662ab2c931002a2200d7155e8df42202bcd3fbe4b022efe`.
+50 lines. SHA-256: `82cb3233899f96230bc4ccb993e341e4d4fa7b5e7f16b926bf107e5b198d5c01`.
 
-Symbols: `ClaimLensLogo`: L3; `_LogoPainter`: L12
+Symbols: `ClaimLensLogo`: L3; `_LogoPainter`: L16
 
 ```dart
 0001 | import 'package:flutter/material.dart';
@@ -6249,45 +6260,49 @@ Symbols: `ClaimLensLogo`: L3; `_LogoPainter`: L12
 0005 |   final double size;
 0006 |   @override
 0007 |   Widget build(BuildContext context) => ExcludeSemantics(
-0008 |       child:
-0009 |           CustomPaint(size: Size.square(size), painter: const _LogoPainter()));
-0010 | }
-0011 | 
-0012 | class _LogoPainter extends CustomPainter {
-0013 |   const _LogoPainter();
-0014 |   @override
-0015 |   void paint(Canvas canvas, Size size) {
-0016 |     final side = size.width;
-0017 |     canvas.drawRRect(
-0018 |         RRect.fromRectAndRadius(
-0019 |             Offset.zero & size, Radius.circular(side * .24)),
-0020 |         Paint()..color = const Color(0xff006d77));
-0021 |     final white = Paint()
-0022 |       ..color = Colors.white
-0023 |       ..style = PaintingStyle.stroke
-0024 |       ..strokeWidth = side * .073
-0025 |       ..strokeCap = StrokeCap.round;
-0026 |     canvas.drawCircle(Offset(side * .438, side * .438), side * .214, white);
-0027 |     canvas.drawLine(Offset(side * .625, side * .625),
-0028 |         Offset(side * .802, side * .802), white);
-0029 |     final mint = Paint()..color = const Color(0xff8de2d7);
-0030 |     canvas.drawRect(
-0031 |         Rect.fromCenter(
-0032 |             center: Offset(side * .438, side * .438),
-0033 |             width: side * .083,
-0034 |             height: side * .23),
-0035 |         mint);
-0036 |     canvas.drawRect(
-0037 |         Rect.fromCenter(
-0038 |             center: Offset(side * .438, side * .438),
-0039 |             width: side * .23,
-0040 |             height: side * .083),
-0041 |         mint);
-0042 |   }
-0043 | 
-0044 |   @override
-0045 |   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-0046 | }
+0008 |       child: Center(
+0009 |           widthFactor: 1,
+0010 |           heightFactor: 1,
+0011 |           child: SizedBox.square(
+0012 |               dimension: size,
+0013 |               child: CustomPaint(painter: const _LogoPainter()))));
+0014 | }
+0015 | 
+0016 | class _LogoPainter extends CustomPainter {
+0017 |   const _LogoPainter();
+0018 |   @override
+0019 |   void paint(Canvas canvas, Size size) {
+0020 |     final side = size.width;
+0021 |     canvas.drawRRect(
+0022 |         RRect.fromRectAndRadius(
+0023 |             Offset.zero & size, Radius.circular(side * .24)),
+0024 |         Paint()..color = const Color(0xff006d77));
+0025 |     final white = Paint()
+0026 |       ..color = Colors.white
+0027 |       ..style = PaintingStyle.stroke
+0028 |       ..strokeWidth = side * .073
+0029 |       ..strokeCap = StrokeCap.round;
+0030 |     canvas.drawCircle(Offset(side * .438, side * .438), side * .214, white);
+0031 |     canvas.drawLine(Offset(side * .625, side * .625),
+0032 |         Offset(side * .802, side * .802), white);
+0033 |     final mint = Paint()..color = const Color(0xff8de2d7);
+0034 |     canvas.drawRect(
+0035 |         Rect.fromCenter(
+0036 |             center: Offset(side * .438, side * .438),
+0037 |             width: side * .083,
+0038 |             height: side * .23),
+0039 |         mint);
+0040 |     canvas.drawRect(
+0041 |         Rect.fromCenter(
+0042 |             center: Offset(side * .438, side * .438),
+0043 |             width: side * .23,
+0044 |             height: side * .083),
+0045 |         mint);
+0046 |   }
+0047 | 
+0048 |   @override
+0049 |   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+0050 | }
 ```
 
 ## mobile/claimlens_mobile/lib/widgets/session_guard.dart
@@ -11387,7 +11402,9 @@ Symbols: Configuration/resource file.
 - `mobile/claimlens_mobile/test/account_forms_test.dart`
 - `mobile/claimlens_mobile/test/claim_model_test.dart`
 - `mobile/claimlens_mobile/test/dashboard_layout_test.dart`
+- `mobile/claimlens_mobile/test/logo_layout_test.dart`
 - `mobile/claimlens_mobile/test/readiness_ui_test.dart`
+- `mobile/claimlens_mobile/test/server_configuration_test.dart`
 - `mobile/claimlens_mobile/test/signup_navigation_test.dart`
 - `mobile/claimlens_mobile/test/workspace_navigation_test.dart`
 - `services/api/tests/conftest.py`
