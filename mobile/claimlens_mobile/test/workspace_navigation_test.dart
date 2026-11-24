@@ -4,12 +4,12 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:claimelens/app_theme.dart';
-import 'package:claimelens/models/user_profile.dart';
-import 'package:claimelens/providers/auth_provider.dart';
-import 'package:claimelens/providers/claims_provider.dart';
-import 'package:claimelens/screens/app_shell.dart';
-import 'package:claimelens/services/api_client.dart';
+import 'package:claimlens/app_theme.dart';
+import 'package:claimlens/models/user_profile.dart';
+import 'package:claimlens/providers/auth_provider.dart';
+import 'package:claimlens/providers/claims_provider.dart';
+import 'package:claimlens/screens/app_shell.dart';
+import 'package:claimlens/services/api_client.dart';
 
 class WorkspaceAdapter implements HttpClientAdapter {
   @override
@@ -40,6 +40,7 @@ void main() {
     'client',
     'claims_officer',
     'supervisor',
+    'finance',
     'administrator'
   ]) {
     testWidgets('$role gets the correct workspace tools without overflow',
@@ -62,7 +63,7 @@ void main() {
             ChangeNotifierProvider(create: (_) => ClaimsProvider(api))
           ],
           child: MaterialApp(
-              theme: claimelensTheme(Brightness.light),
+              theme: claimLensTheme(Brightness.light),
               home: const AppShell())));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
@@ -70,12 +71,16 @@ void main() {
         expect(find.text('Review'), findsNothing);
         await tester.tap(find.text('Account'));
         await tester.pumpAndSettle();
+        await tester.scrollUntilVisible(
+            find.text('Personal information'), 200,
+            scrollable: find.byType(Scrollable).first);
         expect(find.text('Personal information'), findsOneWidget);
         expect(find.text('User access'), findsNothing);
       } else {
-        await tester.tap(find.text('Review'));
+        await tester.tap(find.text(role == 'finance' ? 'Payments' : 'Review'));
         await tester.pumpAndSettle();
-        expect(find.text('Review queue'), findsOneWidget);
+        expect(find.text(role == 'finance' ? 'Claims queue' : 'Review queue'),
+            findsOneWidget);
         expect(find.text('Awaiting assignment'),
             findsNothing); // Dropdown is closed.
         expect(find.text('All accessible claims'), findsOneWidget);

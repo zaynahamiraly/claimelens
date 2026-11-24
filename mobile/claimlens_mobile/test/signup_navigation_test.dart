@@ -2,10 +2,10 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:claimelens/providers/auth_provider.dart';
-import 'package:claimelens/screens/login_screen.dart';
-import 'package:claimelens/screens/signup_screen.dart';
-import 'package:claimelens/services/api_client.dart';
+import 'package:claimlens/providers/auth_provider.dart';
+import 'package:claimlens/screens/login_screen.dart';
+import 'package:claimlens/screens/signup_screen.dart';
+import 'package:claimlens/services/api_client.dart';
 
 void main() {
   testWidgets('A new client can sign up and return to sign in with their email',

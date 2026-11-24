@@ -1,20 +1,26 @@
 {
   "snapshot_date": "2026-11-24",
   "scope": "Development working tree; not a production certification",
-  "api_isolated": {"passed": 73, "skipped": 5, "status": "passed at last recorded run"},
+  "api_isolated": {
+    "passed": 73,
+    "skipped": 5,
+    "status": "passed on pre-push rerun"
+  },
   "firebase_integrations": {
     "claim_workflow": "passed",
     "persistent_queue_real_paddle_image": "passed",
     "administrator_and_user_password_flow": "passed after removing redundant refresh-token revocation"
   },
   "flutter_analyze": "passed with no issues",
-  "flutter_readiness_ui": {"passed": 13},
-  "flutter_full_suite": {
-    "passed": 30,
-    "failed": 1,
-    "failure": "Client workspace navigation test cannot find Personal information after opening Account; investigation pending. The added verification panel may place the lazily built row below the viewport."
+  "flutter_readiness_ui": {
+    "passed": 13
   },
-  "android_current_apk": "Build pending full-suite resolution",
+  "flutter_full_suite": {
+    "passed": 31,
+    "failed": 0,
+    "status": "passed; navigation test scrolls to the account row below the verification panel"
+  },
+  "android_current_apk": "Not built during this push; device acceptance remains pending",
   "physical_phone_current_version": "Not yet verified",
   "permanent_hosting": "Deferred by project owner",
   "research_evaluation": "No representative OCR benchmark, user study or measured production performance is claimed"

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
-import 'package:claimelens/models/claim.dart';
-import 'package:claimelens/models/user_profile.dart';
-import 'package:claimelens/providers/auth_provider.dart';
-import 'package:claimelens/providers/claims_provider.dart';
-import 'package:claimelens/screens/dashboard_screen.dart';
-import 'package:claimelens/services/api_client.dart';
+import 'package:claimlens/models/claim.dart';
+import 'package:claimlens/models/user_profile.dart';
+import 'package:claimlens/providers/auth_provider.dart';
+import 'package:claimlens/providers/claims_provider.dart';
+import 'package:claimlens/screens/dashboard_screen.dart';
+import 'package:claimlens/services/api_client.dart';
 
 class TestClaims extends ClaimsProvider {
   TestClaims(super.client) {

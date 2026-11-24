@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter/foundation.dart';
 
 import '../config/api_config.dart';
 
@@ -28,8 +29,11 @@ class ApiClient {
   void Function()? onSessionExpired;
 
   bool get hasSession => _accessToken != null && _refreshToken != null;
+  Future<bool> refreshSession() => _refresh();
 
   Future<void> initialise() async {
+    dio.options.baseUrl =
+        await _storage.read(key: 'server_url') ?? ApiConfig.baseUrl;
     _accessToken = await _storage.read(key: 'access_token');
     _refreshToken = await _storage.read(key: 'refresh_token');
   }
@@ -46,7 +50,10 @@ class ApiClient {
   Future<void> clearSession() async {
     _accessToken = null;
     _refreshToken = null;
-    await _storage.deleteAll();
+    await Future.wait([
+      _storage.delete(key: 'access_token'),
+      _storage.delete(key: 'refresh_token')
+    ]);
   }
 
   void _onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -86,7 +93,7 @@ class ApiClient {
 
   Future<bool> _refresh() async {
     try {
-      final response = await Dio(BaseOptions(baseUrl: ApiConfig.baseUrl))
+      final response = await Dio(BaseOptions(baseUrl: dio.options.baseUrl))
           .post<Map<String, dynamic>>(
         '/auth/refresh',
         data: {'refresh_token': _refreshToken},
@@ -103,15 +110,56 @@ class ApiClient {
       return false;
     }
   }
+
+  Future<void> configureServer(String value) async {
+    final uri = Uri.tryParse(value.trim());
+    if (uri == null ||
+        uri.host.isEmpty ||
+        uri.userInfo.isNotEmpty ||
+        uri.hasQuery ||
+        uri.hasFragment ||
+        !['https', 'http'].contains(uri.scheme)) {
+      throw Exception('Enter a valid server URL.');
+    }
+    final host = uri.host;
+    final local = host == 'localhost' ||
+        host == '127.0.0.1' ||
+        host.startsWith('10.') ||
+        host.startsWith('192.168.') ||
+        RegExp(r'^172\.(1[6-9]|2[0-9]|3[01])\.').hasMatch(host);
+    if (uri.scheme != 'https' && !(kDebugMode && local)) {
+      throw Exception('Internet connections must use HTTPS.');
+    }
+    final base = uri.replace(path: '/api/v1').toString();
+    final health = await Dio().get<Map<String, dynamic>>('$base/health',
+        options: Options(receiveTimeout: const Duration(seconds: 15)));
+    if (!['ClaimLens API', 'claimelens API']
+        .contains(health.data?['service'])) {
+      throw Exception('This address is not a ClaimLens server.');
+    }
+    await clearSession();
+    await _storage.write(key: 'server_url', value: base);
+    dio.options.baseUrl = base;
+  }
 }
 
 String readableApiError(Object error) {
   if (error is DioException) {
     final data = error.response?.data;
-    if (data is Map && data['detail'] != null) return data['detail'].toString();
+    if (data is Map && data['detail'] != null) {
+      final detail = data['detail'];
+      if (detail is List) {
+        return detail
+            .whereType<Map>()
+            .map(
+                (entry) => entry['msg']?.toString() ?? 'Check the form fields.')
+            .join('\n');
+      }
+      return detail.toString();
+    }
     if (error.type == DioExceptionType.connectionError ||
         error.type == DioExceptionType.connectionTimeout) {
-      return 'Cannot reach the claimelens server. Check the API address and your connection.';
+      return 'Cannot reach the ClaimLens server. Check the API address and your connection.';
     }
     return error.message ?? 'The request could not be completed.';
   }

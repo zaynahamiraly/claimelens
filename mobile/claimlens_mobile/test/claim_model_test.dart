@@ -1,4 +1,4 @@
-import 'package:claimelens/models/claim.dart';
+import 'package:claimlens/models/claim.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

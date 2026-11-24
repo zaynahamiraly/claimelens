@@ -2,7 +2,7 @@
 
 Generated from the local working tree. This is an implementation reference, not evidence of production deployment.
 
-Parent Git revision: `62394cfe7805c27bcdd3dfac509b10edbf93c0d9`. Working-tree changes may be newer; SHA-256 hashes below identify the exact files.
+Parent Git revision: `b71d8b848dadd9a92eb3261dea4d8bccd95ec20b`. Working-tree changes may be newer; SHA-256 hashes below identify the exact files.
 
 Read ClaimLens_Project_Portfolio.md first. Source lines are exact UTF-8 text, prefixed with line numbers. Private environment files, service-account keys, SDK client configuration, runtime data, uploads and test credentials are excluded. Use this reference to explain code; never infer unimplemented features from function names.
 

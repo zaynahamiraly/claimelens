@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../models/claim.dart';
 import '../providers/auth_provider.dart';
@@ -15,6 +14,7 @@ import '../services/workspace_service.dart';
 import '../widgets/workspace_form.dart';
 import 'staff_review_screen.dart';
 import 'information_response_screen.dart';
+import 'document_preview_screen.dart';
 
 class ClaimDetailsScreen extends StatefulWidget {
   const ClaimDetailsScreen({
@@ -33,6 +33,78 @@ class _ClaimDetailsScreenState extends State<ClaimDetailsScreen> {
   String? error;
   bool loading = true;
   Timer? refreshTimer;
+
+  Future<void> editInformation() async {
+    final current = claim!;
+    final saved =
+        await workspaceForm(context, title: 'Claim information', fields: [
+      FormEntry('member_number', 'Member number',
+          value: current.information['member_number']?.toString() ?? '',
+          required: false),
+      FormEntry('policy_number', 'Policy number',
+          value: current.information['policy_number']?.toString() ?? '',
+          required: false),
+      FormEntry('treatment_date', 'Treatment date (YYYY-MM-DD)',
+          value: current.information['treatment_date']?.toString() ?? '',
+          required: false),
+      FormEntry('description', 'Claim description',
+          value: current.information['description']?.toString() ?? '',
+          required: false,
+          lines: 4)
+    ], submit: (v) async {
+      await workspaceApi(context)
+          .put<dynamic>('/claims/${current.reference}/information', data: {
+        ...v,
+        'treatment_date': v['treatment_date'] == '' ? null : v['treatment_date']
+      });
+    });
+    if (saved == true && mounted) await _load();
+  }
+
+  Future<void> appeal() async {
+    final saved = await workspaceForm(context,
+        title: 'Request a reconsideration',
+        explanation:
+            'Explain why this decision should be reviewed. The review team may ask for additional evidence.',
+        fields: const [
+          FormEntry('reason', 'Reason for appeal (at least 10 characters)',
+              lines: 6)
+        ],
+        button: 'Submit appeal', submit: (v) async {
+      await workspaceApi(context)
+          .post<dynamic>('/claims/${claim!.reference}/appeal', data: v);
+    });
+    if (saved == true && mounted) await _load();
+  }
+
+  Future<void> deleteDraft() async {
+    final yes = await showDialog<bool>(
+        context: context,
+        builder: (c) => AlertDialog(
+                title: const Text('Delete this draft?'),
+                content: const Text(
+                    'The draft and its uploaded documents will be removed.'),
+                actions: [
+                  TextButton(
+                      onPressed: () => Navigator.pop(c, false),
+                      child: const Text('Cancel')),
+                  FilledButton(
+                      onPressed: () => Navigator.pop(c, true),
+                      child: const Text('Delete draft'))
+                ]));
+    if (yes == true && mounted) {
+      try {
+        await workspaceApi(context)
+            .delete<dynamic>('/claims/${claim!.reference}');
+        if (mounted) Navigator.pop(context);
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(readableApiError(e))));
+        }
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -85,6 +157,15 @@ class _ClaimDetailsScreenState extends State<ClaimDetailsScreen> {
               required: false),
           FormEntry('internal_note', 'Internal note (staff only)',
               required: false, lines: 3)
+        ]);
+      }
+      if (action == 'paid') {
+        entries.addAll([
+          const FormEntry('payment_reference', 'Payment reference'),
+          FormEntry('payment_method', 'Payment method',
+              value: 'bank_transfer',
+              options:
+                  labelOptions(['bank_transfer', 'cheque', 'cash', 'other']))
         ]);
       }
       if (!mounted) return;
@@ -186,16 +267,16 @@ class _ClaimDetailsScreenState extends State<ClaimDetailsScreen> {
                             ),
                           ),
                         ),
-                      Row(
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 8,
                         children: [
-                          Expanded(
-                            child: Text(
-                              claim!.reference,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineSmall
-                                  ?.copyWith(fontWeight: FontWeight.w900),
-                            ),
+                          Text(
+                            claim!.reference,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headlineSmall
+                                ?.copyWith(fontWeight: FontWeight.w900),
                           ),
                           StatusChip(status: claim!.status),
                         ],
@@ -265,6 +346,65 @@ class _ClaimDetailsScreenState extends State<ClaimDetailsScreen> {
                       ),
                       const SizedBox(height: 16),
                       _ProgressTimeline(status: claim!.status),
+                      const SizedBox(height: 16),
+                      if (claim!.information.isNotEmpty)
+                        Card(
+                            child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      Text('Claim information',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium),
+                                      const SizedBox(height: 10),
+                                      for (final entry
+                                          in claim!.information.entries)
+                                        if (entry.value != null &&
+                                            entry.value.toString().isNotEmpty)
+                                          Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 6),
+                                              child: Text(
+                                                  '${friendlyLabel(entry.key)}: ${entry.value}'))
+                                    ]))),
+                      const SizedBox(height: 12),
+                      Wrap(spacing: 8, runSpacing: 8, children: [
+                        if (isClient &&
+                            ['UPLOADED', 'PROCESSING_FAILED']
+                                .contains(claim!.status) &&
+                            claim!.workflow['needs_reconfirmation'] !=
+                                true) ...[
+                          OutlinedButton.icon(
+                              onPressed: editInformation,
+                              icon: const Icon(Icons.edit_note),
+                              label: const Text('Edit claim information')),
+                          TextButton.icon(
+                              onPressed: deleteDraft,
+                              icon: const Icon(Icons.delete_outline),
+                              label: const Text('Delete draft'))
+                        ],
+                        if (!['UPLOADED', 'PROCESSING', 'PROCESSING_FAILED']
+                            .contains(claim!.status))
+                          OutlinedButton.icon(
+                              onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (_) => DocumentPreviewScreen(
+                                          reference: claim!.reference,
+                                          documentId: 'receipt',
+                                          name: 'Submission receipt'))),
+                              icon: const Icon(Icons.receipt_long_outlined),
+                              label: const Text('Submission receipt')),
+                        if (isClient && claim!.status == 'REJECTED')
+                          OutlinedButton.icon(
+                              onPressed: appeal,
+                              icon: const Icon(Icons.rate_review_outlined),
+                              label: const Text('Request reconsideration')),
+                      ]),
                       if (!isClient && claim!.availableActions.isNotEmpty) ...[
                         const SizedBox(height: 24),
                         Text('Review actions',
@@ -423,7 +563,8 @@ class _ClaimDetailsScreenState extends State<ClaimDetailsScreen> {
                       ),
                       const SizedBox(height: 10),
                       ...claim!.documents.map(
-                        (document) => _DocumentCard(document: document),
+                        (document) => _DocumentCard(
+                            document: document, reference: claim!.reference),
                       ),
                       const SizedBox(height: 24),
                       Text(
@@ -548,8 +689,9 @@ class _Value extends StatelessWidget {
 }
 
 class _DocumentCard extends StatelessWidget {
-  const _DocumentCard({required this.document});
+  const _DocumentCard({required this.document, required this.reference});
   final ClaimDocument document;
+  final String reference;
   @override
   Widget build(BuildContext context) => Card(
         margin: const EdgeInsets.only(bottom: 10),
@@ -569,12 +711,15 @@ class _DocumentCard extends StatelessWidget {
               Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(
-                  onPressed: () => launchUrl(
-                    Uri.parse(document.signedUrl!),
-                    mode: LaunchMode.externalApplication,
-                  ),
+                  onPressed: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => DocumentPreviewScreen(
+                              reference: reference,
+                              documentId: document.id,
+                              name: document.originalName))),
                   icon: const Icon(Icons.open_in_new),
-                  label: const Text('Open private source document'),
+                  label: const Text('View source document'),
                 ),
               ),
             if (document.extractionNotes != null)

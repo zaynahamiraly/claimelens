@@ -8,7 +8,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field, field_validator
 
 
-Role = Literal["client", "claims_officer", "supervisor", "administrator"]
+Role = Literal["client", "claims_officer", "supervisor", "administrator", "finance"]
 
 
 class Profile(BaseModel):
@@ -20,6 +20,10 @@ class Profile(BaseModel):
     phone: str = ""
     theme: Literal["system", "light", "dark"] = "system"
     notifications_enabled: bool = True
+    permissions: list[str] = Field(default_factory=list)
+    email_verified: bool = False
+    must_change_password: bool = False
+    verification_required: bool = False
 
 
 class LoginRequest(BaseModel):
@@ -83,6 +87,7 @@ class ClaimSummary(BaseModel):
 
 
 class ClaimDetails(ClaimSummary):
+    information: dict[str, Any] = Field(default_factory=dict)
     documents: list[ClaimDocument] = Field(default_factory=list)
     audit_events: list[dict[str, Any]] = Field(default_factory=list)
     available_actions: list[str] = Field(default_factory=list)
@@ -117,6 +122,8 @@ class ProcessResult(BaseModel):
 
 
 class DashboardSummary(BaseModel):
+    action_required_claims: list[ClaimSummary] = Field(default_factory=list)
+    unassigned: int = 0
     by_status: dict[str, int] = Field(default_factory=dict)
     total_claims: int
     processing: int
@@ -134,7 +141,7 @@ class EmailRequest(BaseModel):
 
 class SignupRequest(EmailRequest):
     display_name: str = Field(min_length=2, max_length=120)
-    password: str = Field(min_length=8, max_length=128)
+    password: str = Field(min_length=12, max_length=128)
 
     @field_validator("display_name")
     @classmethod

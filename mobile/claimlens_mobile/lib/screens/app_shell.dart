@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../widgets/claimlens_logo.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../services/workspace_service.dart';
@@ -8,6 +9,8 @@ import 'history_screen.dart';
 import 'new_claim_screen.dart';
 import 'profile_screen.dart';
 import 'workspace_screens.dart';
+import '../services/push_service.dart';
+import 'claim_details_screen.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -18,11 +21,21 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   int index = 0, unread = 0;
   Timer? timer;
+  PushService? push;
   final Map<int, Widget> pages = {};
   @override
   void initState() {
     super.initState();
     refreshBadge();
+    push = PushService(context.read<AuthProvider>().client);
+    push!.initialise(onOpen: (reference) {
+      if (mounted) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (_) => ClaimDetailsScreen(reference: reference)));
+      }
+    });
     timer = Timer.periodic(const Duration(seconds: 30), (_) => refreshBadge());
   }
 
@@ -40,6 +53,7 @@ class _AppShellState extends State<AppShell> {
   @override
   void dispose() {
     timer?.cancel();
+    push?.dispose();
     super.dispose();
   }
 
@@ -54,42 +68,48 @@ class _AppShellState extends State<AppShell> {
               1 => const HistoryScreen(),
               2 => client
                   ? const NotificationsScreen()
-                  : const HistoryScreen(reviewOnly: true),
+                  : HistoryScreen(
+                      reviewOnly: !user.isFinance,
+                      initialStatus: user.isFinance ? 'PAYMENT_PENDING' : null),
               _ => client ? const ProfileScreen() : const WorkspaceMenuScreen()
             });
     return Scaffold(
-      appBar: AppBar(
-          title: Row(children: [
-            Icon(Icons.auto_awesome,
-                color: Theme.of(context).colorScheme.primary),
-            const SizedBox(width: 10),
-            const Flexible(
-                child: Text('claimelens',
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontWeight: FontWeight.w900)))
-          ]),
-          actions: [
-            if (MediaQuery.sizeOf(context).width >= 390 &&
-                MediaQuery.textScalerOf(context).scale(14) < 20)
-              Tooltip(
-                  message: friendlyLabel(user.role),
-                  child: Chip(
-                      label: Text(client ? 'Client' : friendlyLabel(user.role),
-                          style: Theme.of(context).textTheme.labelSmall))),
-            IconButton(
-                tooltip: 'Notifications',
-                icon: Badge(
-                    isLabelVisible: unread > 0 && user.notificationsEnabled,
-                    label: Text('$unread'),
-                    child: const Icon(Icons.notifications_outlined)),
-                onPressed: () async {
-                  await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const NotificationsScreen()));
-                  await refreshBadge();
-                })
-          ]),
+      appBar: index == 0
+          ? AppBar(
+              title: Row(children: [
+                const ClaimLensLogo(size: 28),
+                const SizedBox(width: 10),
+                const Flexible(
+                    child: Text('ClaimLens',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontWeight: FontWeight.w900)))
+              ]),
+              actions: [
+                  if (MediaQuery.sizeOf(context).width >= 390 &&
+                      MediaQuery.textScalerOf(context).scale(14) < 20)
+                    Tooltip(
+                        message: friendlyLabel(user.role),
+                        child: Chip(
+                            label: Text(
+                                client ? 'Client' : friendlyLabel(user.role),
+                                style:
+                                    Theme.of(context).textTheme.labelSmall))),
+                  IconButton(
+                      tooltip: 'Notifications',
+                      icon: Badge(
+                          isLabelVisible:
+                              unread > 0 && user.notificationsEnabled,
+                          label: Text('$unread'),
+                          child: const Icon(Icons.notifications_outlined)),
+                      onPressed: () async {
+                        await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const NotificationsScreen()));
+                        await refreshBadge();
+                      })
+                ])
+          : null,
       body: IndexedStack(
           index: index,
           children:
@@ -128,7 +148,11 @@ class _AppShellState extends State<AppShell> {
                 icon: Icon(client
                     ? Icons.notifications_outlined
                     : Icons.fact_check_outlined),
-                label: client ? 'Updates' : 'Review'),
+                label: client
+                    ? 'Updates'
+                    : user.isFinance
+                        ? 'Payments'
+                        : 'Review'),
             NavigationDestination(
                 icon: Icon(
                     client ? Icons.person_outline : Icons.grid_view_outlined),

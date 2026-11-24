@@ -7,6 +7,8 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from functools import lru_cache
 import uuid
+import hashlib
+from google.api_core.exceptions import AlreadyExists
 
 from fastapi import HTTPException
 from firebase_admin import credentials, firestore, initialize_app
@@ -41,6 +43,8 @@ def can_access_claim(user, claim):
             claim.get("assigned_to") is None
             and claim.get("status") in {"REVIEW_REQUIRED", "INFORMATION_RECEIVED"}
         )
+    if user.profile.role == "finance":
+        return claim.get("status") in {"APPROVED", "PAYMENT_PENDING", "PAID"}
     return user.profile.role in {"supervisor", "administrator"}
 
 
@@ -62,7 +66,9 @@ class FirebaseGateway:
         )
         return snapshot.to_dict() if snapshot.exists else None
 
-    async def ensure_profile(self, uid, display_name, email):
+    async def ensure_profile(
+        self, uid, display_name, email, *, verification_required=False
+    ):
         ref = self.db.collection("profiles").document(uid)
 
         @firestore.transactional
@@ -77,6 +83,7 @@ class FirebaseGateway:
                 "role": "client",
                 "status": "active",
                 "created_at": now(),
+                "verification_required": verification_required,
             }
             transaction.set(ref, value)
             return value
@@ -149,6 +156,14 @@ class FirebaseGateway:
                 for item in items:
                     item = dict(item)
                     identifier = str(uuid.uuid4())
+                    if collection == "claims" and item.get("request_key") and user:
+                        identifier = str(
+                            uuid.UUID(
+                                hashlib.sha256(
+                                    (user.id + ":" + item["request_key"]).encode()
+                                ).hexdigest()[:32]
+                            )
+                        )
                     item.update(id=identifier, created_at=now())
                     if collection == "claims":
                         if user and (
@@ -169,7 +184,16 @@ class FirebaseGateway:
                         )
                     if collection == "claim_documents":
                         item.update(extraction_status="PENDING", include_in_total=False)
-                    self.db.collection(collection).document(identifier).create(item)
+                    ref = self.db.collection(collection).document(identifier)
+                    try:
+                        ref.create(item)
+                    except AlreadyExists:
+                        if collection != "claims" or not item.get("request_key"):
+                            raise
+                        existing = ref.get().to_dict()
+                        if not existing or existing.get("client_id") != user.id:
+                            raise HTTPException(409, "Upload conflict. Please retry.")
+                        return [{**existing, "_reused": True}]
                     result.append(item)
                 return result
             rows = [s.to_dict() for s in query.stream()]
@@ -203,7 +227,7 @@ class FirebaseGateway:
                 elif method == "DELETE":
                     if user and (
                         collection != "claims"
-                        or row.get("status") != "UPLOADED"
+                        or row.get("status") not in {"UPLOADED", "PROCESSING_FAILED"}
                         or row.get("client_id") != user.id
                     ):
                         raise HTTPException(403, "Operation not permitted.")
@@ -257,12 +281,32 @@ class FirebaseGateway:
                 raise HTTPException(404, "Claim not found.")
             if claim["status"] not in {"UPLOADED", "PROCESSING_FAILED"}:
                 raise HTTPException(409, "This claim is not available for processing.")
+            if claim.get("upload_complete") is False:
+                raise HTTPException(409, "The document upload has not finished.")
             transaction.update(ref, {"status": "PROCESSING"})
 
         await asyncio.to_thread(acquire, self.db.transaction())
 
+    async def reserve_draft_deletion(self, claim_id):
+        user = self._user()
+        ref = self.db.collection('claims').document(claim_id)
+        @firestore.transactional
+        def reserve(transaction):
+            snapshot = ref.get(transaction=transaction)
+            claim = snapshot.to_dict() if snapshot.exists else {}
+            if user.profile.role != 'client' or claim.get('client_id') != user.id or claim.get('status') not in {'UPLOADED', 'PROCESSING_FAILED'} or claim.get('submitted_at') or claim.get('needs_reconfirmation'):
+                raise HTTPException(409, 'This draft is no longer available for deletion.')
+            transaction.update(ref, {'status': 'DELETING'})
+            return claim['status']
+        return await asyncio.to_thread(reserve, self.db.transaction())
+
     async def confirm(self, claim_id, payload):
         user = self._user()
+        if user.profile.verification_required and not user.profile.email_verified:
+            raise HTTPException(403, "Verify your email before submitting a claim.")
+        from .routers.claim_tools import business_settings
+
+        policy = await business_settings(self)
         ref = self.db.collection("claims").document(claim_id)
 
         @firestore.transactional
@@ -275,10 +319,12 @@ class FirebaseGateway:
                 or user.profile.role != "client"
             ):
                 raise HTTPException(403, "Only the claim owner can confirm this draft.")
-            if claim["status"] != "UPLOADED":
+            if claim['status'] not in {'UPLOADED', 'PROCESSING_FAILED'} or claim.get('needs_reconfirmation') or claim.get('submitted_at'):
                 raise HTTPException(
                     409, "This claim has already been submitted or is processing."
                 )
+            if claim.get("upload_complete") is False:
+                raise HTTPException(409, "Wait for all documents to finish uploading.")
             docs = list(
                 self.db.collection("claim_documents")
                 .where(filter=FieldFilter("claim_id", "==", claim_id))
@@ -301,6 +347,41 @@ class FirebaseGateway:
                 if snapshot.to_dict().get("status") == "active"
             ]
             by_id = {d.id: d for d in docs}
+            information = claim.get("information") or {}
+            if (
+                policy["require_member_number"]
+                and not information.get("member_number", "").strip()
+            ):
+                raise HTTPException(422, "Add your member number before submission.")
+            if (
+                policy["require_policy_number"]
+                and not information.get("policy_number", "").strip()
+            ):
+                raise HTTPException(422, "Add your policy number before submission.")
+            fingerprints = []
+            import hashlib
+
+            for item in payload.documents:
+                original = by_id.get(item.id)
+                content_hash = (
+                    original.to_dict().get("content_sha256") if original else None
+                )
+                if item.include and content_hash:
+                    fingerprint = self.db.collection("document_fingerprints").document(
+                        hashlib.sha256(
+                            (user.id + ":" + content_hash).encode()
+                        ).hexdigest()
+                    )
+                    previous = fingerprint.get(transaction=transaction)
+                    if (
+                        previous.exists
+                        and previous.to_dict().get("claim_id") != claim_id
+                    ):
+                        raise HTTPException(
+                            409,
+                            "This payable document was already submitted. Check your existing claims or request an appeal.",
+                        )
+                    fingerprints.append(fingerprint)
             field_ids = {d.id: d for d in fields}
             if len({d.id for d in payload.documents}) != len(payload.documents) or set(
                 by_id
@@ -319,6 +400,7 @@ class FirebaseGateway:
                         or item.amount.as_tuple().exponent < -2
                         or not item.currency
                         or len(item.currency) != 3
+                        or item.currency.upper() not in policy["allowed_currencies"]
                     ):
                         raise HTTPException(
                             422,
@@ -390,9 +472,16 @@ class FirebaseGateway:
                     "claimed_amount": str(total),
                     "currency": next(iter(currencies)),
                     "status": "REVIEW_REQUIRED",
+                    "submitted_at": now(),
                 },
             )
             from .workflow import write_event
+
+            for fingerprint in fingerprints:
+                transaction.set(
+                    fingerprint,
+                    {"claim_id": claim_id, "client_id": user.id, "created_at": now()},
+                )
 
             write_event(
                 self.db,

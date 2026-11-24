@@ -145,7 +145,7 @@ class _SignupScreenState extends State<SignupScreen> {
                             enableSuggestions: false,
                             decoration: InputDecoration(
                                 labelText: 'Password',
-                                helperText: 'Use 8 to 128 characters.',
+                                helperText: 'Use 12 to 128 characters.',
                                 prefixIcon: const Icon(Icons.lock_outline),
                                 suffixIcon: IconButton(
                                     tooltip: hidden
@@ -158,7 +158,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                         : Icons.visibility_off))),
                             validator: (v) =>
                                 (v?.length ?? 0) < 8 || (v?.length ?? 0) > 128
-                                    ? 'Use 8 to 128 characters.'
+                                    ? 'Use 12 to 128 characters.'
                                     : null),
                         const SizedBox(height: 16),
                         TextFormField(

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../services/workspace_service.dart';
 import '../widgets/workspace_form.dart';
+import '../services/api_client.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -20,11 +21,11 @@ class ProfileScreen extends StatelessWidget {
             FormEntry('theme', 'Appearance',
                 value: user.theme,
                 options: labelOptions(['system', 'light', 'dark'])),
-            FormEntry('notifications_enabled', 'Notification badge',
+            FormEntry('notifications_enabled', 'Claim notifications',
                 value: user.notificationsEnabled.toString(),
                 options: const {
-                  'true': 'Show unread updates',
-                  'false': 'Hide unread badge'
+                  'true': 'Allow updates and unread badge',
+                  'false': 'Mute push alerts and unread badge'
                 })
           ],
           submit: (v) => auth.updateProfile({
@@ -36,6 +37,60 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(title: const Text('Account & settings')),
         body: ListView(padding: const EdgeInsets.all(20), children: [
+          if (user.isClient && !user.emailVerified)
+            Card(
+                color: Theme.of(context).colorScheme.secondaryContainer,
+                child: Padding(
+                    padding: const EdgeInsets.all(18),
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Verify your email',
+                              style: Theme.of(context).textTheme.titleMedium),
+                          const SizedBox(height: 8),
+                          const Text(
+                              'Open the link in your verification email, then refresh your account. Public signup accounts must verify before submitting claims.'),
+                          Wrap(spacing: 8, children: [
+                            TextButton(
+                                onPressed: () async {
+                                  try {
+                                    final response = await workspaceApi(context)
+                                        .post<Map<String, dynamic>>(
+                                            '/auth/verification-email');
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                              content: Text(
+                                                  response.data!['message']
+                                                      as String)));
+                                    }
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                              content:
+                                                  Text(readableApiError(e))));
+                                    }
+                                  }
+                                },
+                                child: const Text('Send verification email')),
+                            TextButton(
+                                onPressed: () async {
+                                  try {
+                                    await auth.reloadProfile(
+                                        refreshToken: true);
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                              content:
+                                                  Text(readableApiError(e))));
+                                    }
+                                  }
+                                },
+                                child: const Text('I’ve verified my email'))
+                          ])
+                        ]))),
           Card(
               child: Padding(
                   padding: const EdgeInsets.all(24),
@@ -84,7 +139,7 @@ class ProfileScreen extends StatelessWidget {
                           FormEntry('current', 'Current password',
                               secret: true),
                           FormEntry('password',
-                              'New password (at least 8 characters)',
+                              'New password (at least 12 characters)',
                               secret: true),
                           FormEntry('confirm', 'Confirm new password',
                               secret: true)
@@ -92,13 +147,18 @@ class ProfileScreen extends StatelessWidget {
                       if (v['password'] != v['confirm']) {
                         throw Exception('The new passwords do not match.');
                       }
-                      if (v['password']!.length < 8) {
-                        throw Exception('Use at least 8 characters.');
+                      if (v['password']!.length < 12) {
+                        throw Exception('Use at least 12 characters.');
                       }
                       await auth.changePassword(v['current']!, v['password']!);
                     }))
           ])),
           const SizedBox(height: 24),
+          OutlinedButton.icon(
+              onPressed: auth.lock,
+              icon: const Icon(Icons.lock_outline),
+              label: const Text('Lock this session')),
+          const SizedBox(height: 12),
           OutlinedButton.icon(
               icon: const Icon(Icons.logout),
               label: const Text('Sign out'),
@@ -127,7 +187,7 @@ class ProfileScreen extends StatelessWidget {
                       }
                     }),
           const SizedBox(height: 20),
-          Text('claimelens\nMedical claims, clearly managed.',
+          Text('ClaimLens\nMedical claims, clearly managed.',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall),
         ]));

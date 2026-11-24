@@ -34,13 +34,16 @@ def _extract_pdf(content: bytes) -> tuple[str, str, float]:
     import pymupdf
 
     with pymupdf.open(stream=content, filetype="pdf") as document:
+        if document.needs_pass or len(document) > 30:
+            raise ValueError("Use an unprotected PDF with at most 30 pages.")
         text = "\n".join(page.get_text("text") for page in document).strip()
         if len(text) >= 40:
             return text, "pdf_text", 0.99
         pages: list[str] = []
         confidences: list[float] = []
         for page in document:
-            pixmap = page.get_pixmap(matrix=pymupdf.Matrix(2, 2), alpha=False)
+            scale = min(2, 2500/max(page.rect.width, page.rect.height, 1))
+            pixmap = page.get_pixmap(matrix=pymupdf.Matrix(scale, scale), alpha=False)
             page_text, _, confidence = _ocr_image(pixmap.tobytes("png"))
             pages.append(page_text)
             confidences.append(confidence)
@@ -204,6 +207,7 @@ async def process_claim(
                     params={"id": f"eq.{document['id']}"},
                     json={
                         "document_type": document_type,
+                        "content_sha256": digest,
                         "extracted_amount": amount,
                         "extracted_currency": currency,
                         "amount_confidence": amount_field.confidence

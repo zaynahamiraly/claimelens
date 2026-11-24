@@ -23,6 +23,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from ..firebase import FirebaseGateway, now
 from ..schemas import SignupRequest
+from ..permissions import PERMISSIONS, require
 from ..security import CurrentUser, get_current_user
 from ..workflow import WorkflowInput, apply_action, write_event, STAFF
 from .claims import accessible_claim, valid_signature, ALLOWED_MIME_TYPES
@@ -189,14 +190,18 @@ async def information_response(
                 "INFORMATION_RECEIVED",
                 {"document_count": len(prepared)},
             )
+            if prepared and background:
+                from ..jobs import queue_record
+
+                transaction.set(
+                    store.db.collection("processing_queue").document(claim["id"]),
+                    queue_record({**current, "needs_reconfirmation": True}, user.id),
+                )
 
         await asyncio.to_thread(submit, store.db.transaction())
         committed = True
         if prepared:
             if background:
-                background_tasks.add_task(
-                    finish_information_processing, store, claim, user.id
-                )
                 return {
                     "message": "Your response was submitted. Supporting documents are being processed."
                 }
@@ -269,7 +274,7 @@ async def read_notice(
 async def audit(
     request: Request, search: str = "", user: CurrentUser = Depends(get_current_user)
 ):
-    staff(user)
+    require(user, "audit.view")
     store = FirebaseGateway(request)
     claims = await store.records("GET", "claims")
     allowed = {c["id"]: c["reference"] for c in claims}
@@ -304,7 +309,7 @@ async def analytics(
     to_date: date | None = None,
     user: CurrentUser = Depends(get_current_user),
 ):
-    staff(user)
+    require(user, "analytics.view")
     if from_date and to_date and from_date > to_date:
         raise HTTPException(422, "Start date must be before the end date.")
     rows = await FirebaseGateway(request).records("GET", "claims")
@@ -342,12 +347,28 @@ async def analytics(
 
 
 class UserCreate(SignupRequest):
-    role: Literal["client", "claims_officer", "supervisor", "administrator"] = "client"
+    role: Literal[
+        "client", "claims_officer", "supervisor", "administrator", "finance"
+    ] = "client"
+    permissions: list[str] = Field(default_factory=list, max_length=7)
+
+    @field_validator("permissions")
+    @classmethod
+    def valid_permissions(cls, values):
+        if set(values) - PERMISSIONS or "users.manage" in values:
+            raise ValueError(
+                "Choose valid claim, finance, analytics or audit permissions. User administration requires the administrator role."
+            )
+        return sorted(set(values))
 
 
 class UserEdit(BaseModel):
     display_name: str = Field(min_length=2, max_length=120)
-    role: Literal["client", "claims_officer", "supervisor", "administrator"]
+    role: Literal["client", "claims_officer", "supervisor", "administrator", "finance"]
+    permissions: list[str] = Field(default_factory=list, max_length=7)
+    valid_permissions = field_validator("permissions")(
+        UserCreate.valid_permissions.__func__
+    )
     status: Literal["active", "inactive"]
 
     @field_validator("display_name")
@@ -398,6 +419,8 @@ async def create_user(
             "role": payload.role,
             "status": "active",
             "created_at": now(),
+            "permissions": [] if payload.role == "client" else payload.permissions,
+            "must_change_password": True,
         }
         await asyncio.to_thread(
             store.db.collection("profiles").document(created.uid).create, record
@@ -518,4 +541,52 @@ async def user_reset(
     return {
         "link": link,
         "message": "Share this recovery link privately with the account owner.",
+    }
+
+
+class AdminPassword(BaseModel):
+    new_password: str = Field(min_length=12, max_length=128)
+    admin_password: str = Field(min_length=1, max_length=128)
+
+
+@router.post("/users/{uid}/password")
+async def set_user_password(
+    uid: str,
+    payload: AdminPassword,
+    request: Request,
+    user: CurrentUser = Depends(get_current_user),
+):
+    administrator(user)
+    if uid == user.id:
+        raise HTTPException(422, "Use Account → Change password for your own account.")
+    from .auth import firebase_request
+
+    verified = await firebase_request(
+        request,
+        "signInWithPassword",
+        {
+            "email": user.email,
+            "password": payload.admin_password,
+            "returnSecureToken": True,
+        },
+    )
+    if verified.get("localId") != user.id:
+        raise HTTPException(403, "Administrator authentication failed.")
+    store = FirebaseGateway(request)
+    profile = await store.profile(uid)
+    if not profile or profile.get("deleted"):
+        raise HTTPException(404, "User not found.")
+    await asyncio.to_thread(
+        auth.update_user, uid, password=payload.new_password, app=store.app
+    )
+    # Firebase invalidates existing refresh tokens when the password changes.
+    # Avoid a second, local-clock revocation after the update: clock skew could
+    # otherwise invalidate a user's immediate sign-in with the new password.
+    await asyncio.to_thread(
+        store.db.collection("profiles").document(uid).update,
+        {"must_change_password": True},
+    )
+    await account_event(store, user.id, "TEMPORARY_PASSWORD_SET", uid)
+    return {
+        "message": "Temporary password set. The user must change it when they sign in."
     }

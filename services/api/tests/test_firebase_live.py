@@ -133,6 +133,9 @@ def test_live_login_private_upload_processing_and_confirmation():
             ):
                 db.collection("profiles").document(account.uid).update({"role": role})
             owner, stranger, officer, supervisor, administrator = headers
+            db.collection("profiles").document(users[3].uid).update(
+                {"permissions": ["payments.record"]}
+            )
             assert client.get("/api/v1/users", headers=officer).status_code == 403
             assert client.get("/api/v1/users", headers=administrator).status_code == 200
             assert (
@@ -232,6 +235,17 @@ def test_live_login_private_upload_processing_and_confirmation():
                 ).status_code
                 == 403
             )
+            assert client.get(url + '/receipt', headers=owner).content.startswith(b'%PDF-')
+            assert client.get(url + '/receipt/preview', headers=owner).headers['content-type'].startswith('image/png')
+            assert client.get(url + '/documents/' + document['id'] + '/preview', headers=owner).status_code == 200
+            rejected = client.post(url + '/actions/reject', headers=supervisor, json={'notes': 'Synthetic decision to exercise the appeal workflow'})
+            assert rejected.status_code == 200, rejected.text
+            assert client.post(url + '/appeal', headers=stranger, json={'reason': 'Another person’s claim is not mine'}).status_code == 404
+            appealed = client.post(url + '/appeal', headers=owner, json={'reason': 'Please reconsider the original evidence for this synthetic claim.'})
+            assert appealed.status_code == 200, appealed.text
+            assert client.post(url + '/appeal', headers=owner, json={'reason': 'Duplicate appeal request'}).status_code == 409
+            assert client.post(url + '/actions/claim', headers=officer, json={}).status_code == 200
+            assert client.post(url + '/actions/verify', headers=officer, json={}).status_code == 200
             result = client.post(
                 url + "/actions/approve",
                 headers=supervisor,
@@ -255,7 +269,12 @@ def test_live_login_private_upload_processing_and_confirmation():
             )
             assert (
                 client.post(
-                    url + "/actions/paid", headers=supervisor, json={}
+                    url + "/actions/paid",
+                    headers=supervisor,
+                    json={
+                        "payment_reference": "SYNTHETIC-BANK-001",
+                        "payment_method": "bank_transfer",
+                    },
                 ).status_code
                 == 200
             )
@@ -326,6 +345,8 @@ def test_live_login_private_upload_processing_and_confirmation():
                 "audit_events",
                 "notifications",
                 "claim_information_requests",
+                "claim_appeals",
+                "document_fingerprints",
             ]:
                 for document in (
                     db.collection(collection)

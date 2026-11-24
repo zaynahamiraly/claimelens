@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import '../widgets/claimlens_logo.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/auth_provider.dart';
 import 'password_recovery_screen.dart';
 import 'signup_screen.dart';
+import '../widgets/workspace_form.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -50,14 +53,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Icon(
-                      Icons.auto_awesome,
-                      size: 54,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                    const ClaimLensLogo(size: 72),
                     const SizedBox(height: 16),
                     Text(
-                      'claimelens',
+                      'ClaimLens',
                       textAlign: TextAlign.center,
                       style: Theme.of(context)
                           .textTheme
@@ -148,6 +147,22 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: auth.busy ? null : openSignup,
                       child: const Text('New client? Sign up'),
                     ),
+                    if (kDebugMode)
+                      TextButton.icon(
+                          onPressed: auth.busy
+                              ? null
+                              : () => workspaceForm(context,
+                                  title: 'Development connection',
+                                  explanation:
+                                      'For USB debugging use http://127.0.0.1:8000. For a hotspot or Wi-Fi connection, enter the API computer’s local address. A hosted server must use HTTPS.',
+                                  fields: [
+                                    FormEntry('url', 'API server URL',
+                                        value: auth.client.dio.options.baseUrl)
+                                  ],
+                                  button: 'Check & save connection',
+                                  submit: (v) => auth.changeServer(v['url']!)),
+                          icon: const Icon(Icons.settings_ethernet),
+                          label: const Text('Development connection')),
                   ],
                 ),
               ),

@@ -5,6 +5,8 @@ import '../models/claim.dart';
 import '../providers/claims_provider.dart';
 import '../services/api_client.dart';
 import 'claim_review_screen.dart';
+import '../services/workspace_service.dart';
+import 'document_preview_screen.dart';
 
 class ExtractedInfoScreen extends StatefulWidget {
   const ExtractedInfoScreen({super.key, required this.reference});
@@ -25,6 +27,15 @@ class _ExtractedInfoScreenState extends State<ExtractedInfoScreen> {
   String? error;
   double? patientConfidence;
   double? providerConfidence;
+  List<String> allowedCurrencies = [
+    'MUR',
+    'USD',
+    'EUR',
+    'GBP',
+    'UGX',
+    'KES',
+    'TZS'
+  ];
 
   @override
   void initState() {
@@ -33,18 +44,22 @@ class _ExtractedInfoScreenState extends State<ExtractedInfoScreen> {
   }
 
   ExtractedField? _bestField(ClaimDetails value, String name) {
-    final matches =
-        value.documents
-            .expand((document) => document.fields)
-            .where((field) => field.fieldName == name)
-            .toList()
-          ..sort((left, right) => right.confidence.compareTo(left.confidence));
+    final matches = value.documents
+        .expand((document) => document.fields)
+        .where((field) => field.fieldName == name)
+        .toList()
+      ..sort((left, right) => right.confidence.compareTo(left.confidence));
     return matches.isEmpty ? null : matches.first;
   }
 
   Future<void> _load() async {
     try {
-      final value = await context.read<ClaimsProvider>().service.details(
+      final api = workspaceApi(context);
+      final service = context.read<ClaimsProvider>().service;
+      final settings = await api.get<Map<String, dynamic>>('/settings');
+      allowedCurrencies =
+          List<String>.from(settings.data!['allowed_currencies'] as List);
+      final value = await service.details(
         widget.reference,
       );
       final patientField = _bestField(value, 'patient_name');
@@ -56,17 +71,19 @@ class _ExtractedInfoScreenState extends State<ExtractedInfoScreen> {
       confirmations.clear();
       for (final document in value.documents) {
         final amount = document.confirmedAmount ?? document.extractedAmount;
+        final currency = document.confirmedCurrency ??
+            document.extractedCurrency ??
+            value.currency;
         confirmations.add(
           DocumentConfirmation(
             document: document,
-            include:
+            include: allowedCurrencies.contains(currency) &&
                 document.duplicateOf == null &&
                 (document.includeInTotal || amount != null),
             amount: amount,
-            currency:
-                document.confirmedCurrency ??
-                document.extractedCurrency ??
-                value.currency,
+            currency: allowedCurrencies.contains(currency)
+                ? currency
+                : allowedCurrencies.first,
           ),
         );
         amountControllers[document.id]?.dispose();
@@ -167,96 +184,102 @@ class _ExtractedInfoScreenState extends State<ExtractedInfoScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Confirm extracted information')),
-    body: loading
-        ? const Center(child: CircularProgressIndicator())
-        : claim == null
-        ? Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text(error ?? 'The claim could not be loaded.'),
-            ),
-          )
-        : Form(
-            key: formKey,
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                Card(
-                  color: Theme.of(context).colorScheme.tertiaryContainer,
-                  child: const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+        appBar: AppBar(title: const Text('Confirm extracted information')),
+        body: loading
+            ? const Center(child: CircularProgressIndicator())
+            : claim == null
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Text(error ?? 'The claim could not be loaded.'),
+                    ),
+                  )
+                : Form(
+                    key: formKey,
+                    child: ListView(
+                      padding: const EdgeInsets.all(16),
                       children: [
-                        Icon(Icons.fact_check_outlined),
-                        SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'OCR values are proposals, not final decisions. Compare them with the source documents and correct anything that is wrong.',
+                        Card(
+                          color:
+                              Theme.of(context).colorScheme.tertiaryContainer,
+                          child: const Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(Icons.fact_check_outlined),
+                                SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'OCR values are proposals, not final decisions. Compare them with the source documents and correct anything that is wrong.',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        _ConfidenceField(
+                          controller: patient,
+                          label: 'Patient name',
+                          confidence: patientConfidence,
+                          validator: _required,
+                        ),
+                        const SizedBox(height: 12),
+                        _ConfidenceField(
+                          controller: provider,
+                          label: 'Provider name',
+                          confidence: providerConfidence,
+                          validator: _required,
+                        ),
+                        const SizedBox(height: 24),
+                        Text(
+                          'Document amounts',
+                          style: Theme.of(
+                            context,
+                          )
+                              .textTheme
+                              .titleLarge
+                              ?.copyWith(fontWeight: FontWeight.w800),
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          'Include payable evidence only. Medical certificates and duplicate copies should normally be excluded.',
+                        ),
+                        const SizedBox(height: 12),
+                        ...confirmations.map(
+                          (item) => _DocumentEditor(
+                            reference: widget.reference,
+                            allowedCurrencies: allowedCurrencies,
+                            item: item,
+                            controller: amountControllers[item.document.id]!,
+                            fieldControllers: fieldControllers,
+                            onChanged: () => setState(() {}),
+                          ),
+                        ),
+                        if (error != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              error!,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.error,
+                              ),
+                            ),
+                          ),
+                        const SizedBox(height: 16),
+                        FilledButton.icon(
+                          onPressed: _review,
+                          icon: const Icon(Icons.arrow_forward),
+                          label: const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 14),
+                            child: Text('Review claim total'),
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                _ConfidenceField(
-                  controller: patient,
-                  label: 'Patient name',
-                  confidence: patientConfidence,
-                  validator: _required,
-                ),
-                const SizedBox(height: 12),
-                _ConfidenceField(
-                  controller: provider,
-                  label: 'Provider name',
-                  confidence: providerConfidence,
-                  validator: _required,
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'Document amounts',
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  'Include payable evidence only. Medical certificates and duplicate copies should normally be excluded.',
-                ),
-                const SizedBox(height: 12),
-                ...confirmations.map(
-                  (item) => _DocumentEditor(
-                    item: item,
-                    controller: amountControllers[item.document.id]!,
-                    fieldControllers: fieldControllers,
-                    onChanged: () => setState(() {}),
-                  ),
-                ),
-                if (error != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(
-                      error!,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                  ),
-                const SizedBox(height: 16),
-                FilledButton.icon(
-                  onPressed: _review,
-                  icon: const Icon(Icons.arrow_forward),
-                  label: const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 14),
-                    child: Text('Review claim total'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-  );
+      );
 }
 
 class _ConfidenceField extends StatelessWidget {
@@ -272,15 +295,15 @@ class _ConfidenceField extends StatelessWidget {
   final FormFieldValidator<String> validator;
   @override
   Widget build(BuildContext context) => TextFormField(
-    controller: controller,
-    validator: validator,
-    decoration: InputDecoration(
-      labelText: label,
-      helperText: confidence == null
-          ? 'Not found by OCR â€” enter manually'
-          : 'OCR confidence ${(confidence! * 100).round()}%',
-    ),
-  );
+        controller: controller,
+        validator: validator,
+        decoration: InputDecoration(
+          labelText: label,
+          helperText: confidence == null
+              ? 'Not found by OCR - enter manually'
+              : 'OCR confidence ${(confidence! * 100).round()}%',
+        ),
+      );
 }
 
 class _DocumentEditor extends StatelessWidget {
@@ -289,8 +312,12 @@ class _DocumentEditor extends StatelessWidget {
     required this.controller,
     required this.fieldControllers,
     required this.onChanged,
+    required this.reference,
+    required this.allowedCurrencies,
   });
   final DocumentConfirmation item;
+  final String reference;
+  final List<String> allowedCurrencies;
   final TextEditingController controller;
   final Map<String, TextEditingController> fieldControllers;
   final VoidCallback onChanged;
@@ -326,9 +353,19 @@ class _DocumentEditor extends StatelessWidget {
               ],
             ),
             Text(document.documentType.replaceAll('_', ' ')),
+            TextButton.icon(
+                onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (_) => DocumentPreviewScreen(
+                            reference: reference,
+                            documentId: document.id,
+                            name: document.originalName))),
+                icon: const Icon(Icons.document_scanner_outlined),
+                label: const Text('Compare source document')),
             if (document.duplicateOf != null)
               const Text(
-                'Duplicate detected â€” excluded from total.',
+                'Duplicate detected - excluded from total.',
                 style: TextStyle(color: Colors.orange),
               ),
             if (document.extractionNotes != null)
@@ -337,10 +374,10 @@ class _DocumentEditor extends StatelessWidget {
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             const SizedBox(height: 10),
-            Row(
+            Column(
               children: [
-                Expanded(
-                  flex: 2,
+                SizedBox(
+                  width: double.infinity,
                   child: TextFormField(
                     controller: controller,
                     enabled: item.include,
@@ -355,20 +392,20 @@ class _DocumentEditor extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
+                const SizedBox(height: 14),
+                SizedBox(
+                  width: double.infinity,
                   child: DropdownButtonFormField<String>(
                     initialValue: item.currency,
                     decoration: const InputDecoration(labelText: 'Currency'),
-                    items:
-                        const ['MUR', 'USD', 'EUR', 'GBP', 'UGX', 'KES', 'TZS']
-                            .map(
-                              (currency) => DropdownMenuItem(
-                                value: currency,
-                                child: Text(currency),
-                              ),
-                            )
-                            .toList(),
+                    items: allowedCurrencies
+                        .map(
+                          (currency) => DropdownMenuItem(
+                            value: currency,
+                            child: Text(currency),
+                          ),
+                        )
+                        .toList(),
                     onChanged: item.include
                         ? (value) {
                             if (value != null) {
@@ -408,8 +445,8 @@ class _DocumentEditor extends StatelessWidget {
                         controller: fieldControllers[field.id],
                         decoration: InputDecoration(
                           labelText: field.fieldName.replaceAll('_', ' '),
-                          helperText:
-                              field.extractionMethod == 'human_corrected'
+                          helperText: field.extractionMethod ==
+                                  'human_corrected'
                               ? 'Human corrected'
                               : 'OCR confidence ${(field.confidence * 100).round()}%',
                         ),

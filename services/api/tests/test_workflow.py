@@ -60,6 +60,7 @@ def test_officer_must_take_assignment_before_reviewing():
 
 def test_verified_claim_follows_decision_and_settlement_sequence():
     manager = user("supervisor")
+    finance = user("finance", "finance-user")
     current = claim("VERIFIED")
     patch, event = workflow_patch(
         manager,
@@ -72,9 +73,16 @@ def test_verified_claim_follows_decision_and_settlement_sequence():
     with pytest.raises(HTTPException):
         workflow_patch(manager, {**current, **patch}, "paid", WorkflowInput())
     patch, _ = workflow_patch(
-        manager, {**current, **patch}, "payment-pending", WorkflowInput()
+        finance, {**current, **patch}, "payment-pending", WorkflowInput()
     )
-    patch, _ = workflow_patch(manager, {**current, **patch}, "paid", WorkflowInput())
+    patch, _ = workflow_patch(
+        finance,
+        {**current, **patch},
+        "paid",
+        WorkflowInput(
+            payment_reference="BANK-TEST-123", payment_method="bank_transfer"
+        ),
+    )
     assert patch["status"] == "PAID"
     assert patch["paid_at"]
 
@@ -83,7 +91,7 @@ def test_verified_claim_follows_decision_and_settlement_sequence():
 def test_approval_cannot_exceed_claim_total_or_omit_amount(amount):
     with pytest.raises(HTTPException) as error:
         workflow_patch(
-            user("administrator"),
+            user("supervisor"),
             claim("VERIFIED"),
             "approve",
             WorkflowInput(notes="Evidence checked", approved_amount=amount),
@@ -141,6 +149,10 @@ def test_background_processing_returns_status_for_mobile_polling(monkeypatch):
     current = {"id": "test-claim", "reference": "CLM-TEST", "status": "UPLOADED"}
     gateway = SimpleNamespace(acquire_processing=AsyncMock())
     processor = AsyncMock()
+    from app import jobs
+
+    queued = AsyncMock()
+    monkeypatch.setattr(jobs, "enqueue", queued)
     monkeypatch.setattr(routes, "FirebaseGateway", lambda request: gateway)
     monkeypatch.setattr(routes, "accessible_claim", AsyncMock(return_value=current))
     monkeypatch.setattr(routes, "process_claim", processor)
@@ -151,7 +163,8 @@ def test_background_processing_returns_status_for_mobile_polling(monkeypatch):
         assert result.status_code == 200
         assert result.json()["status"] == "PROCESSING"
         gateway.acquire_processing.assert_awaited_once_with("test-claim")
-        processor.assert_awaited_once()
+        processor.assert_not_awaited()
+        queued.assert_awaited_once_with(gateway, current, "officer")
     finally:
         app.dependency_overrides.clear()
 

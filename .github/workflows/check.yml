@@ -1,0 +1,45 @@
+name: ClaimLens checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install API test dependencies
+        working-directory: services/api
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          values = [line for line in Path('requirements.txt').read_text().splitlines() if line and not line.startswith(('paddleocr', 'paddlepaddle', 'opencv-contrib-python'))]
+          Path('/tmp/claimlens-unit.txt').write_text('\n'.join(values + ['opencv-python-headless==4.10.0.84', 'pytest==9.0.2']))
+          PY
+          python -m pip install -r /tmp/claimlens-unit.txt
+      - name: Run isolated API tests
+        working-directory: services/api
+        run: python -m pytest -q
+  flutter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Install the tested Flutter version
+        run: |
+          git clone --depth 1 --branch 3.44.8 https://github.com/flutter/flutter.git "$RUNNER_TEMP/flutter"
+          echo "$RUNNER_TEMP/flutter/bin" >> "$GITHUB_PATH"
+      - name: Check Flutter
+        working-directory: mobile/claimlens_mobile
+        run: |
+          flutter pub get
+          flutter analyze
+          flutter test

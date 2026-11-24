@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "791902791420",
+    "project_id": "claimelens",
+    "storage_bucket": "claimelens.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:791902791420:android:49e36b58dc5839166a5979",
+        "android_client_info": {
+          "package_name": "ai.claimlens.claimlens_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUzeIl4u1rtpKSyixIkmSOWVQmGj-VxYo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,4 +1,10 @@
-from app.extraction import TextDocument, classify_document, detected_currency, extract_fields, normalize_money
+from app.extraction import (
+    TextDocument,
+    classify_document,
+    detected_currency,
+    extract_fields,
+    normalize_money,
+)
 from app.routers.claims import valid_signature
 
 
@@ -27,7 +33,9 @@ Shs. 650000
 Total Shs. 650000
 Kayunga District Uganda
 """
-    _, amount, currency, _ = extract_fields(TextDocument("doc-2", text, method="ocr", source_confidence=.8))
+    _, amount, currency, _ = extract_fields(
+        TextDocument("doc-2", text, method="ocr", source_confidence=0.8)
+    )
 
     assert amount == "650000.00"
     assert currency == "UGX"

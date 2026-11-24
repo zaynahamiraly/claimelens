@@ -139,6 +139,7 @@ class ClaimDetails extends ClaimSummary {
     this.availableActions = const [],
     this.informationRequests = const [],
     this.workflow = const {},
+    this.information = const {},
     super.claimedAmount,
     super.assignedTo,
   });
@@ -148,6 +149,7 @@ class ClaimDetails extends ClaimSummary {
   final List<String> availableActions;
   final List<Map<String, dynamic>> informationRequests;
   final Map<String, dynamic> workflow;
+  final Map<String, dynamic> information;
 
   factory ClaimDetails.fromJson(Map<String, dynamic> json) {
     final base = ClaimSummary.fromJson(json);
@@ -167,6 +169,7 @@ class ClaimDetails extends ClaimSummary {
           .map((r) => Map<String, dynamic>.from(r as Map))
           .toList(),
       workflow: Map<String, dynamic>.from(json['workflow'] as Map? ?? {}),
+      information: Map<String, dynamic>.from(json['information'] as Map? ?? {}),
       documents: (json['documents'] as List<dynamic>? ?? const [])
           .map((item) => ClaimDocument.fromJson(item as Map<String, dynamic>))
           .toList(),
@@ -186,6 +189,8 @@ class DashboardData {
     required this.failed,
     required this.recent,
     this.byStatus = const {},
+    this.actionRequired = const [],
+    this.unassigned = 0,
   });
   final int total;
   final int processing;
@@ -194,8 +199,15 @@ class DashboardData {
   final int failed;
   final List<ClaimSummary> recent;
   final Map<String, int> byStatus;
+  final List<ClaimSummary> actionRequired;
+  final int unassigned;
 
   factory DashboardData.fromJson(Map<String, dynamic> json) => DashboardData(
+        actionRequired: (json['action_required_claims'] as List? ?? [])
+            .map((row) =>
+                ClaimSummary.fromJson(Map<String, dynamic>.from(row as Map)))
+            .toList(),
+        unassigned: json['unassigned'] as int? ?? 0,
         byStatus: Map<String, int>.from(json['by_status'] as Map? ?? {}),
         total: json['total_claims'] as int,
         processing: json['processing'] as int,

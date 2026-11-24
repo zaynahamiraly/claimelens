@@ -49,7 +49,29 @@ async def edit_profile(
 
 class PasswordEdit(BaseModel):
     current_password: str = Field(min_length=1, max_length=128)
-    new_password: str = Field(min_length=8, max_length=128)
+    new_password: str = Field(min_length=12, max_length=128)
+
+
+class UnlockRequest(BaseModel):
+    password: str = Field(min_length=1, max_length=128)
+
+
+@router.post("/profile/unlock")
+async def unlock(
+    payload: UnlockRequest,
+    request: Request,
+    user: CurrentUser = Depends(get_current_user),
+):
+    from fastapi import HTTPException
+
+    verified = await firebase_request(
+        request,
+        "signInWithPassword",
+        {"email": user.email, "password": payload.password, "returnSecureToken": True},
+    )
+    if verified.get("localId") != user.id:
+        raise HTTPException(403, "Please sign in again.")
+    return {"message": "Session unlocked."}
 
 
 @router.post("/profile/password")
@@ -58,6 +80,12 @@ async def change_password(
     request: Request,
     user: CurrentUser = Depends(get_current_user),
 ):
+    if payload.current_password == payload.new_password:
+        from fastapi import HTTPException
+
+        raise HTTPException(
+            422, "Choose a new password different from your current password."
+        )
     verified = await firebase_request(
         request,
         "signInWithPassword",
@@ -77,4 +105,9 @@ async def change_password(
         },
     )
     result["localId"] = user.id
+    store = FirebaseGateway(request)
+    await asyncio.to_thread(
+        store.db.collection("profiles").document(user.id).update,
+        {"must_change_password": False},
+    )
     return await session(request, result)

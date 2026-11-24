@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import '../models/user_profile.dart';
 import '../services/api_client.dart';
 import '../services/auth_service.dart';
+import '../services/push_service.dart';
+import 'package:local_auth/local_auth.dart';
 
 class AuthProvider extends ChangeNotifier {
   AuthProvider(this.client) : service = AuthService(client) {
@@ -20,6 +22,54 @@ class AuthProvider extends ChangeNotifier {
   String? error;
 
   bool get authenticated => user != null;
+  bool locked = false;
+  DateTime lastActivity = DateTime.now();
+  void touch() {
+    if (!locked) lastActivity = DateTime.now();
+  }
+
+  void lock() {
+    if (user != null && !locked) {
+      locked = true;
+      notifyListeners();
+    }
+  }
+
+  Future<void> unlock(String password) async {
+    await client.dio
+        .post<dynamic>('/profile/unlock', data: {'password': password});
+    locked = false;
+    lastActivity = DateTime.now();
+    notifyListeners();
+  }
+
+  Future<bool> unlockWithDevice() async {
+    final local = LocalAuthentication();
+    if (!await local.isDeviceSupported()) {
+      throw Exception(
+          'Device authentication is unavailable. Use your password instead.');
+    }
+    if (!await local.authenticate(
+        localizedReason: 'Unlock your ClaimLens workspace',
+        persistAcrossBackgrounding: true)) {
+      return false;
+    }
+    // Device authentication unlocks the local view. Server authorization and
+    // active-account checks still run on every API request.
+    await reloadProfile();
+    locked = false;
+    lastActivity = DateTime.now();
+    notifyListeners();
+    return true;
+  }
+
+  Future<void> reloadProfile({bool refreshToken = false}) async {
+    if (refreshToken && !await client.refreshSession()) {
+      throw Exception('Sign in again to refresh your session.');
+    }
+    user = await service.profile();
+    notifyListeners();
+  }
 
   Future<void> updateProfile(Map<String, dynamic> values) async {
     final response =
@@ -49,6 +99,7 @@ class AuthProvider extends ChangeNotifier {
     if (client.hasSession) {
       try {
         user = await service.profile();
+        locked = user?.isClient == false;
       } catch (_) {
         await client.clearSession();
       }
@@ -63,6 +114,8 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
     try {
       user = await service.login(email, password);
+      locked = false;
+      lastActivity = DateTime.now();
       return true;
     } catch (exception) {
       error = readableApiError(exception);
@@ -76,9 +129,22 @@ class AuthProvider extends ChangeNotifier {
   Future<void> logout() async {
     busy = true;
     notifyListeners();
-    await service.logout();
+    try {
+      await PushService.unregister(client);
+      await service.logout();
+    } catch (_) {/* Local sign-out must work without a connection. */} finally {
+      user = null;
+      locked = false;
+      busy = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> changeServer(String value) async {
+    await client.configureServer(value);
     user = null;
-    busy = false;
+    locked = false;
+    error = null;
     notifyListeners();
   }
 }

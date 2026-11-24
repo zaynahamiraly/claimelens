@@ -45,7 +45,7 @@ $listener = Get-NetTCPConnection -LocalPort 8000 -State Listen -ErrorAction Sile
 if ($listener) {
     $health = Invoke-RestMethod -Uri 'http://127.0.0.1:8000/api/v1/health'
     $existingApi = Get-CimInstance Win32_Process -Filter "ProcessId = $($listener[0].OwningProcess)"
-    if ($health.service -ne 'claimelens API' -or $existingApi.CommandLine -notlike '*app.main:app*') {
+    if ($health.service -notin @('claimelens API', 'ClaimLens API') -or $existingApi.CommandLine -notlike '*app.main:app*') {
         throw 'Port 8000 belongs to another service. Stop it before starting this API.'
     }
     Stop-Process -Id $existingApi.ProcessId
@@ -66,7 +66,7 @@ $ready = $false
 $deadline = (Get-Date).AddSeconds(45)
 while ((Get-Date) -lt $deadline -and -not $ready) {
     Start-Sleep -Seconds 1
-    try { $ready = (Invoke-RestMethod -Uri ($endpoint + '/api/v1/health') -TimeoutSec 5).service -eq 'claimelens API' } catch { }
+    try { $ready = (Invoke-RestMethod -Uri ($endpoint + '/api/v1/health') -TimeoutSec 5).service -eq 'ClaimLens API' } catch { }
 }
 if (-not $ready) { throw 'The API did not become reachable. Check the logs in the private runtime folder.' }
 @{ API_BASE_URL = "$endpoint/api/v1" } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $runtimeHome 'internet-build.json')

@@ -29,7 +29,8 @@ class ClaimService {
         .toList();
   }
 
-  Future<ClaimDetails> create(List<SelectedDocument> documents) async {
+  Future<ClaimDetails> create(List<SelectedDocument> documents,
+      {String? requestKey, void Function(int, int)? onSendProgress}) async {
     final data = FormData();
     for (final document in documents) {
       data.files.add(
@@ -46,6 +47,9 @@ class ClaimService {
     final response = await client.dio.post<Map<String, dynamic>>(
       '/claims',
       data: data,
+      options: Options(
+          headers: {if (requestKey != null) 'Idempotency-Key': requestKey}),
+      onSendProgress: onSendProgress,
     );
     return ClaimDetails.fromJson(response.data!);
   }

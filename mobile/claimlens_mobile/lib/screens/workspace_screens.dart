@@ -8,6 +8,7 @@ import '../services/workspace_service.dart';
 import '../widgets/workspace_form.dart';
 import 'claim_details_screen.dart';
 import 'profile_screen.dart';
+import 'help_screen.dart';
 
 class WorkspaceMenuScreen extends StatelessWidget {
   const WorkspaceMenuScreen({super.key});
@@ -42,6 +43,12 @@ class WorkspaceMenuScreen extends StatelessWidget {
           'Manage clients, officers and supervisors',
           const UsersScreen()
         ),
+      (
+        Icons.help_outline,
+        'Help & requirements',
+        'Document checklist, privacy and claim settings',
+        const HelpScreen()
+      ),
       (
         Icons.settings_outlined,
         'Account & settings',
@@ -334,6 +341,28 @@ class UsersScreen extends StatefulWidget {
 }
 
 class _UsersScreenState extends State<UsersScreen> {
+  static const grants = {
+    'claims.review': 'Review and verify claims',
+    'claims.decide': 'Approve or reject claims',
+    'payments.record': 'Record payments'
+  };
+  List<FormEntry> permissionFields([Map? row]) => grants.entries
+      .map((p) => FormEntry(p.key, 'Additional right: ${p.value}',
+              value: ((row?['permissions'] as List? ?? []).contains(p.key))
+                  .toString(),
+              options: const {
+                'false': 'Use role defaults',
+                'true': 'Grant this additional right'
+              }))
+      .toList();
+  Map<String, dynamic> accountPayload(Map<String, String> values) => {
+        for (final item in values.entries)
+          if (!grants.containsKey(item.key)) item.key: item.value,
+        'permissions': [
+          for (final p in grants.keys)
+            if (values[p] == 'true') p
+        ]
+      };
   String search = '', role = 'all';
   int revision = 0;
   Future<void> create() async {
@@ -347,10 +376,12 @@ class _UsersScreenState extends State<UsersScreen> {
           FormEntry('role', 'Role',
               value: 'client', options: labelOptions(accountRoles)),
           const FormEntry(
-              'password', 'Initial password (at least 8 characters)',
-              secret: true)
+              'password', 'Initial password (at least 12 characters)',
+              secret: true),
+          ...permissionFields()
         ], submit: (v) async {
-      await workspaceApi(context).post<dynamic>('/users', data: v);
+      await workspaceApi(context)
+          .post<dynamic>('/users', data: accountPayload(v));
     });
     if (saved == true && mounted) setState(() => revision++);
   }
@@ -364,9 +395,11 @@ class _UsersScreenState extends State<UsersScreen> {
           value: row['role'] as String, options: labelOptions(accountRoles)),
       FormEntry('status', 'Account status',
           value: row['status'] as String,
-          options: labelOptions(['active', 'inactive']))
+          options: labelOptions(['active', 'inactive'])),
+      ...permissionFields(row)
     ], submit: (v) async {
-      await workspaceApi(context).put<dynamic>('/users/${row['id']}', data: v);
+      await workspaceApi(context)
+          .put<dynamic>('/users/${row['id']}', data: accountPayload(v));
     });
     if (saved == true) await reload();
   }
@@ -376,6 +409,30 @@ class _UsersScreenState extends State<UsersScreen> {
     try {
       if (value == 'edit') {
         await edit(row, reload);
+        return;
+      }
+      if (value == 'password') {
+        await workspaceForm(context,
+            title: 'Set temporary password',
+            explanation:
+                'The user’s existing sessions will be revoked. They must change this temporary password when they next sign in.',
+            fields: const [
+              FormEntry('new_password',
+                  'New temporary password (at least 12 characters)',
+                  secret: true),
+              FormEntry('confirm', 'Confirm temporary password', secret: true),
+              FormEntry('admin_password', 'Your administrator password',
+                  secret: true)
+            ], submit: (v) async {
+          if (v['new_password'] != v['confirm']) {
+            throw Exception('Passwords do not match.');
+          }
+          await workspaceApi(context)
+              .post<dynamic>('/users/${row['id']}/password', data: {
+            'new_password': v['new_password'],
+            'admin_password': v['admin_password']
+          });
+        });
         return;
       }
       if (value == 'reset') {
@@ -493,6 +550,9 @@ class _UsersScreenState extends State<UsersScreen> {
                             PopupMenuItem(
                                 value: 'reset',
                                 child: Text('Password recovery')),
+                            PopupMenuItem(
+                                value: 'password',
+                                child: Text('Set temporary password')),
                             PopupMenuItem(
                                 value: 'delete', child: Text('Delete login'))
                           ]),

@@ -26,6 +26,15 @@ def _engine():
 
 
 def extract_image(content: bytes) -> tuple[str, str, float]:
+    from PIL import Image, UnidentifiedImageError
+    from io import BytesIO
+
+    try:
+        with Image.open(BytesIO(content)) as source:
+            if source.width * source.height > 25_000_000:
+                raise ValueError('This image is too large. Use an image under 25 megapixels.')
+    except (UnidentifiedImageError, Image.DecompressionBombError) as exc:
+        raise ValueError('The image could not be decoded. Upload a JPEG or PNG image.') from exc
     import cv2
     import numpy as np
 

@@ -24,13 +24,13 @@ class ClaimCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 8,
                   children: [
-                    Expanded(
-                      child: Text(
-                        claim.reference,
-                        style: const TextStyle(fontWeight: FontWeight.w800),
-                      ),
+                    Text(
+                      claim.reference,
+                      style: const TextStyle(fontWeight: FontWeight.w800),
                     ),
                     StatusChip(status: claim.status),
                   ],
@@ -48,23 +48,26 @@ class ClaimCard extends StatelessWidget {
                   style: TextStyle(color: Colors.grey.shade700),
                 ),
                 const SizedBox(height: 10),
-                Row(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Text(
-                        claim.claimedAmount == null
-                            ? 'Amount pending'
-                            : '${claim.currency} ${claim.claimedAmount!.toStringAsFixed(2)}',
-                        style: const TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                    ),
                     Text(
-                      DateFormat('dd MMM yyyy')
-                          .format(claim.createdAt.toLocal()),
-                      style: Theme.of(context).textTheme.bodySmall,
+                      claim.claimedAmount == null
+                          ? 'Amount pending'
+                          : '${claim.currency} ${claim.claimedAmount!.toStringAsFixed(2)}',
+                      style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
-                    const SizedBox(width: 4),
-                    const Icon(Icons.chevron_right, size: 18),
+                    const SizedBox(height: 8),
+                    Row(children: [
+                      Expanded(
+                          child: Text(
+                        DateFormat('dd MMM yyyy')
+                            .format(claim.createdAt.toLocal()),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      )),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.chevron_right, size: 18)
+                    ]),
                   ],
                 ),
               ],

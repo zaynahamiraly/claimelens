@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-ThemeData claimelensTheme(Brightness brightness) {
+ThemeData claimLensTheme(Brightness brightness) {
   final dark = brightness == Brightness.dark;
   final scheme = ColorScheme.fromSeed(
       seedColor: const Color(0xff087f8c), brightness: brightness);

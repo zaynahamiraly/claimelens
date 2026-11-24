@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'document_preview_screen.dart';
 import '../models/claim.dart';
 import '../services/api_client.dart';
 import '../services/workspace_service.dart';
@@ -128,9 +128,15 @@ class _StaffReviewScreenState extends State<StaffReviewScreen> {
                                     '${friendlyLabel(d.documentType)} • ${friendlyLabel(d.extractionStatus)}'),
                                 if (d.signedUrl != null)
                                   TextButton.icon(
-                                      onPressed: () => launchUrl(
-                                          Uri.parse(d.signedUrl!),
-                                          mode: LaunchMode.externalApplication),
+                                      onPressed: () => Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (_) =>
+                                                  DocumentPreviewScreen(
+                                                      reference: widget
+                                                          .claim.reference,
+                                                      documentId: d.id,
+                                                      name: d.originalName))),
                                       icon: const Icon(Icons.open_in_new),
                                       label: const Text(
                                           'Compare source document')),

@@ -12,8 +12,9 @@ from pydantic import BaseModel, Field, field_validator
 from .schemas import DocumentConfirmation, FieldCorrection
 
 from .firebase import can_access_claim, now
+from .permissions import permissions
 
-STAFF = {"claims_officer", "supervisor", "administrator"}
+STAFF = {"claims_officer", "supervisor", "administrator", "finance"}
 MANAGEMENT = {"supervisor", "administrator"}
 REVIEWABLE = {"REVIEW_REQUIRED", "INFORMATION_RECEIVED"}
 
@@ -33,6 +34,8 @@ class WorkflowInput(BaseModel):
     internal_note: str = Field(default="", max_length=2000)
     documents: list[dict] = Field(default_factory=list, max_length=10)
     fields: list[dict] = Field(default_factory=list, max_length=100)
+    payment_reference: str = Field(default="", max_length=120)
+    payment_method: str = Field(default="", max_length=60)
 
     @field_validator("documents", mode="before")
     @classmethod
@@ -62,18 +65,25 @@ def available_actions(user, claim):
     if role not in STAFF:
         return result
     assigned = claim.get("assigned_to")
+    rights = permissions(user.profile)
     if status in REVIEWABLE:
-        if role in MANAGEMENT:
+        if "claims.assign" in rights:
             result.append("assign")
-        elif assigned is None:
+        elif assigned is None and "claims.review" in rights:
             result.append("claim")
-        if role in MANAGEMENT or assigned == user.id:
+        if "claims.review" in rights and (
+            role != "claims_officer" or assigned == user.id
+        ):
             result += ["correct", "verify", "request-information"]
-    if role in MANAGEMENT and status == "VERIFIED":
+    if (
+        "claims.decide" in rights
+        and status == "VERIFIED"
+        and claim.get("verified_by") != user.id
+    ):
         result += ["approve", "reject"]
-    if role in MANAGEMENT and status == "APPROVED":
+    if "payments.record" in rights and status == "APPROVED":
         result.append("payment-pending")
-    if role in MANAGEMENT and status == "PAYMENT_PENDING":
+    if "payments.record" in rights and status == "PAYMENT_PENDING":
         result.append("paid")
     return result
 
@@ -142,11 +152,24 @@ def workflow_patch(user, claim, action, payload):
         )
         event = "CLAIM_" + patch["status"]
     elif action in {"payment-pending", "paid"}:
+        if action == "paid" and (
+            len(payload.payment_reference.strip()) < 3
+            or not payload.payment_method.strip()
+        ):
+            raise HTTPException(
+                422,
+                "Enter a payment reference and payment method before recording settlement.",
+            )
         patch.update(
             status="PAYMENT_PENDING" if action == "payment-pending" else "PAID"
         )
         if action == "paid":
             patch["paid_at"] = now()
+            patch.update(
+                payment_reference=payload.payment_reference.strip(),
+                payment_method=payload.payment_method.strip(),
+                paid_by=user.id,
+            )
         event = "CLAIM_" + patch["status"]
     elif action == "request-information":
         if len(payload.reason.strip()) < 5 or len(payload.questions.strip()) < 5:
@@ -193,6 +216,7 @@ def write_event(db, transaction, claim, actor, event, metadata=None, watchers=()
                 "title": event.replace("_", " ").title(),
                 "body": f"{claim['reference']} has an update. Open the claim to see the details.",
                 "read": False,
+                "push_state": "PENDING",
                 "created_at": now(),
             },
         )
@@ -381,6 +405,8 @@ async def workflow_details(gateway, claim):
             .stream()
         ]
         rows.sort(key=lambda row: row.get("created_at", ""), reverse=True)
+        if gateway._user().profile.role == "finance":
+            rows = []
         if gateway._user().profile.role == "client":
             for row in rows:
                 row.pop("internal_note", None)
@@ -396,6 +422,10 @@ async def workflow_details(gateway, claim):
                 "decided_at",
                 "paid_at",
                 "needs_reconfirmation",
+                "payment_reference",
+                "payment_method",
+                "appeal_count",
+                "submitted_at",
             )
         }
         for key, label in [

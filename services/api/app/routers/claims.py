@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import re
+import asyncio
 import uuid
 import zipfile
+import hashlib
 from collections import Counter
 from io import BytesIO
 from pathlib import Path
@@ -18,6 +20,7 @@ from fastapi import (
     Query,
     Request,
     UploadFile,
+    Header,
 )
 
 from ..processing import process_claim
@@ -62,7 +65,12 @@ def valid_signature(content: bytes, mime_type: str) -> bool:
     ):
         try:
             with zipfile.ZipFile(BytesIO(content)) as archive:
-                return "word/document.xml" in archive.namelist()
+                items = archive.infolist()
+                return (
+                    len(items) <= 1024
+                    and sum(item.file_size for item in items) <= 50 * 1024 * 1024
+                    and "word/document.xml" in archive.namelist()
+                )
         except zipfile.BadZipFile:
             return False
     return False
@@ -133,7 +141,22 @@ async def dashboard(
     params: dict[str, str] = {"order": "created_at.desc"}
     rows = await gateway.records("GET", "claims", params=params)
     counts = Counter(row["status"] for row in rows)
+    action_statuses = {
+        "client": {"UPLOADED", "INFORMATION_REQUIRED", "PROCESSING_FAILED"},
+        "claims_officer": {"REVIEW_REQUIRED", "INFORMATION_RECEIVED"},
+        "supervisor": {"VERIFIED", "REVIEW_REQUIRED", "INFORMATION_RECEIVED"},
+        "administrator": {"REVIEW_REQUIRED", "INFORMATION_RECEIVED"},
+        "finance": {"APPROVED", "PAYMENT_PENDING"},
+    }.get(user.profile.role, set())
     return DashboardSummary(
+        action_required_claims=[
+            summary(row) for row in rows if row["status"] in action_statuses
+        ][:5],
+        unassigned=sum(
+            not row.get("assigned_to")
+            and row["status"] in {"REVIEW_REQUIRED", "INFORMATION_RECEIVED"}
+            for row in rows
+        ),
         by_status=dict(counts),
         total_claims=len(rows),
         processing=counts["PROCESSING"],
@@ -148,6 +171,7 @@ async def dashboard(
 async def create_claim(
     request: Request,
     files: list[UploadFile] = File(...),
+    idempotency_key: str | None = Header(default=None, min_length=16, max_length=100),
     user: CurrentUser = Depends(get_current_user),
 ) -> ClaimDetails:
     gateway = FirebaseGateway(request)
@@ -187,9 +211,18 @@ async def create_claim(
             "provider_name": "",
             "currency": "MUR",
             "status": "UPLOADED",
+            "request_key": idempotency_key,
+            "upload_complete": False,
         },
     )
     claim = rows[0]
+    if claim.pop("_reused", False):
+        if not claim.get("upload_complete"):
+            raise HTTPException(
+                409,
+                "This upload is already being saved. Check your drafts before trying again.",
+            )
+        return await get_claim(claim["reference"], request, user)
     documents: list[dict[str, Any]] = []
     uploaded_paths: list[str] = []
     try:
@@ -212,6 +245,7 @@ async def create_claim(
                     "storage_path": storage_path,
                     "mime_type": upload.content_type,
                     "size_bytes": len(content),
+                    "content_sha256": hashlib.sha256(content).hexdigest(),
                 },
             )
             documents.append(inserted[0])
@@ -244,11 +278,45 @@ async def create_claim(
         except Exception:
             pass
         raise
+    await gateway.records(
+        "PATCH",
+        "claims",
+        service=True,
+        params={"id": f"eq.{claim['id']}"},
+        json={"upload_complete": True},
+    )
     return ClaimDetails(
         **summary(claim).model_dump(),
         documents=[ClaimDocument(**document, fields=[]) for document in documents],
         audit_events=[],
     )
+
+
+@router.delete("/{reference}")
+async def delete_draft(
+    reference: str, request: Request, user: CurrentUser = Depends(get_current_user)
+):
+    gateway = FirebaseGateway(request)
+    claim = await accessible_claim(gateway, reference)
+    if (
+        user.profile.role != "client"
+        or claim.get("client_id") != user.id
+        or claim["status"] not in {"UPLOADED", "PROCESSING_FAILED"}
+        or claim.get("submitted_at")
+        or claim.get("needs_reconfirmation")
+    ):
+        raise HTTPException(403, "Only your unsubmitted drafts can be deleted.")
+    documents = await gateway.records(
+        "GET", "claim_documents", params={"claim_id": f"eq.{claim['id']}"}
+    )
+    old_status = await gateway.reserve_draft_deletion(claim['id'])
+    try:
+        await gateway.delete_objects([d["storage_path"] for d in documents])
+        await gateway.records("DELETE", "claims", service=True, params={"id": f"eq.{claim['id']}"})
+    except Exception:
+        await asyncio.to_thread(gateway.db.collection('claims').document(claim['id']).update, {'status': old_status})
+        raise
+    return {"message": "Draft and its documents deleted."}
 
 
 @router.get("/{reference}", response_model=ClaimDetails)
@@ -284,6 +352,14 @@ async def get_claim(
             ExtractedField(**field)
         )
     response_documents = []
+    if user.profile.role == "finance":
+        documents = []
+        audit = [
+            event
+            for event in audit
+            if event.get("event_type")
+            in {"CLAIM_APPROVED", "CLAIM_PAYMENT_PENDING", "CLAIM_PAID"}
+        ]
     for document in documents:
         signed_url = await gateway.signed_url(document["storage_path"])
         response_documents.append(
@@ -298,6 +374,7 @@ async def get_claim(
         documents=response_documents,
         audit_events=audit,
         **(await workflow_details(gateway, claim)),
+        information=claim.get("information") or {},
     )
 
 
@@ -317,7 +394,21 @@ async def process(
         )
     await gateway.acquire_processing(claim["id"])
     if background:
-        background_tasks.add_task(finish_processing, gateway, claim, user.id)
+        from ..jobs import enqueue
+
+        try:
+            await enqueue(gateway, claim, user.id)
+        except Exception:
+            await gateway.records(
+                "PATCH",
+                "claims",
+                service=True,
+                params={"id": f"eq.{claim['id']}"},
+                json={"status": "PROCESSING_FAILED"},
+            )
+            raise HTTPException(
+                503, "The processing queue is unavailable. Please retry."
+            )
         return ProcessResult(
             claim_reference=reference,
             status="PROCESSING",
@@ -361,7 +452,9 @@ async def confirm_claim(
     if (
         user.profile.role != "client"
         or claim.get("client_id") != user.id
-        or claim.get("status") != "UPLOADED"
+        or claim.get('status') not in {'UPLOADED', 'PROCESSING_FAILED'}
+        or claim.get('needs_reconfirmation')
+        or claim.get('submitted_at')
     ):
         raise HTTPException(
             status_code=403, detail="Only the claim owner can confirm this draft."

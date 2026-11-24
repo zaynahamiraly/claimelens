@@ -32,5 +32,6 @@ const accountRoles = [
   'client',
   'claims_officer',
   'supervisor',
+  'finance',
   'administrator'
 ];
