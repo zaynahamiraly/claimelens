@@ -2,7 +2,7 @@
 
 Generated from the local working tree. This is an implementation reference, not evidence of production deployment.
 
-Parent Git revision: `431f2869db3b9588fc61b4d163b1926e596ec3c8`. Working-tree changes may be newer; SHA-256 hashes below identify the exact files.
+Parent Git revision: `540d7ea6d5f8efa5d039e19376244368ded0d54e`. Working-tree changes may be newer; SHA-256 hashes below identify the exact files.
 
 Read ClaimLens_Project_Portfolio.md first. Source lines are exact UTF-8 text, prefixed with line numbers. Private environment files, service-account keys, SDK client configuration, runtime data, uploads and test credentials are excluded. Use this reference to explain code; never infer unimplemented features from function names.
 
@@ -33,31 +33,31 @@ Symbols: Configuration/resource file.
 
 ```kotlin
 0001 | import java.util.Properties
-0002 | 
+0002 |
 0003 | plugins {
 0004 |     id("com.android.application")
 0005 |     id("com.google.gms.google-services")
 0006 |     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
 0007 |     id("dev.flutter.flutter-gradle-plugin")
 0008 | }
-0009 | 
+0009 |
 0010 | val releaseKeys = Properties()
 0011 | val releaseKeysFile = rootProject.file("key.properties")
 0012 | if (releaseKeysFile.exists()) releaseKeysFile.inputStream().use { releaseKeys.load(it) }
 0013 | if (gradle.startParameter.taskNames.any { it.contains("release", ignoreCase = true) } && !releaseKeysFile.exists()) {
 0014 |     throw GradleException("Configure private android/key.properties before creating a signed ClaimLens release. Debug signing is never used for release builds.")
 0015 | }
-0016 | 
+0016 |
 0017 | android {
 0018 |     namespace = "ai.claimlens.claimlens_mobile"
 0019 |     compileSdk = flutter.compileSdkVersion
 0020 |     ndkVersion = flutter.ndkVersion
-0021 | 
+0021 |
 0022 |     compileOptions {
 0023 |         sourceCompatibility = JavaVersion.VERSION_17
 0024 |         targetCompatibility = JavaVersion.VERSION_17
 0025 |     }
-0026 | 
+0026 |
 0027 |     defaultConfig {
 0028 |         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
 0029 |         applicationId = "ai.claimlens.claimlens_mobile"
@@ -68,7 +68,7 @@ Symbols: Configuration/resource file.
 0034 |         versionCode = flutter.versionCode
 0035 |         versionName = flutter.versionName
 0036 |     }
-0037 | 
+0037 |
 0038 |     signingConfigs {
 0039 |         if (releaseKeysFile.exists()) create("production") {
 0040 |             keyAlias = releaseKeys.getProperty("keyAlias")
@@ -83,13 +83,13 @@ Symbols: Configuration/resource file.
 0049 |         }
 0050 |     }
 0051 | }
-0052 | 
+0052 |
 0053 | kotlin {
 0054 |     compilerOptions {
 0055 |         jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
 0056 |     }
 0057 | }
-0058 | 
+0058 |
 0059 | flutter {
 0060 |     source = "../.."
 0061 | }
@@ -143,7 +143,7 @@ Symbols: Configuration/resource file.
 0039 |     <!-- Required to query activities that can process text, see:
 0040 |          https://developer.android.com/training/package-visibility and
 0041 |          https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
-0042 | 
+0042 |
 0043 |          In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
 0044 |     <queries>
 0045 |         <intent>
@@ -162,9 +162,9 @@ Symbols: Configuration/resource file.
 
 ```kotlin
 0001 | package ai.claimlens.claimlens_mobile
-0002 | 
+0002 |
 0003 | import io.flutter.embedding.android.FlutterFragmentActivity
-0004 | 
+0004 |
 0005 | class MainActivity : FlutterFragmentActivity()
 ```
 
@@ -179,7 +179,7 @@ Symbols: Configuration/resource file.
 0002 | <!-- Modify this file to customize your launch splash screen -->
 0003 | <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 0004 |     <item android:drawable="?android:colorBackground" />
-0005 | 
+0005 |
 0006 |     <!-- You can insert your own image assets here -->
 0007 |     <!-- <item>
 0008 |         <bitmap
@@ -228,7 +228,7 @@ Symbols: Configuration/resource file.
 0002 | <!-- Modify this file to customize your launch splash screen -->
 0003 | <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 0004 |     <item android:drawable="@android:color/white" />
-0005 | 
+0005 |
 0006 |     <!-- You can insert your own image assets here -->
 0007 |     <!-- <item>
 0008 |         <bitmap
@@ -257,7 +257,7 @@ Symbols: Configuration/resource file.
 0010 |          This theme determines the color of the Android Window while your
 0011 |          Flutter UI initializes, as well as behind your Flutter UI while its
 0012 |          running.
-0013 | 
+0013 |
 0014 |          This Theme is only used starting with V2 of Flutter's Android embedding. -->
 0015 |     <style name="NormalTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
 0016 |         <item name="android:windowBackground">?android:colorBackground</item>
@@ -284,7 +284,7 @@ Symbols: Configuration/resource file.
 0010 |          This theme determines the color of the Android Window while your
 0011 |          Flutter UI initializes, as well as behind your Flutter UI while its
 0012 |          running.
-0013 | 
+0013 |
 0014 |          This Theme is only used starting with V2 of Flutter's Android embedding. -->
 0015 |     <style name="NormalTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
 0016 |         <item name="android:windowBackground">?android:colorBackground</item>
@@ -308,23 +308,23 @@ Symbols: Configuration/resource file.
 0007 |             require(flutterSdkPath != null) { "flutter.sdk not set in local.properties" }
 0008 |             flutterSdkPath
 0009 |         }
-0010 | 
+0010 |
 0011 |     includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
-0012 | 
+0012 |
 0013 |     repositories {
 0014 |         google()
 0015 |         mavenCentral()
 0016 |         gradlePluginPortal()
 0017 |     }
 0018 | }
-0019 | 
+0019 |
 0020 | plugins {
 0021 |     id("dev.flutter.flutter-plugin-loader") version "1.0.0"
 0022 |     id("com.android.application") version "9.0.1" apply false
 0023 |     id("org.jetbrains.kotlin.android") version "2.3.20" apply false
 0024 |     id("com.google.gms.google-services") version "4.4.4" apply false
 0025 | }
-0026 | 
+0026 |
 0027 | include(":app")
 ```
 
@@ -336,7 +336,7 @@ Symbols: Configuration/resource file.
 
 ```dart
 0001 | import 'package:flutter/material.dart';
-0002 | 
+0002 |
 0003 | ThemeData claimLensTheme(Brightness brightness) {
 0004 |   final dark = brightness == Brightness.dark;
 0005 |   final scheme = ColorScheme.fromSeed(
@@ -389,7 +389,7 @@ Symbols: `ApiConfig`: L1
 ```dart
 0001 | class ApiConfig {
 0002 |   const ApiConfig._();
-0003 | 
+0003 |
 0004 |   static const baseUrl = String.fromEnvironment(
 0005 |     'API_BASE_URL',
 0006 |     defaultValue: 'http://10.0.2.2:8000/api/v1',
@@ -408,7 +408,7 @@ Symbols: `ClaimLensApp`: L27; `AuthGate`: L56
 0002 | import 'package:firebase_core/firebase_core.dart';
 0003 | import 'package:firebase_messaging/firebase_messaging.dart';
 0004 | import 'package:provider/provider.dart';
-0005 | 
+0005 |
 0006 | import 'providers/auth_provider.dart';
 0007 | import 'providers/claims_provider.dart';
 0008 | import 'screens/app_shell.dart';
@@ -419,7 +419,7 @@ Symbols: `ClaimLensApp`: L27; `AuthGate`: L56
 0013 | import 'screens/required_password_screen.dart';
 0014 | import 'widgets/session_guard.dart';
 0015 | import 'services/push_service.dart';
-0016 | 
+0016 |
 0017 | Future<void> main() async {
 0018 |   WidgetsFlutterBinding.ensureInitialized();
 0019 |   try {
@@ -429,11 +429,11 @@ Symbols: `ClaimLensApp`: L27; `AuthGate`: L56
 0023 |   final client = ApiClient();
 0024 |   runApp(ClaimLensApp(client: client));
 0025 | }
-0026 | 
+0026 |
 0027 | class ClaimLensApp extends StatelessWidget {
 0028 |   const ClaimLensApp({super.key, required this.client});
 0029 |   final ApiClient client;
-0030 | 
+0030 |
 0031 |   @override
 0032 |   Widget build(BuildContext context) => MultiProvider(
 0033 |         providers: [
@@ -458,10 +458,10 @@ Symbols: `ClaimLensApp`: L27; `AuthGate`: L56
 0052 |                 )),
 0053 |       );
 0054 | }
-0055 | 
+0055 |
 0056 | class AuthGate extends StatelessWidget {
 0057 |   const AuthGate({super.key});
-0058 | 
+0058 |
 0059 |   @override
 0060 |   Widget build(BuildContext context) {
 0061 |     final auth = context.watch<AuthProvider>();
@@ -485,7 +485,7 @@ Symbols: `ClaimSummary`: L4; `ExtractedField`: L43; `ClaimDocument`: L70; `Claim
 ```dart
 0001 | double? _number(dynamic value) =>
 0002 |     value == null ? null : double.tryParse(value.toString());
-0003 | 
+0003 |
 0004 | class ClaimSummary {
 0005 |   const ClaimSummary({
 0006 |     required this.id,
@@ -499,7 +499,7 @@ Symbols: `ClaimSummary`: L4; `ExtractedField`: L43; `ClaimDocument`: L70; `Claim
 0014 |     this.claimedAmount,
 0015 |     this.assignedTo,
 0016 |   });
-0017 | 
+0017 |
 0018 |   final String id;
 0019 |   final String reference;
 0020 |   final String patientName;
@@ -510,7 +510,7 @@ Symbols: `ClaimSummary`: L4; `ExtractedField`: L43; `ClaimDocument`: L70; `Claim
 0025 |   final int warningCount;
 0026 |   final DateTime createdAt;
 0027 |   final String? assignedTo;
-0028 | 
+0028 |
 0029 |   factory ClaimSummary.fromJson(Map<String, dynamic> json) => ClaimSummary(
 0030 |         id: json['id'] as String,
 0031 |         reference: json['reference'] as String,
@@ -524,7 +524,7 @@ Symbols: `ClaimSummary`: L4; `ExtractedField`: L43; `ClaimDocument`: L70; `Claim
 0039 |         assignedTo: json['assigned_to'] as String?,
 0040 |       );
 0041 | }
-0042 | 
+0042 |
 0043 | class ExtractedField {
 0044 |   const ExtractedField({
 0045 |     required this.id,
@@ -534,14 +534,14 @@ Symbols: `ClaimSummary`: L4; `ExtractedField`: L43; `ClaimDocument`: L70; `Claim
 0049 |     required this.extractionMethod,
 0050 |     this.documentId,
 0051 |   });
-0052 | 
+0052 |
 0053 |   final String id;
 0054 |   final String fieldName;
 0055 |   final String normalizedValue;
 0056 |   final double confidence;
 0057 |   final String extractionMethod;
 0058 |   final String? documentId;
-0059 | 
+0059 |
 0060 |   factory ExtractedField.fromJson(Map<String, dynamic> json) => ExtractedField(
 0061 |         id: json['id'] as String,
 0062 |         fieldName: json['field_name'] as String,
@@ -551,7 +551,7 @@ Symbols: `ClaimSummary`: L4; `ExtractedField`: L43; `ClaimDocument`: L70; `Claim
 0066 |         documentId: json['document_id'] as String?,
 0067 |       );
 0068 | }
-0069 | 
+0069 |
 0070 | class ClaimDocument {
 0071 |   const ClaimDocument({
 0072 |     required this.id,
@@ -570,7 +570,7 @@ Symbols: `ClaimSummary`: L4; `ExtractedField`: L43; `ClaimDocument`: L70; `Claim
 0085 |     this.extractionNotes,
 0086 |     this.signedUrl,
 0087 |   });
-0088 | 
+0088 |
 0089 |   final String id;
 0090 |   final String originalName;
 0091 |   final String documentType;
@@ -586,7 +586,7 @@ Symbols: `ClaimSummary`: L4; `ExtractedField`: L43; `ClaimDocument`: L70; `Claim
 0101 |   final String? extractionNotes;
 0102 |   final String? signedUrl;
 0103 |   final List<ExtractedField> fields;
-0104 | 
+0104 |
 0105 |   factory ClaimDocument.fromJson(Map<String, dynamic> json) => ClaimDocument(
 0106 |         id: json['id'] as String,
 0107 |         originalName: json['original_name'] as String,
@@ -608,7 +608,7 @@ Symbols: `ClaimSummary`: L4; `ExtractedField`: L43; `ClaimDocument`: L70; `Claim
 0123 |             .toList(),
 0124 |       );
 0125 | }
-0126 | 
+0126 |
 0127 | class ClaimDetails extends ClaimSummary {
 0128 |   const ClaimDetails({
 0129 |     required super.id,
@@ -628,14 +628,14 @@ Symbols: `ClaimSummary`: L4; `ExtractedField`: L43; `ClaimDocument`: L70; `Claim
 0143 |     super.claimedAmount,
 0144 |     super.assignedTo,
 0145 |   });
-0146 | 
+0146 |
 0147 |   final List<ClaimDocument> documents;
 0148 |   final List<Map<String, dynamic>> auditEvents;
 0149 |   final List<String> availableActions;
 0150 |   final List<Map<String, dynamic>> informationRequests;
 0151 |   final Map<String, dynamic> workflow;
 0152 |   final Map<String, dynamic> information;
-0153 | 
+0153 |
 0154 |   factory ClaimDetails.fromJson(Map<String, dynamic> json) {
 0155 |     final base = ClaimSummary.fromJson(json);
 0156 |     return ClaimDetails(
@@ -664,7 +664,7 @@ Symbols: `ClaimSummary`: L4; `ExtractedField`: L43; `ClaimDocument`: L70; `Claim
 0179 |     );
 0180 |   }
 0181 | }
-0182 | 
+0182 |
 0183 | class DashboardData {
 0184 |   const DashboardData({
 0185 |     required this.total,
@@ -686,7 +686,7 @@ Symbols: `ClaimSummary`: L4; `ExtractedField`: L43; `ClaimDocument`: L70; `Claim
 0201 |   final Map<String, int> byStatus;
 0202 |   final List<ClaimSummary> actionRequired;
 0203 |   final int unassigned;
-0204 | 
+0204 |
 0205 |   factory DashboardData.fromJson(Map<String, dynamic> json) => DashboardData(
 0206 |         actionRequired: (json['action_required_claims'] as List? ?? [])
 0207 |             .map((row) =>
@@ -704,7 +704,7 @@ Symbols: `ClaimSummary`: L4; `ExtractedField`: L43; `ClaimDocument`: L70; `Claim
 0219 |             .toList(),
 0220 |       );
 0221 | }
-0222 | 
+0222 |
 0223 | class DocumentConfirmation {
 0224 |   DocumentConfirmation({
 0225 |     required this.document,
@@ -716,7 +716,7 @@ Symbols: `ClaimSummary`: L4; `ExtractedField`: L43; `ClaimDocument`: L70; `Claim
 0231 |   bool include;
 0232 |   double? amount;
 0233 |   String currency;
-0234 | 
+0234 |
 0235 |   Map<String, dynamic> toJson() => {
 0236 |         'id': document.id,
 0237 |         'include': include,
@@ -724,7 +724,7 @@ Symbols: `ClaimSummary`: L4; `ExtractedField`: L43; `ClaimDocument`: L70; `Claim
 0239 |         'currency': currency,
 0240 |       };
 0241 | }
-0242 | 
+0242 |
 0243 | class FieldCorrection {
 0244 |   const FieldCorrection({
 0245 |     required this.id,
@@ -746,7 +746,7 @@ Symbols: `SelectedDocument`: L3
 
 ```dart
 0001 | import 'dart:typed_data';
-0002 | 
+0002 |
 0003 | class SelectedDocument {
 0004 |   const SelectedDocument({
 0005 |     required this.name,
@@ -781,7 +781,7 @@ Symbols: `UserProfile`: L1
 0013 |     this.permissions = const [],
 0014 |     this.verificationRequired = false,
 0015 |   });
-0016 | 
+0016 |
 0017 |   final String id;
 0018 |   final String displayName;
 0019 |   final String role;
@@ -792,13 +792,13 @@ Symbols: `UserProfile`: L1
 0024 |   final bool emailVerified, mustChangePassword;
 0025 |   final List<String> permissions;
 0026 |   final bool verificationRequired;
-0027 | 
+0027 |
 0028 |   bool get isClient => role == 'client';
 0029 |   bool get isAdmin => role == 'administrator';
 0030 |   bool get isManager => isAdmin || role == 'supervisor';
 0031 |   bool get isFinance =>
 0032 |       role == 'finance' || permissions.contains('payments.record');
-0033 | 
+0033 |
 0034 |   factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
 0035 |         id: json['id'] as String,
 0036 |         displayName: json['display_name'] as String,
@@ -824,13 +824,13 @@ Symbols: `AuthProvider`: L9
 
 ```dart
 0001 | import 'package:flutter/foundation.dart';
-0002 | 
+0002 |
 0003 | import '../models/user_profile.dart';
 0004 | import '../services/api_client.dart';
 0005 | import '../services/auth_service.dart';
 0006 | import '../services/push_service.dart';
 0007 | import 'package:local_auth/local_auth.dart';
-0008 | 
+0008 |
 0009 | class AuthProvider extends ChangeNotifier {
 0010 |   AuthProvider(this.client) : service = AuthService(client) {
 0011 |     client.onSessionExpired = () {
@@ -840,26 +840,26 @@ Symbols: `AuthProvider`: L9
 0015 |   }
 0016 |   final ApiClient client;
 0017 |   final AuthService service;
-0018 | 
+0018 |
 0019 |   UserProfile? user;
 0020 |   bool initialising = true;
 0021 |   bool busy = false;
 0022 |   String? error;
-0023 | 
+0023 |
 0024 |   bool get authenticated => user != null;
 0025 |   bool locked = false;
 0026 |   DateTime lastActivity = DateTime.now();
 0027 |   void touch() {
 0028 |     if (!locked) lastActivity = DateTime.now();
 0029 |   }
-0030 | 
+0030 |
 0031 |   void lock() {
 0032 |     if (user != null && !locked) {
 0033 |       locked = true;
 0034 |       notifyListeners();
 0035 |     }
 0036 |   }
-0037 | 
+0037 |
 0038 |   Future<void> unlock(String password) async {
 0039 |     await client.dio
 0040 |         .post<dynamic>('/profile/unlock', data: {'password': password});
@@ -867,7 +867,7 @@ Symbols: `AuthProvider`: L9
 0042 |     lastActivity = DateTime.now();
 0043 |     notifyListeners();
 0044 |   }
-0045 | 
+0045 |
 0046 |   Future<bool> unlockWithDevice() async {
 0047 |     final local = LocalAuthentication();
 0048 |     if (!await local.isDeviceSupported()) {
@@ -887,7 +887,7 @@ Symbols: `AuthProvider`: L9
 0062 |     notifyListeners();
 0063 |     return true;
 0064 |   }
-0065 | 
+0065 |
 0066 |   Future<void> reloadProfile({bool refreshToken = false}) async {
 0067 |     if (refreshToken && !await client.refreshSession()) {
 0068 |       throw Exception('Sign in again to refresh your session.');
@@ -895,14 +895,14 @@ Symbols: `AuthProvider`: L9
 0070 |     user = await service.profile();
 0071 |     notifyListeners();
 0072 |   }
-0073 | 
+0073 |
 0074 |   Future<void> updateProfile(Map<String, dynamic> values) async {
 0075 |     final response =
 0076 |         await client.dio.put<Map<String, dynamic>>('/profile', data: values);
 0077 |     user = UserProfile.fromJson(response.data!);
 0078 |     notifyListeners();
 0079 |   }
-0080 | 
+0080 |
 0081 |   Future<void> changePassword(String current, String password) async {
 0082 |     final response = await client.dio.post<Map<String, dynamic>>(
 0083 |         '/profile/password',
@@ -913,12 +913,12 @@ Symbols: `AuthProvider`: L9
 0088 |     user = await service.profile();
 0089 |     notifyListeners();
 0090 |   }
-0091 | 
+0091 |
 0092 |   void clearError() {
 0093 |     error = null;
 0094 |     notifyListeners();
 0095 |   }
-0096 | 
+0096 |
 0097 |   Future<void> initialise() async {
 0098 |     await client.initialise();
 0099 |     if (client.hasSession) {
@@ -932,7 +932,7 @@ Symbols: `AuthProvider`: L9
 0107 |     initialising = false;
 0108 |     notifyListeners();
 0109 |   }
-0110 | 
+0110 |
 0111 |   Future<bool> login(String email, String password) async {
 0112 |     busy = true;
 0113 |     error = null;
@@ -950,7 +950,7 @@ Symbols: `AuthProvider`: L9
 0125 |       notifyListeners();
 0126 |     }
 0127 |   }
-0128 | 
+0128 |
 0129 |   Future<void> logout() async {
 0130 |     busy = true;
 0131 |     notifyListeners();
@@ -964,7 +964,7 @@ Symbols: `AuthProvider`: L9
 0139 |       notifyListeners();
 0140 |     }
 0141 |   }
-0142 | 
+0142 |
 0143 |   Future<void> changeServer(String value) async {
 0144 |     await client.configureServer(value);
 0145 |     user = null;
@@ -983,20 +983,20 @@ Symbols: `ClaimsProvider`: L7
 
 ```dart
 0001 | import 'package:flutter/foundation.dart';
-0002 | 
+0002 |
 0003 | import '../models/claim.dart';
 0004 | import '../services/api_client.dart';
 0005 | import '../services/claim_service.dart';
-0006 | 
+0006 |
 0007 | class ClaimsProvider extends ChangeNotifier {
 0008 |   ClaimsProvider(ApiClient client) : service = ClaimService(client);
 0009 |   final ClaimService service;
-0010 | 
+0010 |
 0011 |   DashboardData? dashboard;
 0012 |   List<ClaimSummary> claims = const [];
 0013 |   bool busy = false;
 0014 |   String? error;
-0015 | 
+0015 |
 0016 |   Future<void> loadDashboard() async {
 0017 |     busy = true;
 0018 |     error = null;
@@ -1010,7 +1010,7 @@ Symbols: `ClaimsProvider`: L7
 0026 |       notifyListeners();
 0027 |     }
 0028 |   }
-0029 | 
+0029 |
 0030 |   Future<void> loadClaims({String? search, String? status}) async {
 0031 |     busy = true;
 0032 |     error = null;
@@ -1047,13 +1047,13 @@ Symbols: `AppShell`: L15; `_AppShellState`: L21
 0011 | import 'workspace_screens.dart';
 0012 | import '../services/push_service.dart';
 0013 | import 'claim_details_screen.dart';
-0014 | 
+0014 |
 0015 | class AppShell extends StatefulWidget {
 0016 |   const AppShell({super.key});
 0017 |   @override
 0018 |   State<AppShell> createState() => _AppShellState();
 0019 | }
-0020 | 
+0020 |
 0021 | class _AppShellState extends State<AppShell> {
 0022 |   int index = 0, unread = 0;
 0023 |   Timer? timer;
@@ -1074,7 +1074,7 @@ Symbols: `AppShell`: L15; `_AppShellState`: L21
 0038 |     });
 0039 |     timer = Timer.periodic(const Duration(seconds: 30), (_) => refreshBadge());
 0040 |   }
-0041 | 
+0041 |
 0042 |   Future<void> refreshBadge() async {
 0043 |     try {
 0044 |       final result =
@@ -1085,14 +1085,14 @@ Symbols: `AppShell`: L15; `_AppShellState`: L21
 0049 |       }
 0050 |     } catch (_) {/* The notifications page provides errors and retry. */}
 0051 |   }
-0052 | 
+0052 |
 0053 |   @override
 0054 |   void dispose() {
 0055 |     timer?.cancel();
 0056 |     push?.dispose();
 0057 |     super.dispose();
 0058 |   }
-0059 | 
+0059 |
 0060 |   @override
 0061 |   Widget build(BuildContext context) {
 0062 |     final user = context.watch<AuthProvider>().user!;
@@ -1210,7 +1210,7 @@ Symbols: `ClaimDetailsScreen`: L19; `_ClaimDetailsScreenState`: L31; `_ProgressT
 0002 | import 'package:flutter/material.dart';
 0003 | import 'package:intl/intl.dart';
 0004 | import 'package:provider/provider.dart';
-0005 | 
+0005 |
 0006 | import '../models/claim.dart';
 0007 | import '../providers/auth_provider.dart';
 0008 | import '../providers/claims_provider.dart';
@@ -1223,7 +1223,7 @@ Symbols: `ClaimDetailsScreen`: L19; `_ClaimDetailsScreenState`: L31; `_ProgressT
 0015 | import 'staff_review_screen.dart';
 0016 | import 'information_response_screen.dart';
 0017 | import 'document_preview_screen.dart';
-0018 | 
+0018 |
 0019 | class ClaimDetailsScreen extends StatefulWidget {
 0020 |   const ClaimDetailsScreen({
 0021 |     super.key,
@@ -1235,13 +1235,13 @@ Symbols: `ClaimDetailsScreen`: L19; `_ClaimDetailsScreenState`: L31; `_ProgressT
 0027 |   @override
 0028 |   State<ClaimDetailsScreen> createState() => _ClaimDetailsScreenState();
 0029 | }
-0030 | 
+0030 |
 0031 | class _ClaimDetailsScreenState extends State<ClaimDetailsScreen> {
 0032 |   ClaimDetails? claim;
 0033 |   String? error;
 0034 |   bool loading = true;
 0035 |   Timer? refreshTimer;
-0036 | 
+0036 |
 0037 |   Future<void> editInformation() async {
 0038 |     final current = claim!;
 0039 |     final saved =
@@ -1268,7 +1268,7 @@ Symbols: `ClaimDetailsScreen`: L19; `_ClaimDetailsScreenState`: L31; `_ProgressT
 0060 |     });
 0061 |     if (saved == true && mounted) await _load();
 0062 |   }
-0063 | 
+0063 |
 0064 |   Future<void> appeal() async {
 0065 |     final saved = await workspaceForm(context,
 0066 |         title: 'Request a reconsideration',
@@ -1284,7 +1284,7 @@ Symbols: `ClaimDetailsScreen`: L19; `_ClaimDetailsScreenState`: L31; `_ProgressT
 0076 |     });
 0077 |     if (saved == true && mounted) await _load();
 0078 |   }
-0079 | 
+0079 |
 0080 |   Future<void> deleteDraft() async {
 0081 |     final yes = await showDialog<bool>(
 0082 |         context: context,
@@ -1313,13 +1313,13 @@ Symbols: `ClaimDetailsScreen`: L19; `_ClaimDetailsScreenState`: L31; `_ProgressT
 0105 |       }
 0106 |     }
 0107 |   }
-0108 | 
+0108 |
 0109 |   @override
 0110 |   void dispose() {
 0111 |     refreshTimer?.cancel();
 0112 |     super.dispose();
 0113 |   }
-0114 | 
+0114 |
 0115 |   Future<void> _action(String action) async {
 0116 |     final current = claim!;
 0117 |     if (action == 'correct') {
@@ -1409,13 +1409,13 @@ Symbols: `ClaimDetailsScreen`: L19; `_ClaimDetailsScreenState`: L31; `_ProgressT
 0201 |       }
 0202 |     }
 0203 |   }
-0204 | 
+0204 |
 0205 |   @override
 0206 |   void initState() {
 0207 |     super.initState();
 0208 |     _load();
 0209 |   }
-0210 | 
+0210 |
 0211 |   Future<void> _load() async {
 0212 |     setState(() {
 0213 |       loading = true;
@@ -1435,7 +1435,7 @@ Symbols: `ClaimDetailsScreen`: L19; `_ClaimDetailsScreenState`: L31; `_ProgressT
 0227 |       if (mounted) setState(() => loading = false);
 0228 |     }
 0229 |   }
-0230 | 
+0230 |
 0231 |   @override
 0232 |   Widget build(BuildContext context) {
 0233 |     final isClient = context.watch<AuthProvider>().user?.isClient ?? false;
@@ -1807,7 +1807,7 @@ Symbols: `ClaimDetailsScreen`: L19; `_ClaimDetailsScreenState`: L31; `_ProgressT
 0599 |     );
 0600 |   }
 0601 | }
-0602 | 
+0602 |
 0603 | class _ProgressTimeline extends StatelessWidget {
 0604 |   const _ProgressTimeline({required this.status});
 0605 |   final String status;
@@ -1864,7 +1864,7 @@ Symbols: `ClaimDetailsScreen`: L19; `_ClaimDetailsScreenState`: L31; `_ProgressT
 0656 |                 ])));
 0657 |   }
 0658 | }
-0659 | 
+0659 |
 0660 | class _Value extends StatelessWidget {
 0661 |   const _Value({required this.label, required this.value, this.last = false});
 0662 |   final String label;
@@ -1895,7 +1895,7 @@ Symbols: `ClaimDetailsScreen`: L19; `_ClaimDetailsScreenState`: L31; `_ProgressT
 0687 |         ),
 0688 |       );
 0689 | }
-0690 | 
+0690 |
 0691 | class _DocumentCard extends StatelessWidget {
 0692 |   const _DocumentCard({required this.document, required this.reference});
 0693 |   final ClaimDocument document;
@@ -1966,12 +1966,12 @@ Symbols: `ClaimReviewScreen`: L9; `_ClaimReviewScreenState`: L27
 ```dart
 0001 | import 'package:flutter/material.dart';
 0002 | import 'package:provider/provider.dart';
-0003 | 
+0003 |
 0004 | import '../models/claim.dart';
 0005 | import '../providers/claims_provider.dart';
 0006 | import '../services/api_client.dart';
 0007 | import 'claim_details_screen.dart';
-0008 | 
+0008 |
 0009 | class ClaimReviewScreen extends StatefulWidget {
 0010 |   const ClaimReviewScreen({
 0011 |     super.key,
@@ -1989,17 +1989,17 @@ Symbols: `ClaimReviewScreen`: L9; `_ClaimReviewScreenState`: L27
 0023 |   @override
 0024 |   State<ClaimReviewScreen> createState() => _ClaimReviewScreenState();
 0025 | }
-0026 | 
+0026 |
 0027 | class _ClaimReviewScreenState extends State<ClaimReviewScreen> {
 0028 |   bool busy = false;
 0029 |   String? error;
-0030 | 
+0030 |
 0031 |   double get total => widget.documents
 0032 |       .where((item) => item.include)
 0033 |       .fold(0, (sum, item) => sum + (item.amount ?? 0));
 0034 |   String get currency =>
 0035 |       widget.documents.firstWhere((item) => item.include).currency;
-0036 | 
+0036 |
 0037 |   Future<void> _submit() async {
 0038 |     setState(() {
 0039 |       busy = true;
@@ -2029,7 +2029,7 @@ Symbols: `ClaimReviewScreen`: L9; `_ClaimReviewScreenState`: L27
 0063 |       if (mounted) setState(() => busy = false);
 0064 |     }
 0065 |   }
-0066 | 
+0066 |
 0067 |   @override
 0068 |   Widget build(BuildContext context) => Scaffold(
 0069 |         appBar: AppBar(title: const Text('Review and submit')),
@@ -2174,13 +2174,13 @@ Symbols: `DashboardScreen`: L12; `_DashboardScreenState`: L18
 0008 | import 'help_screen.dart';
 0009 | import 'new_claim_screen.dart';
 0010 | import 'workspace_screens.dart';
-0011 | 
+0011 |
 0012 | class DashboardScreen extends StatefulWidget {
 0013 |   const DashboardScreen({super.key});
 0014 |   @override
 0015 |   State<DashboardScreen> createState() => _DashboardScreenState();
 0016 | }
-0017 | 
+0017 |
 0018 | class _DashboardScreenState extends State<DashboardScreen> {
 0019 |   @override
 0020 |   void initState() {
@@ -2188,7 +2188,7 @@ Symbols: `DashboardScreen`: L12; `_DashboardScreenState`: L18
 0022 |     WidgetsBinding.instance.addPostFrameCallback(
 0023 |         (_) => context.read<ClaimsProvider>().loadDashboard());
 0024 |   }
-0025 | 
+0025 |
 0026 |   void open(Widget screen) =>
 0027 |       Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
 0028 |   @override
@@ -2465,7 +2465,7 @@ Symbols: `DocumentPreviewScreen`: L8; `_DocumentPreviewScreenState`: L19
 0004 | import 'package:flutter/material.dart';
 0005 | import '../services/api_client.dart';
 0006 | import '../services/workspace_service.dart';
-0007 | 
+0007 |
 0008 | class DocumentPreviewScreen extends StatefulWidget {
 0009 |   const DocumentPreviewScreen(
 0010 |       {super.key,
@@ -2476,7 +2476,7 @@ Symbols: `DocumentPreviewScreen`: L8; `_DocumentPreviewScreenState`: L19
 0015 |   @override
 0016 |   State<DocumentPreviewScreen> createState() => _DocumentPreviewScreenState();
 0017 | }
-0018 | 
+0018 |
 0019 | class _DocumentPreviewScreenState extends State<DocumentPreviewScreen> {
 0020 |   Uint8List? bytes;
 0021 |   String? text, error;
@@ -2487,7 +2487,7 @@ Symbols: `DocumentPreviewScreen`: L8; `_DocumentPreviewScreenState`: L19
 0026 |     super.initState();
 0027 |     load();
 0028 |   }
-0029 | 
+0029 |
 0030 |   Future<void> load() async {
 0031 |     setState(() {
 0032 |       busy = true;
@@ -2519,7 +2519,7 @@ Symbols: `DocumentPreviewScreen`: L8; `_DocumentPreviewScreenState`: L19
 0058 |       if (mounted) setState(() => busy = false);
 0059 |     }
 0060 |   }
-0061 | 
+0061 |
 0062 |   @override
 0063 |   Widget build(BuildContext context) => Scaffold(
 0064 |       appBar: AppBar(title: Text(widget.name)),
@@ -2588,21 +2588,21 @@ Symbols: `ExtractedInfoScreen`: L11; `_ExtractedInfoScreenState`: L18; `_Confide
 ```dart
 0001 | import 'package:flutter/material.dart';
 0002 | import 'package:provider/provider.dart';
-0003 | 
+0003 |
 0004 | import '../models/claim.dart';
 0005 | import '../providers/claims_provider.dart';
 0006 | import '../services/api_client.dart';
 0007 | import 'claim_review_screen.dart';
 0008 | import '../services/workspace_service.dart';
 0009 | import 'document_preview_screen.dart';
-0010 | 
+0010 |
 0011 | class ExtractedInfoScreen extends StatefulWidget {
 0012 |   const ExtractedInfoScreen({super.key, required this.reference});
 0013 |   final String reference;
 0014 |   @override
 0015 |   State<ExtractedInfoScreen> createState() => _ExtractedInfoScreenState();
 0016 | }
-0017 | 
+0017 |
 0018 | class _ExtractedInfoScreenState extends State<ExtractedInfoScreen> {
 0019 |   final patient = TextEditingController();
 0020 |   final provider = TextEditingController();
@@ -2624,13 +2624,13 @@ Symbols: `ExtractedInfoScreen`: L11; `_ExtractedInfoScreenState`: L18; `_Confide
 0036 |     'KES',
 0037 |     'TZS'
 0038 |   ];
-0039 | 
+0039 |
 0040 |   @override
 0041 |   void initState() {
 0042 |     super.initState();
 0043 |     _load();
 0044 |   }
-0045 | 
+0045 |
 0046 |   ExtractedField? _bestField(ClaimDetails value, String name) {
 0047 |     final matches = value.documents
 0048 |         .expand((document) => document.fields)
@@ -2639,7 +2639,7 @@ Symbols: `ExtractedInfoScreen`: L11; `_ExtractedInfoScreenState`: L18; `_Confide
 0051 |       ..sort((left, right) => right.confidence.compareTo(left.confidence));
 0052 |     return matches.isEmpty ? null : matches.first;
 0053 |   }
-0054 | 
+0054 |
 0055 |   Future<void> _load() async {
 0056 |     try {
 0057 |       final api = workspaceApi(context);
@@ -2699,7 +2699,7 @@ Symbols: `ExtractedInfoScreen`: L11; `_ExtractedInfoScreenState`: L18; `_Confide
 0111 |       if (mounted) setState(() => loading = false);
 0112 |     }
 0113 |   }
-0114 | 
+0114 |
 0115 |   @override
 0116 |   void dispose() {
 0117 |     patient.dispose();
@@ -2712,10 +2712,10 @@ Symbols: `ExtractedInfoScreen`: L11; `_ExtractedInfoScreenState`: L18; `_Confide
 0124 |     }
 0125 |     super.dispose();
 0126 |   }
-0127 | 
+0127 |
 0128 |   String? _required(String? value) =>
 0129 |       value == null || value.trim().length < 2 ? 'Confirm this value.' : null;
-0130 | 
+0130 |
 0131 |   void _review() {
 0132 |     if (!formKey.currentState!.validate()) return;
 0133 |     for (final confirmation in confirmations) {
@@ -2769,7 +2769,7 @@ Symbols: `ExtractedInfoScreen`: L11; `_ExtractedInfoScreenState`: L18; `_Confide
 0181 |       ),
 0182 |     );
 0183 |   }
-0184 | 
+0184 |
 0185 |   @override
 0186 |   Widget build(BuildContext context) => Scaffold(
 0187 |         appBar: AppBar(title: const Text('Confirm extracted information')),
@@ -2869,7 +2869,7 @@ Symbols: `ExtractedInfoScreen`: L11; `_ExtractedInfoScreenState`: L18; `_Confide
 0281 |                   ),
 0282 |       );
 0283 | }
-0284 | 
+0284 |
 0285 | class _ConfidenceField extends StatelessWidget {
 0286 |   const _ConfidenceField({
 0287 |     required this.controller,
@@ -2893,7 +2893,7 @@ Symbols: `ExtractedInfoScreen`: L11; `_ExtractedInfoScreenState`: L18; `_Confide
 0305 |         ),
 0306 |       );
 0307 | }
-0308 | 
+0308 |
 0309 | class _DocumentEditor extends StatelessWidget {
 0310 |   const _DocumentEditor({
 0311 |     required this.item,
@@ -3063,7 +3063,7 @@ Symbols: `HelpScreen`: L8
 0004 | import '../services/workspace_service.dart';
 0005 | import '../widgets/workspace_form.dart';
 0006 | import 'workspace_screens.dart';
-0007 | 
+0007 |
 0008 | class HelpScreen extends StatelessWidget {
 0009 |   const HelpScreen({super.key});
 0010 |   @override
@@ -3194,7 +3194,7 @@ Symbols: `HistoryScreen`: L10; `_HistoryScreenState`: L18
 0006 | import '../services/api_client.dart';
 0007 | import '../services/workspace_service.dart';
 0008 | import '../widgets/claim_card.dart';
-0009 | 
+0009 |
 0010 | class HistoryScreen extends StatefulWidget {
 0011 |   const HistoryScreen({super.key, this.reviewOnly = false, this.initialStatus});
 0012 |   final bool reviewOnly;
@@ -3202,7 +3202,7 @@ Symbols: `HistoryScreen`: L10; `_HistoryScreenState`: L18
 0014 |   @override
 0015 |   State<HistoryScreen> createState() => _HistoryScreenState();
 0016 | }
-0017 | 
+0017 |
 0018 | class _HistoryScreenState extends State<HistoryScreen> {
 0019 |   final search = TextEditingController();
 0020 |   late String? status = widget.initialStatus;
@@ -3217,7 +3217,7 @@ Symbols: `HistoryScreen`: L10; `_HistoryScreenState`: L18
 0029 |     super.initState();
 0030 |     _load();
 0031 |   }
-0032 | 
+0032 |
 0033 |   Future<void> _load() async {
 0034 |     final current = ++generation;
 0035 |     setState(() {
@@ -3247,14 +3247,14 @@ Symbols: `HistoryScreen`: L10; `_HistoryScreenState`: L18
 0059 |       if (mounted && current == generation) setState(() => busy = false);
 0060 |     }
 0061 |   }
-0062 | 
+0062 |
 0063 |   @override
 0064 |   void dispose() {
 0065 |     debounce?.cancel();
 0066 |     search.dispose();
 0067 |     super.dispose();
 0068 |   }
-0069 | 
+0069 |
 0070 |   @override
 0071 |   Widget build(BuildContext context) {
 0072 |     final client = context.watch<AuthProvider>().user!.isClient;
@@ -3375,7 +3375,7 @@ Symbols: `InformationResponseScreen`: L7; `_InformationResponseScreenState`: L17
 0003 | import 'package:flutter/material.dart';
 0004 | import '../services/api_client.dart';
 0005 | import '../services/workspace_service.dart';
-0006 | 
+0006 |
 0007 | class InformationResponseScreen extends StatefulWidget {
 0008 |   const InformationResponseScreen(
 0009 |       {super.key, required this.reference, required this.request});
@@ -3385,7 +3385,7 @@ Symbols: `InformationResponseScreen`: L7; `_InformationResponseScreenState`: L17
 0013 |   State<InformationResponseScreen> createState() =>
 0014 |       _InformationResponseScreenState();
 0015 | }
-0016 | 
+0016 |
 0017 | class _InformationResponseScreenState extends State<InformationResponseScreen> {
 0018 |   final response = TextEditingController();
 0019 |   final List<PlatformFile> files = [];
@@ -3396,7 +3396,7 @@ Symbols: `InformationResponseScreen`: L7; `_InformationResponseScreenState`: L17
 0024 |     response.dispose();
 0025 |     super.dispose();
 0026 |   }
-0027 | 
+0027 |
 0028 |   Future<void> attach() async {
 0029 |     try {
 0030 |       final result = await FilePicker.platform.pickFiles(
@@ -3413,7 +3413,7 @@ Symbols: `InformationResponseScreen`: L7; `_InformationResponseScreenState`: L17
 0041 |       if (mounted) setState(() => error = readableApiError(exception));
 0042 |     }
 0043 |   }
-0044 | 
+0044 |
 0045 |   Future<void> submit() async {
 0046 |     final api = workspaceApi(context);
 0047 |     if (response.text.trim().isEmpty && files.isEmpty) {
@@ -3461,7 +3461,7 @@ Symbols: `InformationResponseScreen`: L7; `_InformationResponseScreenState`: L17
 0089 |       }
 0090 |     }
 0091 |   }
-0092 | 
+0092 |
 0093 |   @override
 0094 |   Widget build(BuildContext context) => Scaffold(
 0095 |       appBar: AppBar(title: const Text('Provide information')),
@@ -3521,24 +3521,24 @@ Symbols: `LoginScreen`: L11; `_LoginScreenState`: L17
 0002 | import '../widgets/claimlens_logo.dart';
 0003 | import 'package:flutter/foundation.dart';
 0004 | import 'package:provider/provider.dart';
-0005 | 
+0005 |
 0006 | import '../providers/auth_provider.dart';
 0007 | import 'password_recovery_screen.dart';
 0008 | import 'signup_screen.dart';
 0009 | import '../widgets/workspace_form.dart';
-0010 | 
+0010 |
 0011 | class LoginScreen extends StatefulWidget {
 0012 |   const LoginScreen({super.key});
 0013 |   @override
 0014 |   State<LoginScreen> createState() => _LoginScreenState();
 0015 | }
-0016 | 
+0016 |
 0017 | class _LoginScreenState extends State<LoginScreen> {
 0018 |   final email = TextEditingController();
 0019 |   final password = TextEditingController();
 0020 |   final formKey = GlobalKey<FormState>();
 0021 |   bool hidden = true;
-0022 | 
+0022 |
 0023 |   Future<void> openSignup() async {
 0024 |     context.read<AuthProvider>().clearError();
 0025 |     final registeredEmail = await Navigator.push<String>(
@@ -3549,14 +3549,14 @@ Symbols: `LoginScreen`: L11; `_LoginScreenState`: L17
 0030 |     email.text = registeredEmail;
 0031 |     password.clear();
 0032 |   }
-0033 | 
+0033 |
 0034 |   @override
 0035 |   void dispose() {
 0036 |     email.dispose();
 0037 |     password.dispose();
 0038 |     super.dispose();
 0039 |   }
-0040 | 
+0040 |
 0041 |   @override
 0042 |   Widget build(BuildContext context) {
 0043 |     final auth = context.watch<AuthProvider>();
@@ -3706,7 +3706,7 @@ Symbols: `NewClaimScreen`: L15; `_NewClaimScreenState`: L21
 0003 | import 'package:flutter/material.dart';
 0004 | import 'package:image_picker/image_picker.dart';
 0005 | import 'package:provider/provider.dart';
-0006 | 
+0006 |
 0007 | import '../models/selected_document.dart';
 0008 | import '../providers/claims_provider.dart';
 0009 | import '../services/api_client.dart';
@@ -3714,13 +3714,13 @@ Symbols: `NewClaimScreen`: L15; `_NewClaimScreenState`: L21
 0011 | import 'claim_details_screen.dart';
 0012 | import 'help_screen.dart';
 0013 | import '../services/workspace_service.dart';
-0014 | 
+0014 |
 0015 | class NewClaimScreen extends StatefulWidget {
 0016 |   const NewClaimScreen({super.key});
 0017 |   @override
 0018 |   State<NewClaimScreen> createState() => _NewClaimScreenState();
 0019 | }
-0020 | 
+0020 |
 0021 | class _NewClaimScreenState extends State<NewClaimScreen> {
 0022 |   final documents = <SelectedDocument>[];
 0023 |   final picker = ImagePicker();
@@ -3742,7 +3742,7 @@ Symbols: `NewClaimScreen`: L15; `_NewClaimScreenState`: L21
 0039 |     description.dispose();
 0040 |     super.dispose();
 0041 |   }
-0042 | 
+0042 |
 0043 |   String _mime(String name) {
 0044 |     final lower = name.toLowerCase();
 0045 |     if (lower.endsWith('.pdf')) return 'application/pdf';
@@ -3752,7 +3752,7 @@ Symbols: `NewClaimScreen`: L15; `_NewClaimScreenState`: L21
 0049 |     if (lower.endsWith('.png')) return 'image/png';
 0050 |     return 'image/jpeg';
 0051 |   }
-0052 | 
+0052 |
 0053 |   Future<void> _pickFiles() async {
 0054 |     final result = await FilePicker.platform.pickFiles(
 0055 |       allowMultiple: true,
@@ -3775,7 +3775,7 @@ Symbols: `NewClaimScreen`: L15; `_NewClaimScreenState`: L21
 0072 |       }
 0073 |     });
 0074 |   }
-0075 | 
+0075 |
 0076 |   Future<void> _pickImages(ImageSource source) async {
 0077 |     final List<XFile> images;
 0078 |     if (source == ImageSource.gallery) {
@@ -3798,7 +3798,7 @@ Symbols: `NewClaimScreen`: L15; `_NewClaimScreenState`: L21
 0095 |     }
 0096 |     setState(() => documents.addAll(selected));
 0097 |   }
-0098 | 
+0098 |
 0099 |   Future<void> _submit({bool extract = true}) async {
 0100 |     if (documents.isEmpty) {
 0101 |       setState(() => error = 'Add at least one claim document.');
@@ -3852,7 +3852,7 @@ Symbols: `NewClaimScreen`: L15; `_NewClaimScreenState`: L21
 0149 |       if (mounted) setState(() => busy = false);
 0150 |     }
 0151 |   }
-0152 | 
+0152 |
 0153 |   @override
 0154 |   Widget build(BuildContext context) => Scaffold(
 0155 |         appBar: AppBar(title: const Text('New claim')),
@@ -4027,29 +4027,29 @@ Symbols: `PasswordRecoveryScreen`: L7; `_PasswordRecoveryScreenState`: L14
 ```dart
 0001 | import 'package:flutter/material.dart';
 0002 | import 'package:provider/provider.dart';
-0003 | 
+0003 |
 0004 | import '../providers/auth_provider.dart';
 0005 | import '../services/api_client.dart';
-0006 | 
+0006 |
 0007 | class PasswordRecoveryScreen extends StatefulWidget {
 0008 |   const PasswordRecoveryScreen({super.key, this.initialEmail = ''});
 0009 |   final String initialEmail;
 0010 |   @override
 0011 |   State<PasswordRecoveryScreen> createState() => _PasswordRecoveryScreenState();
 0012 | }
-0013 | 
+0013 |
 0014 | class _PasswordRecoveryScreenState extends State<PasswordRecoveryScreen> {
 0015 |   final form = GlobalKey<FormState>();
 0016 |   late final email = TextEditingController(text: widget.initialEmail);
 0017 |   bool busy = false;
 0018 |   String? error, message;
-0019 | 
+0019 |
 0020 |   @override
 0021 |   void dispose() {
 0022 |     email.dispose();
 0023 |     super.dispose();
 0024 |   }
-0025 | 
+0025 |
 0026 |   Future<void> submit() async {
 0027 |     if (busy || !form.currentState!.validate()) return;
 0028 |     setState(() {
@@ -4075,7 +4075,7 @@ Symbols: `PasswordRecoveryScreen`: L7; `_PasswordRecoveryScreenState`: L14
 0048 |       if (mounted) setState(() => busy = false);
 0049 |     }
 0050 |   }
-0051 | 
+0051 |
 0052 |   @override
 0053 |   Widget build(BuildContext context) => Scaffold(
 0054 |         appBar: AppBar(title: const Text('Reset password')),
@@ -4154,29 +4154,29 @@ Symbols: `ProcessingScreen`: L9; `_ProcessingScreenState`: L16
 ```dart
 0001 | import 'package:flutter/material.dart';
 0002 | import 'package:provider/provider.dart';
-0003 | 
+0003 |
 0004 | import '../providers/claims_provider.dart';
 0005 | import '../services/api_client.dart';
 0006 | import 'extracted_info_screen.dart';
 0007 | import 'claim_details_screen.dart';
-0008 | 
+0008 |
 0009 | class ProcessingScreen extends StatefulWidget {
 0010 |   const ProcessingScreen({super.key, required this.reference});
 0011 |   final String reference;
 0012 |   @override
 0013 |   State<ProcessingScreen> createState() => _ProcessingScreenState();
 0014 | }
-0015 | 
+0015 |
 0016 | class _ProcessingScreenState extends State<ProcessingScreen> {
 0017 |   String? error;
 0018 |   bool running = true;
-0019 | 
+0019 |
 0020 |   @override
 0021 |   void initState() {
 0022 |     super.initState();
 0023 |     WidgetsBinding.instance.addPostFrameCallback((_) => _process());
 0024 |   }
-0025 | 
+0025 |
 0026 |   Future<void> _process() async {
 0027 |     setState(() {
 0028 |       running = true;
@@ -4220,7 +4220,7 @@ Symbols: `ProcessingScreen`: L9; `_ProcessingScreenState`: L16
 0066 |       if (mounted) setState(() => running = false);
 0067 |     }
 0068 |   }
-0069 | 
+0069 |
 0070 |   @override
 0071 |   Widget build(BuildContext context) => Scaffold(
 0072 |         appBar: AppBar(title: Text(widget.reference)),
@@ -4300,7 +4300,7 @@ Symbols: `ProfileScreen`: L8
 0004 | import '../services/workspace_service.dart';
 0005 | import '../widgets/workspace_form.dart';
 0006 | import '../services/api_client.dart';
-0007 | 
+0007 |
 0008 | class ProfileScreen extends StatelessWidget {
 0009 |   const ProfileScreen({super.key});
 0010 |   @override
@@ -4329,7 +4329,7 @@ Symbols: `ProfileScreen`: L8
 0033 |                 'notifications_enabled': v['notifications_enabled'] == 'true'
 0034 |               }));
 0035 |     }
-0036 | 
+0036 |
 0037 |     return Scaffold(
 0038 |         appBar: AppBar(title: const Text('Account & settings')),
 0039 |         body: ListView(padding: const EdgeInsets.all(20), children: [
@@ -4502,13 +4502,13 @@ Symbols: `RequiredPasswordScreen`: L6; `_RequiredPasswordScreenState`: L12
 0002 | import 'package:provider/provider.dart';
 0003 | import '../providers/auth_provider.dart';
 0004 | import '../services/api_client.dart';
-0005 | 
+0005 |
 0006 | class RequiredPasswordScreen extends StatefulWidget {
 0007 |   const RequiredPasswordScreen({super.key});
 0008 |   @override
 0009 |   State<RequiredPasswordScreen> createState() => _RequiredPasswordScreenState();
 0010 | }
-0011 | 
+0011 |
 0012 | class _RequiredPasswordScreenState extends State<RequiredPasswordScreen> {
 0013 |   final key = GlobalKey<FormState>();
 0014 |   final current = TextEditingController(),
@@ -4523,7 +4523,7 @@ Symbols: `RequiredPasswordScreen`: L6; `_RequiredPasswordScreenState`: L12
 0023 |     confirm.dispose();
 0024 |     super.dispose();
 0025 |   }
-0026 | 
+0026 |
 0027 |   Future<void> save() async {
 0028 |     if (!key.currentState!.validate()) return;
 0029 |     setState(() {
@@ -4540,7 +4540,7 @@ Symbols: `RequiredPasswordScreen`: L6; `_RequiredPasswordScreenState`: L12
 0040 |       if (mounted) setState(() => busy = false);
 0041 |     }
 0042 |   }
-0043 | 
+0043 |
 0044 |   @override
 0045 |   Widget build(BuildContext context) => Scaffold(
 0046 |       appBar: AppBar(title: const Text('Secure your account')),
@@ -4623,18 +4623,18 @@ Symbols: `SignupScreen`: L7; `_SignupScreenState`: L15
 ```dart
 0001 | import 'package:flutter/material.dart';
 0002 | import 'package:provider/provider.dart';
-0003 | 
+0003 |
 0004 | import '../providers/auth_provider.dart';
 0005 | import '../services/api_client.dart';
-0006 | 
+0006 |
 0007 | class SignupScreen extends StatefulWidget {
 0008 |   const SignupScreen({super.key, this.initialEmail = ''});
 0009 |   final String initialEmail;
-0010 | 
+0010 |
 0011 |   @override
 0012 |   State<SignupScreen> createState() => _SignupScreenState();
 0013 | }
-0014 | 
+0014 |
 0015 | class _SignupScreenState extends State<SignupScreen> {
 0016 |   final form = GlobalKey<FormState>();
 0017 |   final name = TextEditingController();
@@ -4643,7 +4643,7 @@ Symbols: `SignupScreen`: L7; `_SignupScreenState`: L15
 0020 |   final confirm = TextEditingController();
 0021 |   bool busy = false, hidden = true;
 0022 |   String? error, success;
-0023 | 
+0023 |
 0024 |   @override
 0025 |   void dispose() {
 0026 |     for (final controller in [name, email, password, confirm]) {
@@ -4651,10 +4651,10 @@ Symbols: `SignupScreen`: L7; `_SignupScreenState`: L15
 0028 |     }
 0029 |     super.dispose();
 0030 |   }
-0031 | 
+0031 |
 0032 |   void backToLogin() =>
 0033 |       Navigator.pop(context, success == null ? null : email.text.trim());
-0034 | 
+0034 |
 0035 |   Future<void> submit() async {
 0036 |     if (busy || !form.currentState!.validate()) return;
 0037 |     FocusScope.of(context).unfocus();
@@ -4688,7 +4688,7 @@ Symbols: `SignupScreen`: L7; `_SignupScreenState`: L15
 0065 |       if (mounted) setState(() => busy = false);
 0066 |     }
 0067 |   }
-0068 | 
+0068 |
 0069 |   @override
 0070 |   Widget build(BuildContext context) => Scaffold(
 0071 |         appBar: AppBar(
@@ -4846,10 +4846,10 @@ Symbols: `SplashScreen`: L4
 ```dart
 0001 | import 'package:flutter/material.dart';
 0002 | import '../widgets/claimlens_logo.dart';
-0003 | 
+0003 |
 0004 | class SplashScreen extends StatelessWidget {
 0005 |   const SplashScreen({super.key});
-0006 | 
+0006 |
 0007 |   @override
 0008 |   Widget build(BuildContext context) => Scaffold(
 0009 |         body: Center(
@@ -4890,14 +4890,14 @@ Symbols: `StaffReviewScreen`: L7; `_StaffReviewScreenState`: L14
 0003 | import '../models/claim.dart';
 0004 | import '../services/api_client.dart';
 0005 | import '../services/workspace_service.dart';
-0006 | 
+0006 |
 0007 | class StaffReviewScreen extends StatefulWidget {
 0008 |   const StaffReviewScreen({super.key, required this.claim});
 0009 |   final ClaimDetails claim;
 0010 |   @override
 0011 |   State<StaffReviewScreen> createState() => _StaffReviewScreenState();
 0012 | }
-0013 | 
+0013 |
 0014 | class _StaffReviewScreenState extends State<StaffReviewScreen> {
 0015 |   final key = GlobalKey<FormState>();
 0016 |   late final patient = TextEditingController(text: widget.claim.patientName);
@@ -4939,7 +4939,7 @@ Symbols: `StaffReviewScreen`: L7; `_StaffReviewScreenState`: L14
 0052 |     }
 0053 |     super.dispose();
 0054 |   }
-0055 | 
+0055 |
 0056 |   Future<void> save() async {
 0057 |     if (!key.currentState!.validate()) return;
 0058 |     setState(() {
@@ -4978,7 +4978,7 @@ Symbols: `StaffReviewScreen`: L7; `_StaffReviewScreenState`: L14
 0091 |       }
 0092 |     }
 0093 |   }
-0094 | 
+0094 |
 0095 |   @override
 0096 |   Widget build(BuildContext context) => Scaffold(
 0097 |       appBar: AppBar(title: const Text('Review & correct')),
@@ -5115,7 +5115,7 @@ Symbols: `WorkspaceMenuScreen`: L13; `WorkspaceData`: L79; `_WorkspaceDataState`
 0009 | import 'claim_details_screen.dart';
 0010 | import 'profile_screen.dart';
 0011 | import 'help_screen.dart';
-0012 | 
+0012 |
 0013 | class WorkspaceMenuScreen extends StatelessWidget {
 0014 |   const WorkspaceMenuScreen({super.key});
 0015 |   @override
@@ -5181,7 +5181,7 @@ Symbols: `WorkspaceMenuScreen`: L13; `WorkspaceData`: L79; `_WorkspaceDataState`
 0075 |         ]));
 0076 |   }
 0077 | }
-0078 | 
+0078 |
 0079 | class WorkspaceData extends StatefulWidget {
 0080 |   const WorkspaceData(
 0081 |       {super.key,
@@ -5196,7 +5196,7 @@ Symbols: `WorkspaceMenuScreen`: L13; `WorkspaceData`: L79; `_WorkspaceDataState`
 0090 |   @override
 0091 |   State<WorkspaceData> createState() => _WorkspaceDataState();
 0092 | }
-0093 | 
+0093 |
 0094 | class _WorkspaceDataState extends State<WorkspaceData> {
 0095 |   dynamic data;
 0096 |   String? error;
@@ -5206,13 +5206,13 @@ Symbols: `WorkspaceMenuScreen`: L13; `WorkspaceData`: L79; `_WorkspaceDataState`
 0100 |     super.initState();
 0101 |     load();
 0102 |   }
-0103 | 
+0103 |
 0104 |   @override
 0105 |   void didUpdateWidget(WorkspaceData oldWidget) {
 0106 |     super.didUpdateWidget(oldWidget);
 0107 |     if (oldWidget.path != widget.path) load();
 0108 |   }
-0109 | 
+0109 |
 0110 |   Future<void> load() async {
 0111 |     setState(() {
 0112 |       busy = true;
@@ -5227,7 +5227,7 @@ Symbols: `WorkspaceMenuScreen`: L13; `WorkspaceData`: L79; `_WorkspaceDataState`
 0121 |       if (mounted) setState(() => busy = false);
 0122 |     }
 0123 |   }
-0124 | 
+0124 |
 0125 |   @override
 0126 |   Widget build(BuildContext context) => Scaffold(
 0127 |       appBar: AppBar(title: Text(widget.title), actions: [
@@ -5257,7 +5257,7 @@ Symbols: `WorkspaceMenuScreen`: L13; `WorkspaceData`: L79; `_WorkspaceDataState`
 0151 |                   ...widget.render(context, data, load),
 0152 |               ])));
 0153 | }
-0154 | 
+0154 |
 0155 | class NotificationsScreen extends StatelessWidget {
 0156 |   const NotificationsScreen({super.key});
 0157 |   @override
@@ -5307,13 +5307,13 @@ Symbols: `WorkspaceMenuScreen`: L13; `WorkspaceData`: L79; `_WorkspaceDataState`
 0201 |                     }))),
 0202 |           ]);
 0203 | }
-0204 | 
+0204 |
 0205 | class AnalyticsScreen extends StatefulWidget {
 0206 |   const AnalyticsScreen({super.key});
 0207 |   @override
 0208 |   State<AnalyticsScreen> createState() => _AnalyticsScreenState();
 0209 | }
-0210 | 
+0210 |
 0211 | class _AnalyticsScreenState extends State<AnalyticsScreen> {
 0212 |   DateTimeRange? range;
 0213 |   @override
@@ -5394,13 +5394,13 @@ Symbols: `WorkspaceMenuScreen`: L13; `WorkspaceData`: L79; `_WorkspaceDataState`
 0288 |         ];
 0289 |       });
 0290 | }
-0291 | 
+0291 |
 0292 | class AuditScreen extends StatefulWidget {
 0293 |   const AuditScreen({super.key});
 0294 |   @override
 0295 |   State<AuditScreen> createState() => _AuditScreenState();
 0296 | }
-0297 | 
+0297 |
 0298 | class _AuditScreenState extends State<AuditScreen> {
 0299 |   String search = '';
 0300 |   @override
@@ -5439,13 +5439,13 @@ Symbols: `WorkspaceMenuScreen`: L13; `WorkspaceData`: L79; `_WorkspaceDataState`
 0333 |                   'Showing the latest 200 events. Search to narrow the results.'),
 0334 |           ]);
 0335 | }
-0336 | 
+0336 |
 0337 | class UsersScreen extends StatefulWidget {
 0338 |   const UsersScreen({super.key});
 0339 |   @override
 0340 |   State<UsersScreen> createState() => _UsersScreenState();
 0341 | }
-0342 | 
+0342 |
 0343 | class _UsersScreenState extends State<UsersScreen> {
 0344 |   static const grants = {
 0345 |     'claims.review': 'Review and verify claims',
@@ -5491,7 +5491,7 @@ Symbols: `WorkspaceMenuScreen`: L13; `WorkspaceData`: L79; `_WorkspaceDataState`
 0385 |     });
 0386 |     if (saved == true && mounted) setState(() => revision++);
 0387 |   }
-0388 | 
+0388 |
 0389 |   Future<void> edit(Map row, Future<void> Function() reload) async {
 0390 |     final saved =
 0391 |         await workspaceForm(context, title: 'Edit user access', fields: [
@@ -5509,7 +5509,7 @@ Symbols: `WorkspaceMenuScreen`: L13; `WorkspaceData`: L79; `_WorkspaceDataState`
 0403 |     });
 0404 |     if (saved == true) await reload();
 0405 |   }
-0406 | 
+0406 |
 0407 |   Future<void> action(
 0408 |       String value, Map row, Future<void> Function() reload) async {
 0409 |     try {
@@ -5594,7 +5594,7 @@ Symbols: `WorkspaceMenuScreen`: L13; `WorkspaceData`: L79; `_WorkspaceDataState`
 0488 |       }
 0489 |     }
 0490 |   }
-0491 | 
+0491 |
 0492 |   @override
 0493 |   Widget build(BuildContext context) => WorkspaceData(
 0494 |       key: ValueKey(revision),
@@ -5666,7 +5666,7 @@ Symbols: `WorkspaceMenuScreen`: L13; `WorkspaceData`: L79; `_WorkspaceDataState`
 0560 |         ];
 0561 |       });
 0562 | }
-0563 | 
+0563 |
 0564 | class _Empty extends StatelessWidget {
 0565 |   const _Empty(
 0566 |       {required this.icon, required this.title, required this.message});
@@ -5685,7 +5685,7 @@ Symbols: `WorkspaceMenuScreen`: L13; `WorkspaceData`: L79; `_WorkspaceDataState`
 0579 |         Text(message, textAlign: TextAlign.center)
 0580 |       ]));
 0581 | }
-0582 | 
+0582 |
 0583 | class _Heading extends StatelessWidget {
 0584 |   const _Heading(this.text);
 0585 |   final String text;
@@ -5694,7 +5694,7 @@ Symbols: `WorkspaceMenuScreen`: L13; `WorkspaceData`: L79; `_WorkspaceDataState`
 0588 |       padding: const EdgeInsets.only(top: 24, bottom: 12),
 0589 |       child: Text(text, style: Theme.of(context).textTheme.titleLarge));
 0590 | }
-0591 | 
+0591 |
 0592 | class _Total extends StatelessWidget {
 0593 |   const _Total({required this.label, required this.value});
 0594 |   final String label, value;
@@ -5709,7 +5709,7 @@ Symbols: `WorkspaceMenuScreen`: L13; `WorkspaceData`: L79; `_WorkspaceDataState`
 0603 |                 Text(label)
 0604 |               ])));
 0605 | }
-0606 | 
+0606 |
 0607 | String _date(dynamic value) =>
 0608 |     DateTime.tryParse(value?.toString() ?? '')
 0609 |         ?.toLocal()
@@ -5726,13 +5726,13 @@ Symbols: `ApiClient`: L9
 
 ```dart
 0001 | import 'dart:async';
-0002 | 
+0002 |
 0003 | import 'package:dio/dio.dart';
 0004 | import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 0005 | import 'package:flutter/foundation.dart';
-0006 | 
+0006 |
 0007 | import '../config/api_config.dart';
-0008 | 
+0008 |
 0009 | class ApiClient {
 0010 |   ApiClient()
 0011 |       : dio = Dio(
@@ -5747,17 +5747,17 @@ Symbols: `ApiClient`: L9
 0020 |       InterceptorsWrapper(onRequest: _onRequest, onError: _onError),
 0021 |     );
 0022 |   }
-0023 | 
+0023 |
 0024 |   final Dio dio;
 0025 |   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 0026 |   String? _accessToken;
 0027 |   String? _refreshToken;
 0028 |   Future<bool>? _refreshOperation;
 0029 |   void Function()? onSessionExpired;
-0030 | 
+0030 |
 0031 |   bool get hasSession => _accessToken != null && _refreshToken != null;
 0032 |   Future<bool> refreshSession() => _refresh();
-0033 | 
+0033 |
 0034 |   Future<void> initialise() async {
 0035 |     final savedServer = await _storage.read(key: 'server_url');
 0036 |     final previousBuildServer = await _storage.read(key: 'build_server_url');
@@ -5775,7 +5775,7 @@ Symbols: `ApiClient`: L9
 0048 |     _accessToken = await _storage.read(key: 'access_token');
 0049 |     _refreshToken = await _storage.read(key: 'refresh_token');
 0050 |   }
-0051 | 
+0051 |
 0052 |   Future<void> saveSession(String accessToken, String refreshToken) async {
 0053 |     _accessToken = accessToken;
 0054 |     _refreshToken = refreshToken;
@@ -5784,7 +5784,7 @@ Symbols: `ApiClient`: L9
 0057 |       _storage.write(key: 'refresh_token', value: refreshToken),
 0058 |     ]);
 0059 |   }
-0060 | 
+0060 |
 0061 |   Future<void> clearSession() async {
 0062 |     _accessToken = null;
 0063 |     _refreshToken = null;
@@ -5793,14 +5793,14 @@ Symbols: `ApiClient`: L9
 0066 |       _storage.delete(key: 'refresh_token')
 0067 |     ]);
 0068 |   }
-0069 | 
+0069 |
 0070 |   void _onRequest(RequestOptions options, RequestInterceptorHandler handler) {
 0071 |     if (_accessToken != null) {
 0072 |       options.headers['Authorization'] = 'Bearer $_accessToken';
 0073 |     }
 0074 |     handler.next(options);
 0075 |   }
-0076 | 
+0076 |
 0077 |   Future<void> _onError(
 0078 |     DioException error,
 0079 |     ErrorInterceptorHandler handler,
@@ -5828,7 +5828,7 @@ Symbols: `ApiClient`: L9
 0101 |       handler.next(retryError);
 0102 |     }
 0103 |   }
-0104 | 
+0104 |
 0105 |   Future<bool> _refresh() async {
 0106 |     try {
 0107 |       final response = await Dio(BaseOptions(baseUrl: dio.options.baseUrl))
@@ -5848,7 +5848,7 @@ Symbols: `ApiClient`: L9
 0121 |       return false;
 0122 |     }
 0123 |   }
-0124 | 
+0124 |
 0125 |   Future<void> configureServer(String value) async {
 0126 |     final uri = Uri.tryParse(value.trim());
 0127 |     if (uri == null ||
@@ -5880,7 +5880,7 @@ Symbols: `ApiClient`: L9
 0153 |     dio.options.baseUrl = base;
 0154 |   }
 0155 | }
-0156 | 
+0156 |
 0157 | String readableApiError(Object error) {
 0158 |   if (error is DioException) {
 0159 |     final data = error.response?.data;
@@ -5914,11 +5914,11 @@ Symbols: `AuthService`: L4
 ```dart
 0001 | import '../models/user_profile.dart';
 0002 | import 'api_client.dart';
-0003 | 
+0003 |
 0004 | class AuthService {
 0005 |   const AuthService(this.client);
 0006 |   final ApiClient client;
-0007 | 
+0007 |
 0008 |   Future<UserProfile> login(String email, String password) async {
 0009 |     final response = await client.dio.post<Map<String, dynamic>>(
 0010 |       '/auth/login',
@@ -5931,12 +5931,12 @@ Symbols: `AuthService`: L4
 0017 |     );
 0018 |     return UserProfile.fromJson(data['user'] as Map<String, dynamic>);
 0019 |   }
-0020 | 
+0020 |
 0021 |   Future<UserProfile> profile() async {
 0022 |     final response = await client.dio.get<Map<String, dynamic>>('/profile');
 0023 |     return UserProfile.fromJson(response.data!);
 0024 |   }
-0025 | 
+0025 |
 0026 |   Future<void> logout() async {
 0027 |     try {
 0028 |       await client.dio.post<void>('/auth/logout');
@@ -5956,22 +5956,22 @@ Symbols: `ClaimService`: L8
 ```dart
 0001 | import 'package:dio/dio.dart';
 0002 | import 'package:http_parser/http_parser.dart';
-0003 | 
+0003 |
 0004 | import '../models/claim.dart';
 0005 | import '../models/selected_document.dart';
 0006 | import 'api_client.dart';
-0007 | 
+0007 |
 0008 | class ClaimService {
 0009 |   const ClaimService(this.client);
 0010 |   final ApiClient client;
-0011 | 
+0011 |
 0012 |   Future<DashboardData> dashboard() async {
 0013 |     final response = await client.dio.get<Map<String, dynamic>>(
 0014 |       '/claims/dashboard',
 0015 |     );
 0016 |     return DashboardData.fromJson(response.data!);
 0017 |   }
-0018 | 
+0018 |
 0019 |   Future<List<ClaimSummary>> list({String? search, String? status}) async {
 0020 |     final response = await client.dio.get<List<dynamic>>(
 0021 |       '/claims',
@@ -5984,7 +5984,7 @@ Symbols: `ClaimService`: L8
 0028 |         .map((item) => ClaimSummary.fromJson(item as Map<String, dynamic>))
 0029 |         .toList();
 0030 |   }
-0031 | 
+0031 |
 0032 |   Future<ClaimDetails> create(List<SelectedDocument> documents,
 0033 |       {String? requestKey, void Function(int, int)? onSendProgress}) async {
 0034 |     final data = FormData();
@@ -6009,19 +6009,19 @@ Symbols: `ClaimService`: L8
 0053 |     );
 0054 |     return ClaimDetails.fromJson(response.data!);
 0055 |   }
-0056 | 
+0056 |
 0057 |   Future<ClaimDetails> details(String reference) async {
 0058 |     final response = await client.dio.get<Map<String, dynamic>>(
 0059 |       '/claims/$reference',
 0060 |     );
 0061 |     return ClaimDetails.fromJson(response.data!);
 0062 |   }
-0063 | 
+0063 |
 0064 |   Future<void> process(String reference) async {
 0065 |     await client.dio.post<Map<String, dynamic>>('/claims/$reference/process',
 0066 |         queryParameters: {'background': true});
 0067 |   }
-0068 | 
+0068 |
 0069 |   Future<String> confirm(
 0070 |     String reference,
 0071 |     String patient,
@@ -6054,14 +6054,14 @@ Symbols: `PushService`: L13
 0002 | import 'package:firebase_core/firebase_core.dart';
 0003 | import 'package:firebase_messaging/firebase_messaging.dart';
 0004 | import 'api_client.dart';
-0005 | 
+0005 |
 0006 | @pragma('vm:entry-point')
 0007 | Future<void> claimLensBackgroundMessage(RemoteMessage message) async {
 0008 |   await Firebase.initializeApp();
 0009 |   // OS notifications contain generic text. Medical details are fetched only
 0010 |   // after the user opens the app and an authenticated API request succeeds.
 0011 | }
-0012 | 
+0012 |
 0013 | class PushService {
 0014 |   PushService(this.client);
 0015 |   final ApiClient client;
@@ -6093,12 +6093,12 @@ Symbols: `PushService`: L13
 0041 |       if (reference is String && reference.isNotEmpty) onOpen(reference);
 0042 |     } catch (_) {/* In-app notifications work when OS push is unavailable. */}
 0043 |   }
-0044 | 
+0044 |
 0045 |   Future<void> dispose() async {
 0046 |     await refresh?.cancel();
 0047 |     await opened?.cancel();
 0048 |   }
-0049 | 
+0049 |
 0050 |   static Future<void> unregister(ApiClient client) async {
 0051 |     if (Firebase.apps.isEmpty) return;
 0052 |     try {
@@ -6124,10 +6124,10 @@ Symbols: Configuration/resource file.
 0002 | import 'package:provider/provider.dart';
 0003 | import 'package:flutter/widgets.dart';
 0004 | import '../providers/auth_provider.dart';
-0005 | 
+0005 |
 0006 | Dio workspaceApi(BuildContext context) =>
 0007 |     context.read<AuthProvider>().client.dio;
-0008 | 
+0008 |
 0009 | String friendlyLabel(String value) => value
 0010 |     .replaceAll('_', ' ')
 0011 |     .replaceAll('-', ' ')
@@ -6136,7 +6136,7 @@ Symbols: Configuration/resource file.
 0014 |         ? ''
 0015 |         : '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}')
 0016 |     .join(' ');
-0017 | 
+0017 |
 0018 | const claimStatuses = [
 0019 |   'UPLOADED',
 0020 |   'PROCESSING',
@@ -6168,15 +6168,15 @@ Symbols: `ClaimCard`: L8
 ```dart
 0001 | import 'package:flutter/material.dart';
 0002 | import 'package:intl/intl.dart';
-0003 | 
+0003 |
 0004 | import '../models/claim.dart';
 0005 | import '../screens/claim_details_screen.dart';
 0006 | import 'status_chip.dart';
-0007 | 
+0007 |
 0008 | class ClaimCard extends StatelessWidget {
 0009 |   const ClaimCard({super.key, required this.claim});
 0010 |   final ClaimSummary claim;
-0011 | 
+0011 |
 0012 |   @override
 0013 |   Widget build(BuildContext context) => Card(
 0014 |         clipBehavior: Clip.antiAlias,
@@ -6254,7 +6254,7 @@ Symbols: `ClaimLensLogo`: L3; `_LogoPainter`: L16
 
 ```dart
 0001 | import 'package:flutter/material.dart';
-0002 | 
+0002 |
 0003 | class ClaimLensLogo extends StatelessWidget {
 0004 |   const ClaimLensLogo({super.key, this.size = 64});
 0005 |   final double size;
@@ -6267,7 +6267,7 @@ Symbols: `ClaimLensLogo`: L3; `_LogoPainter`: L16
 0012 |               dimension: size,
 0013 |               child: CustomPaint(painter: const _LogoPainter()))));
 0014 | }
-0015 | 
+0015 |
 0016 | class _LogoPainter extends CustomPainter {
 0017 |   const _LogoPainter();
 0018 |   @override
@@ -6299,7 +6299,7 @@ Symbols: `ClaimLensLogo`: L3; `_LogoPainter`: L16
 0044 |             height: side * .083),
 0045 |         mint);
 0046 |   }
-0047 | 
+0047 |
 0048 |   @override
 0049 |   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 0050 | }
@@ -6317,14 +6317,14 @@ Symbols: `SessionGuard`: L7; `_SessionGuardState`: L14; `_UnlockScreen`: L60; `_
 0003 | import 'package:provider/provider.dart';
 0004 | import '../providers/auth_provider.dart';
 0005 | import '../services/api_client.dart';
-0006 | 
+0006 |
 0007 | class SessionGuard extends StatefulWidget {
 0008 |   const SessionGuard({super.key, required this.child});
 0009 |   final Widget child;
 0010 |   @override
 0011 |   State<SessionGuard> createState() => _SessionGuardState();
 0012 | }
-0013 | 
+0013 |
 0014 | class _SessionGuardState extends State<SessionGuard>
 0015 |     with WidgetsBindingObserver {
 0016 |   Timer? timer;
@@ -6334,7 +6334,7 @@ Symbols: `SessionGuard`: L7; `_SessionGuardState`: L14; `_UnlockScreen`: L60; `_
 0020 |     WidgetsBinding.instance.addObserver(this);
 0021 |     timer = Timer.periodic(const Duration(seconds: 15), (_) => check());
 0022 |   }
-0023 | 
+0023 |
 0024 |   void check() {
 0025 |     if (!mounted) return;
 0026 |     final auth = context.read<AuthProvider>();
@@ -6344,19 +6344,19 @@ Symbols: `SessionGuard`: L7; `_SessionGuardState`: L14; `_UnlockScreen`: L60; `_
 0030 |       auth.lock();
 0031 |     }
 0032 |   }
-0033 | 
+0033 |
 0034 |   @override
 0035 |   void didChangeAppLifecycleState(AppLifecycleState state) {
 0036 |     if (state == AppLifecycleState.resumed) check();
 0037 |   }
-0038 | 
+0038 |
 0039 |   @override
 0040 |   void dispose() {
 0041 |     timer?.cancel();
 0042 |     WidgetsBinding.instance.removeObserver(this);
 0043 |     super.dispose();
 0044 |   }
-0045 | 
+0045 |
 0046 |   @override
 0047 |   Widget build(BuildContext context) {
 0048 |     final auth = context.watch<AuthProvider>();
@@ -6370,13 +6370,13 @@ Symbols: `SessionGuard`: L7; `_SessionGuardState`: L14; `_UnlockScreen`: L60; `_
 0056 |         ]));
 0057 |   }
 0058 | }
-0059 | 
+0059 |
 0060 | class _UnlockScreen extends StatefulWidget {
 0061 |   const _UnlockScreen();
 0062 |   @override
 0063 |   State<_UnlockScreen> createState() => _UnlockScreenState();
 0064 | }
-0065 | 
+0065 |
 0066 | class _UnlockScreenState extends State<_UnlockScreen> {
 0067 |   final password = TextEditingController();
 0068 |   String? error;
@@ -6394,13 +6394,13 @@ Symbols: `SessionGuard`: L7; `_SessionGuardState`: L14; `_UnlockScreen`: L60; `_
 0080 |       if (mounted) setState(() => busy = false);
 0081 |     }
 0082 |   }
-0083 | 
+0083 |
 0084 |   @override
 0085 |   void dispose() {
 0086 |     password.dispose();
 0087 |     super.dispose();
 0088 |   }
-0089 | 
+0089 |
 0090 |   Future<void> unlock() async {
 0091 |     if (password.text.isEmpty) return;
 0092 |     setState(() {
@@ -6415,7 +6415,7 @@ Symbols: `SessionGuard`: L7; `_SessionGuardState`: L14; `_UnlockScreen`: L60; `_
 0101 |       if (mounted) setState(() => busy = false);
 0102 |     }
 0103 |   }
-0104 | 
+0104 |
 0105 |   @override
 0106 |   Widget build(BuildContext context) => PopScope(
 0107 |       canPop: false,
@@ -6479,11 +6479,11 @@ Symbols: `StatusChip`: L3
 
 ```dart
 0001 | import 'package:flutter/material.dart';
-0002 | 
+0002 |
 0003 | class StatusChip extends StatelessWidget {
 0004 |   const StatusChip({super.key, required this.status});
 0005 |   final String status;
-0006 | 
+0006 |
 0007 |   @override
 0008 |   Widget build(BuildContext context) {
 0009 |     final color = switch (status) {
@@ -6528,7 +6528,7 @@ Symbols: `FormEntry`: L5; `_WorkspaceForm`: L37; `_WorkspaceFormState`: L52
 0001 | import 'package:flutter/material.dart';
 0002 | import '../services/api_client.dart';
 0003 | import '../services/workspace_service.dart';
-0004 | 
+0004 |
 0005 | class FormEntry {
 0006 |   const FormEntry(this.keyName, this.label,
 0007 |       {this.value = '',
@@ -6542,7 +6542,7 @@ Symbols: `FormEntry`: L5; `_WorkspaceForm`: L37; `_WorkspaceFormState`: L52
 0015 |   final bool required, secret, numeric;
 0016 |   final int lines;
 0017 | }
-0018 | 
+0018 |
 0019 | Future<bool?> workspaceForm(BuildContext context,
 0020 |         {required String title,
 0021 |         required List<FormEntry> fields,
@@ -6560,7 +6560,7 @@ Symbols: `FormEntry`: L5; `_WorkspaceForm`: L37; `_WorkspaceFormState`: L52
 0033 |           button: button,
 0034 |           explanation: explanation),
 0035 |     );
-0036 | 
+0036 |
 0037 | class _WorkspaceForm extends StatefulWidget {
 0038 |   const _WorkspaceForm(
 0039 |       {required this.title,
@@ -6575,7 +6575,7 @@ Symbols: `FormEntry`: L5; `_WorkspaceForm`: L37; `_WorkspaceFormState`: L52
 0048 |   @override
 0049 |   State<_WorkspaceForm> createState() => _WorkspaceFormState();
 0050 | }
-0051 | 
+0051 |
 0052 | class _WorkspaceFormState extends State<_WorkspaceForm> {
 0053 |   final key = GlobalKey<FormState>();
 0054 |   late final values = {
@@ -6680,7 +6680,7 @@ Symbols: `FormEntry`: L5; `_WorkspaceForm`: L37; `_WorkspaceFormState`: L52
 0153 |                     ]))),
 0154 |       );
 0155 | }
-0156 | 
+0156 |
 0157 | Map<String, String> labelOptions(Iterable<String> values) =>
 0158 |     {for (final value in values) value: friendlyLabel(value)};
 ```
@@ -6696,10 +6696,10 @@ Symbols: Configuration/resource file.
 0002 | description: ClaimLens mobile client for claim submission and review.
 0003 | publish_to: none
 0004 | version: 1.1.0+2
-0005 | 
+0005 |
 0006 | environment:
 0007 |   sdk: ">=3.4.0 <4.0.0"
-0008 | 
+0008 |
 0009 | dependencies:
 0010 |   flutter:
 0011 |     sdk: flutter
@@ -6713,12 +6713,12 @@ Symbols: Configuration/resource file.
 0019 |   firebase_core: ^5.2.0
 0020 |   firebase_messaging: ^17.1.0
 0021 |   local_auth: ^3.0.2
-0022 | 
+0022 |
 0023 | dev_dependencies:
 0024 |   flutter_test:
 0025 |     sdk: flutter
 0026 |   flutter_lints: ^5.0.0
-0027 | 
+0027 |
 0028 | flutter:
 0029 |   uses-material-design: true
 ```
@@ -6741,7 +6741,7 @@ Symbols: `derive`: L23–L26; `create_backup`: L29–L55; `open_backup`: L58–L
 
 ```python
 0001 | """Operator-only encrypted backup and restore of Firestore application data/files.
-0002 | 
+0002 |
 0003 | Passwords are entered interactively; they are never command-line arguments.
 0004 | Firebase Authentication accounts remain managed by Firebase and are not exported.
 0005 | """
@@ -6753,21 +6753,21 @@ Symbols: `derive`: L23–L26; `create_backup`: L29–L55; `open_backup`: L58–L
 0011 | import secrets
 0012 | import tempfile
 0013 | import zipfile
-0014 | 
+0014 |
 0015 | from cryptography.hazmat.primitives import hashes
 0016 | from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 0017 | from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-0018 | 
+0018 |
 0019 | COLLECTIONS = ['profiles', 'claims', 'claim_documents', 'claim_extracted_fields', 'claim_processing_jobs', 'processing_queue', 'document_fingerprints', 'claim_information_requests', 'claim_appeals', 'audit_events', 'notifications', 'configuration']
 0020 | MAGIC = b'CLB1'
-0021 | 
-0022 | 
+0021 |
+0022 |
 0023 | def derive(password, salt):
 0024 |     if len(password) < 12:
 0025 |         raise ValueError('Use a backup passphrase of at least 12 characters.')
 0026 |     return PBKDF2HMAC(algorithm=hashes.SHA256(), length=32, salt=salt, iterations=600_000).derive(password.encode())
-0027 | 
-0028 | 
+0027 |
+0028 |
 0029 | def create_backup(root, records, project, output, password):
 0030 |     root, output = Path(root), Path(output)
 0031 |     salt, nonce = secrets.token_bytes(16), secrets.token_bytes(12)
@@ -6795,8 +6795,8 @@ Symbols: `derive`: L23–L26; `create_backup`: L29–L55; `open_backup`: L58–L
 0053 |                 target.write(encryptor.update(chunk))
 0054 |             target.write(encryptor.finalize())
 0055 |             target.write(encryptor.tag)
-0056 | 
-0057 | 
+0056 |
+0057 |
 0058 | def open_backup(path, password):
 0059 |     temporary = tempfile.TemporaryFile()
 0060 |     try:
@@ -6828,8 +6828,8 @@ Symbols: `derive`: L23–L26; `create_backup`: L29–L55; `open_backup`: L58–L
 0086 |     except Exception:
 0087 |         temporary.close()
 0088 |         raise
-0089 | 
-0090 | 
+0089 |
+0090 |
 0091 | def main():
 0092 |     parser = argparse.ArgumentParser(description=__doc__)
 0093 |     parser.add_argument('action', choices=['create', 'verify', 'restore'])
@@ -6893,8 +6893,8 @@ Symbols: `derive`: L23–L26; `create_backup`: L29–L55; `open_backup`: L58–L
 0151 |         print('Recovery files written. Point DOCUMENT_STORAGE_PATH to the recovered directory after verification. Firebase Authentication accounts are not restored by this command.')
 0152 |     finally:
 0153 |         archive.close(); temporary.close()
-0154 | 
-0155 | 
+0154 |
+0155 |
 0156 | if __name__ == '__main__':
 0157 |     main()
 ```
@@ -6907,18 +6907,18 @@ Symbols: `Settings`: L15–L36; `get_settings`: L40–L41; `cors_origins`: L33�
 
 ```python
 0001 | from __future__ import annotations
-0002 | 
+0002 |
 0003 | import os
 0004 | from dataclasses import dataclass
 0005 | from functools import lru_cache
 0006 | from pathlib import Path
-0007 | 
+0007 |
 0008 | from dotenv import load_dotenv
-0009 | 
-0010 | 
+0009 |
+0010 |
 0011 | load_dotenv(Path(__file__).resolve().parents[1] / ".env", encoding="utf-8-sig")
-0012 | 
-0013 | 
+0012 |
+0013 |
 0014 | @dataclass(frozen=True)
 0015 | class Settings:
 0016 |     firebase_project_id: str = os.getenv("FIREBASE_PROJECT_ID", "claimelens")
@@ -6936,14 +6936,14 @@ Symbols: `Settings`: L15–L36; `get_settings`: L40–L41; `cors_origins`: L33�
 0028 |     max_claim_documents: int = int(os.getenv("MAX_CLAIM_DOCUMENTS", "10"))
 0029 |     paddle_device: str = os.getenv("PADDLE_DEVICE", "cpu")
 0030 |     cors_origins_raw: str = os.getenv("CORS_ORIGINS", "http://localhost:3000")
-0031 | 
+0031 |
 0032 |     @property
 0033 |     def cors_origins(self) -> list[str]:
 0034 |         return [
 0035 |             value.strip() for value in self.cors_origins_raw.split(",") if value.strip()
 0036 |         ]
-0037 | 
-0038 | 
+0037 |
+0038 |
 0039 | @lru_cache
 0040 | def get_settings() -> Settings:
 0041 |     return Settings()
@@ -6957,9 +6957,9 @@ Symbols: `LocalDocuments`: L26–L154; `document_store`: L157–L159; `download_
 
 ```python
 0001 | """Private local document storage for the no-billing development setup."""
-0002 | 
+0002 |
 0003 | from __future__ import annotations
-0004 | 
+0004 |
 0005 | import base64
 0006 | import hashlib
 0007 | import hmac
@@ -6970,22 +6970,22 @@ Symbols: `LocalDocuments`: L26–L154; `document_store`: L157–L159; `download_
 0012 | from threading import Lock
 0013 | import time
 0014 | from urllib.parse import urlencode, quote
-0015 | 
+0015 |
 0016 | from fastapi import APIRouter, HTTPException
 0017 | from fastapi.responses import Response
 0018 | from cryptography.fernet import Fernet, InvalidToken
-0019 | 
+0019 |
 0020 | from .config import get_settings
-0021 | 
+0021 |
 0022 | _key_lock = Lock()
 0023 | router = APIRouter(prefix="/documents", tags=["documents"])
-0024 | 
-0025 | 
+0024 |
+0025 |
 0026 | class LocalDocuments:
 0027 |     def __init__(self, root: str | Path, public_api_url: str):
 0028 |         self.root = Path(root).resolve()
 0029 |         self.public_api_url = public_api_url.rstrip("/")
-0030 | 
+0030 |
 0031 |     def file(self, path: str) -> Path:
 0032 |         # Storage paths are constructed by the API as uid/claim-id/random-name.
 0033 |         parts = path.split("/")
@@ -6998,14 +6998,14 @@ Symbols: `LocalDocuments`: L26–L154; `document_store`: L157–L159; `download_
 0040 |         if not target.is_relative_to(base):
 0041 |             raise HTTPException(403, "Invalid document link.")
 0042 |         return target
-0043 | 
+0043 |
 0044 |     def _metadata(self, path: str) -> Path:
 0045 |         return (
 0046 |             self.root
 0047 |             / "metadata"
 0048 |             / (hashlib.sha256(path.encode()).hexdigest() + ".json")
 0049 |         )
-0050 | 
+0050 |
 0051 |     def _cipher(self):
 0052 |         key = os.getenv("DOCUMENT_ENCRYPTION_KEY")
 0053 |         if key:
@@ -7021,7 +7021,7 @@ Symbols: `LocalDocuments`: L26–L154; `document_store`: L157–L159; `download_
 0063 |                 with os.fdopen(descriptor, "wb") as stream:
 0064 |                     stream.write(Fernet.generate_key())
 0065 |             return Fernet(path.read_bytes())
-0066 | 
+0066 |
 0067 |     def _key(self) -> bytes:
 0068 |         with _key_lock:
 0069 |             self.root.mkdir(parents=True, exist_ok=True)
@@ -7033,7 +7033,7 @@ Symbols: `LocalDocuments`: L26–L154; `document_store`: L157–L159; `download_
 0075 |                 with os.fdopen(descriptor, "wb") as stream:
 0076 |                     stream.write(secrets.token_bytes(32))
 0077 |             return key_path.read_bytes()
-0078 | 
+0078 |
 0079 |     def upload(self, path: str, content: bytes, content_type: str):
 0080 |         target = self.file(path)
 0081 |         target.parent.mkdir(parents=True, exist_ok=True)
@@ -7050,7 +7050,7 @@ Symbols: `LocalDocuments`: L26–L154; `document_store`: L157–L159; `download_
 0092 |         except Exception:
 0093 |             target.unlink(missing_ok=True)
 0094 |             raise
-0095 | 
+0095 |
 0096 |     def download(self, path: str) -> bytes:
 0097 |         target = self.file(path)
 0098 |         if not target.is_file():
@@ -7066,16 +7066,16 @@ Symbols: `LocalDocuments`: L26–L154; `document_store`: L157–L159; `download_
 0108 |                     "The document cannot be decrypted. Contact your administrator to check the storage key.",
 0109 |                 )
 0110 |         return content
-0111 | 
+0111 |
 0112 |     def delete(self, path: str):
 0113 |         self.file(path).unlink(missing_ok=True)
 0114 |         self._metadata(path).unlink(missing_ok=True)
-0115 | 
+0115 |
 0116 |     def _signature(self, path: str, expires: int) -> str:
 0117 |         return hmac.new(
 0118 |             self._key(), f"{path}\n{expires}".encode(), hashlib.sha256
 0119 |         ).hexdigest()
-0120 | 
+0120 |
 0121 |     def signed_url(self, path: str, expires_in: int = 300) -> str:
 0122 |         self.file(path)
 0123 |         expires = int(time.time()) + min(300, max(1, expires_in))
@@ -7091,7 +7091,7 @@ Symbols: `LocalDocuments`: L26–L154; `document_store`: L157–L159; `download_
 0133 |                 }
 0134 |             )
 0135 |         )
-0136 | 
+0136 |
 0137 |     def verify(self, document: str, expires: int, signature: str) -> tuple[Path, str]:
 0138 |         try:
 0139 |             path = base64.b64decode(
@@ -7110,13 +7110,13 @@ Symbols: `LocalDocuments`: L26–L154; `document_store`: L157–L159; `download_
 0152 |             raise HTTPException(404, "Document not found on this API server.")
 0153 |         metadata = json.loads(self._metadata(path).read_text(encoding="utf-8"))
 0154 |         return target, metadata["content_type"]
-0155 | 
-0156 | 
+0155 |
+0156 |
 0157 | def document_store():
 0158 |     settings = get_settings()
 0159 |     return LocalDocuments(settings.document_storage_path, settings.public_api_url)
-0160 | 
-0161 | 
+0160 |
+0161 |
 0162 | @router.get("/download")
 0163 | def download_document(document: str, expires: int, signature: str):
 0164 |     store = document_store()
@@ -7141,20 +7141,20 @@ Symbols: `TextDocument`: L9–L13; `ExtractedValue`: L17–L24; `classify_docume
 
 ```python
 0001 | from __future__ import annotations
-0002 | 
+0002 |
 0003 | import re
 0004 | from dataclasses import dataclass
 0005 | from decimal import Decimal, InvalidOperation
-0006 | 
-0007 | 
+0006 |
+0007 |
 0008 | @dataclass(frozen=True)
 0009 | class TextDocument:
 0010 |     document_id: str
 0011 |     text: str
 0012 |     method: str = "pdf_text"
 0013 |     source_confidence: float = 1.0
-0014 | 
-0015 | 
+0014 |
+0015 |
 0016 | @dataclass(frozen=True)
 0017 | class ExtractedValue:
 0018 |     field_name: str
@@ -7164,8 +7164,8 @@ Symbols: `TextDocument`: L9–L13; `ExtractedValue`: L17–L24; `classify_docume
 0022 |     extraction_method: str
 0023 |     document_id: str
 0024 |     page_number: int = 1
-0025 | 
-0026 | 
+0025 |
+0026 |
 0027 | DOCUMENT_RULES = (
 0028 |     (
 0029 |         "PHARMACY_RECEIPT",
@@ -7213,7 +7213,7 @@ Symbols: `TextDocument`: L9–L13; `ExtractedValue`: L17–L24; `classify_docume
 0071 |         True,
 0072 |     ),
 0073 | )
-0074 | 
+0074 |
 0075 | FIELD_SPECS = (
 0076 |     (
 0077 |         "patient_name",
@@ -7274,7 +7274,7 @@ Symbols: `TextDocument`: L9–L13; `ExtractedValue`: L17–L24; `classify_docume
 0132 |         True,
 0133 |     ),
 0134 | )
-0135 | 
+0135 |
 0136 | MONEY_PATTERN = re.compile(
 0137 |     r"(?:(?:\b(?:MUR|USD|EUR|GBP|UGX|KES|TZS)|Rs\.?|Shs\.?)\s*(?:\d{1,3}(?:[ ,]\d{3})+|\d+)(?:\.\d{1,2})?|(?:\d{1,3}(?:[ ,]\d{3})+|\d+)\.\d{1,2}(?:\s+(?:MUR|USD|EUR|GBP|UGX|KES|TZS)\b)?)",
 0138 |     re.I,
@@ -7286,15 +7286,15 @@ Symbols: `TextDocument`: L9–L13; `ExtractedValue`: L17–L24; `classify_docume
 0144 | NON_AMOUNT_CONTEXT = re.compile(
 0145 |     r"\b(date|reference|member|policy|phone|fax|balance)\b", re.I
 0146 | )
-0147 | 
-0148 | 
+0147 |
+0148 |
 0149 | def classify_document(text: str) -> tuple[str, float, bool]:
 0150 |     for document_type, pattern, confidence, payable in DOCUMENT_RULES:
 0151 |         if pattern.search(text):
 0152 |             return document_type, confidence, payable
 0153 |     return "SUPPORTING_DOCUMENT", 0.55, False
-0154 | 
-0155 | 
+0154 |
+0155 |
 0156 | def normalize_money(raw: str | None) -> str | None:
 0157 |     if not raw:
 0158 |         return None
@@ -7308,8 +7308,8 @@ Symbols: `TextDocument`: L9–L13; `ExtractedValue`: L17–L24; `classify_docume
 0166 |     except InvalidOperation:
 0167 |         return None
 0168 |     return f"{amount:.2f}" if amount >= 0 else None
-0169 | 
-0170 | 
+0169 |
+0170 |
 0171 | def detected_currency(text: str) -> str | None:
 0172 |     match = re.search(r"\bcurrenc(?:y|ies)\b\s*(?::|-)?\s*([A-Z]{3})", text, re.I)
 0173 |     if match:
@@ -7325,8 +7325,8 @@ Symbols: `TextDocument`: L9–L13; `ExtractedValue`: L17–L24; `classify_docume
 0183 |             return "TZS"
 0184 |     match = re.search(r"\b(MUR|USD|EUR|GBP|UGX|KES|TZS)\b", text, re.I)
 0185 |     return match.group(1).upper() if match else None
-0186 | 
-0187 | 
+0186 |
+0187 |
 0188 | def after_label(text: str, labels: tuple[str, ...]) -> str | None:
 0189 |     for label in labels:
 0190 |         pattern = re.compile(
@@ -7337,8 +7337,8 @@ Symbols: `TextDocument`: L9–L13; `ExtractedValue`: L17–L24; `classify_docume
 0195 |         if match and match.group(1).strip():
 0196 |             return match.group(1).strip()
 0197 |     return None
-0198 | 
-0199 | 
+0198 |
+0199 |
 0200 | def provider_from_heading(text: str) -> str | None:
 0201 |     lines = [line.strip() for line in text.splitlines() if line.strip()]
 0202 |     for line in lines:
@@ -7372,8 +7372,8 @@ Symbols: `TextDocument`: L9–L13; `ExtractedValue`: L17–L24; `classify_docume
 0230 |         ),
 0231 |         None,
 0232 |     )
-0233 | 
-0234 | 
+0233 |
+0234 |
 0235 | def ranked_amount(doc: TextDocument) -> tuple[str, str, int] | None:
 0236 |     lines = [line.strip() for line in doc.text.splitlines() if line.strip()]
 0237 |     values: list[tuple[str, str, int]] = []
@@ -7406,8 +7406,8 @@ Symbols: `TextDocument`: L9–L13; `ExtractedValue`: L17–L24; `classify_docume
 0264 |         for raw, value, score in values
 0265 |     ]
 0266 |     return max(values, key=lambda item: (item[2], Decimal(item[1])))
-0267 | 
-0268 | 
+0267 |
+0268 |
 0269 | def extract_fields(
 0270 |     doc: TextDocument,
 0271 | ) -> tuple[list[ExtractedValue], str | None, str | None, int]:
@@ -7481,9 +7481,9 @@ Symbols: `firebase_app`: L22–L31; `now`: L34–L35; `can_access_claim`: L38–
 
 ```python
 0001 | """Firebase Admin persistence. Client authorization is enforced here and in routes."""
-0002 | 
+0002 |
 0003 | from __future__ import annotations
-0004 | 
+0004 |
 0005 | import asyncio
 0006 | from datetime import datetime, timezone
 0007 | from decimal import Decimal
@@ -7491,15 +7491,15 @@ Symbols: `firebase_app`: L22–L31; `now`: L34–L35; `can_access_claim`: L38–
 0009 | import uuid
 0010 | import hashlib
 0011 | from google.api_core.exceptions import AlreadyExists
-0012 | 
+0012 |
 0013 | from fastapi import HTTPException
 0014 | from firebase_admin import credentials, firestore, initialize_app
 0015 | from google.cloud.firestore_v1.base_query import FieldFilter
-0016 | 
+0016 |
 0017 | from .config import get_settings
 0018 | from .documents import document_store
-0019 | 
-0020 | 
+0019 |
+0020 |
 0021 | @lru_cache
 0022 | def firebase_app():
 0023 |     settings = get_settings()
@@ -7511,12 +7511,12 @@ Symbols: `firebase_app`: L22–L31; `now`: L34–L35; `can_access_claim`: L38–
 0029 |     return initialize_app(
 0030 |         credential, {"projectId": settings.firebase_project_id}, name="claimelens"
 0031 |     )
-0032 | 
-0033 | 
+0032 |
+0033 |
 0034 | def now():
 0035 |     return datetime.now(timezone.utc).isoformat()
-0036 | 
-0037 | 
+0036 |
+0037 |
 0038 | def can_access_claim(user, claim):
 0039 |     if user.profile.role == "client":
 0040 |         return claim.get("client_id") == user.id
@@ -7528,31 +7528,31 @@ Symbols: `firebase_app`: L22–L31; `now`: L34–L35; `can_access_claim`: L38–
 0046 |     if user.profile.role == "finance":
 0047 |         return claim.get("status") in {"APPROVED", "PAYMENT_PENDING", "PAID"}
 0048 |     return user.profile.role in {"supervisor", "administrator"}
-0049 | 
-0050 | 
+0049 |
+0050 |
 0051 | class FirebaseGateway:
 0052 |     def __init__(self, request):
 0053 |         self.settings = get_settings()
 0054 |         self.app = firebase_app()
 0055 |         self.db = firestore.client(self.app)
 0056 |         self.user = getattr(request.state, "current_user", None)
-0057 | 
+0057 |
 0058 |     def _user(self):
 0059 |         if self.user is None:
 0060 |             raise HTTPException(401, "Authentication required.")
 0061 |         return self.user
-0062 | 
+0062 |
 0063 |     async def profile(self, uid):
 0064 |         snapshot = await asyncio.to_thread(
 0065 |             self.db.collection("profiles").document(uid).get
 0066 |         )
 0067 |         return snapshot.to_dict() if snapshot.exists else None
-0068 | 
+0068 |
 0069 |     async def ensure_profile(
 0070 |         self, uid, display_name, email, *, verification_required=False
 0071 |     ):
 0072 |         ref = self.db.collection("profiles").document(uid)
-0073 | 
+0073 |
 0074 |         @firestore.transactional
 0075 |         def ensure(transaction):
 0076 |             snapshot = ref.get(transaction=transaction)
@@ -7569,14 +7569,14 @@ Symbols: `firebase_app`: L22–L31; `now`: L34–L35; `can_access_claim`: L38–
 0087 |             }
 0088 |             transaction.set(ref, value)
 0089 |             return value
-0090 | 
+0090 |
 0091 |         return await asyncio.to_thread(ensure, self.db.transaction())
-0092 | 
+0092 |
 0093 |     async def records(
 0094 |         self, method, collection, *, service=False, params=None, json=None
 0095 |     ):
 0096 |         """Small internal CRUD interface used by the processing pipeline.
-0097 | 
+0097 |
 0098 |         Filter expressions are generated by server code, never accepted from HTTP.
 0099 |         Unprivileged requests are always scoped to their authenticated claim owner.
 0100 |         """
@@ -7590,7 +7590,7 @@ Symbols: `firebase_app`: L22–L31; `now`: L34–L35; `can_access_claim`: L38–
 0108 |             raise ValueError("Unsupported collection")
 0109 |         user = None if service else self._user()
 0110 |         params = params or {}
-0111 | 
+0111 |
 0112 |         def run():
 0113 |             query = self.db.collection(collection)
 0114 |             for key, expression in params.items():
@@ -7730,31 +7730,31 @@ Symbols: `firebase_app`: L22–L31; `now`: L34–L35; `can_access_claim`: L38–
 0248 |                 else:
 0249 |                     raise ValueError("Unsupported method")
 0250 |             return rows
-0251 | 
+0251 |
 0252 |         return await asyncio.to_thread(run)
-0253 | 
+0253 |
 0254 |     async def upload(self, path, content, content_type):
 0255 |         if not path.startswith(self._user().id + "/"):
 0256 |             raise HTTPException(403, "Invalid document path.")
 0257 |         await asyncio.to_thread(document_store().upload, path, content, content_type)
-0258 | 
+0258 |
 0259 |     async def download(self, path):
 0260 |         return await asyncio.to_thread(document_store().download, path)
-0261 | 
+0261 |
 0262 |     async def delete_objects(self, paths):
 0263 |         for path in paths:
 0264 |             if not path.startswith(self._user().id + "/"):
 0265 |                 raise HTTPException(403, "Invalid document path.")
 0266 |             await asyncio.to_thread(document_store().delete, path)
-0267 | 
+0267 |
 0268 |     async def signed_url(self, path, expires_in=300):
 0269 |         # Called only after the claim route has authorized access to its documents.
 0270 |         return await asyncio.to_thread(document_store().signed_url, path, expires_in)
-0271 | 
+0271 |
 0272 |     async def acquire_processing(self, claim_id):
 0273 |         user = self._user()
 0274 |         ref = self.db.collection("claims").document(claim_id)
-0275 | 
+0275 |
 0276 |         @firestore.transactional
 0277 |         def acquire(transaction):
 0278 |             snapshot = ref.get(transaction=transaction)
@@ -7766,9 +7766,9 @@ Symbols: `firebase_app`: L22–L31; `now`: L34–L35; `can_access_claim`: L38–
 0284 |             if claim.get("upload_complete") is False:
 0285 |                 raise HTTPException(409, "The document upload has not finished.")
 0286 |             transaction.update(ref, {"status": "PROCESSING"})
-0287 | 
+0287 |
 0288 |         await asyncio.to_thread(acquire, self.db.transaction())
-0289 | 
+0289 |
 0290 |     async def reserve_draft_deletion(self, claim_id):
 0291 |         user = self._user()
 0292 |         ref = self.db.collection('claims').document(claim_id)
@@ -7781,16 +7781,16 @@ Symbols: `firebase_app`: L22–L31; `now`: L34–L35; `can_access_claim`: L38–
 0299 |             transaction.update(ref, {'status': 'DELETING'})
 0300 |             return claim['status']
 0301 |         return await asyncio.to_thread(reserve, self.db.transaction())
-0302 | 
+0302 |
 0303 |     async def confirm(self, claim_id, payload):
 0304 |         user = self._user()
 0305 |         if user.profile.verification_required and not user.profile.email_verified:
 0306 |             raise HTTPException(403, "Verify your email before submitting a claim.")
 0307 |         from .routers.claim_tools import business_settings
-0308 | 
+0308 |
 0309 |         policy = await business_settings(self)
 0310 |         ref = self.db.collection("claims").document(claim_id)
-0311 | 
+0311 |
 0312 |         @firestore.transactional
 0313 |         def confirm(transaction):
 0314 |             snapshot = ref.get(transaction=transaction)
@@ -7842,7 +7842,7 @@ Symbols: `firebase_app`: L22–L31; `now`: L34–L35; `can_access_claim`: L38–
 0360 |                 raise HTTPException(422, "Add your policy number before submission.")
 0361 |             fingerprints = []
 0362 |             import hashlib
-0363 | 
+0363 |
 0364 |             for item in payload.documents:
 0365 |                 original = by_id.get(item.id)
 0366 |                 content_hash = (
@@ -7958,13 +7958,13 @@ Symbols: `firebase_app`: L22–L31; `now`: L34–L35; `can_access_claim`: L38–
 0476 |                 },
 0477 |             )
 0478 |             from .workflow import write_event
-0479 | 
+0479 |
 0480 |             for fingerprint in fingerprints:
 0481 |                 transaction.set(
 0482 |                     fingerprint,
 0483 |                     {"claim_id": claim_id, "client_id": user.id, "created_at": now()},
 0484 |                 )
-0485 | 
+0485 |
 0486 |             write_event(
 0487 |                 self.db,
 0488 |                 transaction,
@@ -7975,7 +7975,7 @@ Symbols: `firebase_app`: L22–L31; `now`: L34–L35; `can_access_claim`: L38–
 0493 |                 watchers=watchers,
 0494 |             )
 0495 |             return "REVIEW_REQUIRED"
-0496 | 
+0496 |
 0497 |         return await asyncio.to_thread(confirm, self.db.transaction())
 ```
 
@@ -7987,7 +7987,7 @@ Symbols: `consume`: L14–L33; `security_defaults`: L36–L70
 
 ```python
 0001 | """Request limits and safe response defaults for the single-instance pilot API."""
-0002 | 
+0002 |
 0003 | import asyncio
 0004 | import hashlib
 0005 | from pathlib import Path
@@ -7997,8 +7997,8 @@ Symbols: `consume`: L14–L33; `security_defaults`: L36–L70
 0009 | from fastapi import Request
 0010 | from fastapi.responses import JSONResponse
 0011 | from .config import get_settings
-0012 | 
-0013 | 
+0012 |
+0013 |
 0014 | def consume(key, limit, seconds):
 0015 |     path = Path(get_settings().document_storage_path) / "request-limits.sqlite3"
 0016 |     path.parent.mkdir(parents=True, exist_ok=True)
@@ -8019,8 +8019,8 @@ Symbols: `consume`: L14–L33; `security_defaults`: L36–L70
 0031 |         )
 0032 |         connection.execute("DELETE FROM limits WHERE reset < ?", (now - 3600,))
 0033 |     return 0
-0034 | 
-0035 | 
+0034 |
+0035 |
 0036 | async def security_defaults(request: Request, call_next):
 0037 |     route = request.url.path
 0038 |     request_id = uuid.uuid4().hex
@@ -8066,7 +8066,7 @@ Symbols: `queue_record`: L15–L23; `enqueue`: L26–L30; `take_job`: L33–L82;
 
 ```python
 0001 | """Durable Firestore OCR queue with leases and bounded recovery after a restart."""
-0002 | 
+0002 |
 0003 | import asyncio
 0004 | import logging
 0005 | import secrets
@@ -8075,10 +8075,10 @@ Symbols: `queue_record`: L15–L23; `enqueue`: L26–L30; `take_job`: L33–L82;
 0008 | from firebase_admin import firestore
 0009 | from google.cloud.firestore_v1.base_query import FieldFilter
 0010 | from .firebase import FirebaseGateway, now
-0011 | 
+0011 |
 0012 | log = logging.getLogger(__name__)
-0013 | 
-0014 | 
+0013 |
+0014 |
 0015 | def queue_record(claim, actor):
 0016 |     return {
 0017 |         "claim_id": claim["id"],
@@ -8088,15 +8088,15 @@ Symbols: `queue_record`: L15–L23; `enqueue`: L26–L30; `take_job`: L33–L82;
 0021 |         "lease_until": 0,
 0022 |         "created_at": now(),
 0023 |     }
-0024 | 
-0025 | 
+0024 |
+0025 |
 0026 | async def enqueue(gateway, claim, actor):
 0027 |     await asyncio.to_thread(
 0028 |         gateway.db.collection("processing_queue").document(claim["id"]).set,
 0029 |         queue_record(claim, actor),
 0030 |     )
-0031 | 
-0032 | 
+0031 |
+0032 |
 0033 | def take_job(store, worker):
 0034 |     candidates = list(
 0035 |         store.db.collection("processing_queue")
@@ -8106,7 +8106,7 @@ Symbols: `queue_record`: L15–L23; `enqueue`: L26–L30; `take_job`: L33–L82;
 0039 |     )
 0040 |     candidates.sort(key=lambda s: s.to_dict().get("created_at", ""))
 0041 |     for candidate in candidates:
-0042 | 
+0042 |
 0043 |         @firestore.transactional
 0044 |         def acquire(transaction):
 0045 |             record = candidate.reference.get(transaction=transaction).to_dict() or {}
@@ -8142,21 +8142,21 @@ Symbols: `queue_record`: L15–L23; `enqueue`: L26–L30; `take_job`: L33–L82;
 0075 |             )
 0076 |             transaction.update(ref, {"status": "PROCESSING"})
 0077 |             return {**record, "claim": claim, "reference": candidate.reference}
-0078 | 
+0078 |
 0079 |         job = acquire(store.db.transaction())
 0080 |         if job:
 0081 |             return job
 0082 |     return None
-0083 | 
-0084 | 
+0083 |
+0084 |
 0085 | async def heartbeat(job):
 0086 |     while True:
 0087 |         await asyncio.sleep(20)
 0088 |         await asyncio.to_thread(
 0089 |             job["reference"].update, {"lease_until": time.time() + 90}
 0090 |         )
-0091 | 
-0092 | 
+0091 |
+0092 |
 0093 | async def worker_loop():
 0094 |     worker = secrets.token_hex(12)
 0095 |     while True:
@@ -8169,7 +8169,7 @@ Symbols: `queue_record`: L15–L23; `enqueue`: L26–L30; `take_job`: L33–L82;
 0102 |             pulse = asyncio.create_task(heartbeat(job))
 0103 |             try:
 0104 |                 from .routers.claims import finish_processing
-0105 | 
+0105 |
 0106 |                 await finish_processing(store, job["claim"], job["actor_id"])
 0107 |                 await asyncio.to_thread(
 0108 |                     job["reference"].update,
@@ -8205,36 +8205,36 @@ Symbols: `lifespan`: L23–L46; `validation_error`: L59–L61; `root`: L83–L88
 0001 | from contextlib import asynccontextmanager
 0002 | import asyncio
 0003 | import os
-0004 | 
+0004 |
 0005 | import httpx
 0006 | from fastapi import FastAPI
 0007 | from fastapi.middleware.cors import CORSMiddleware
 0008 | from fastapi.exceptions import RequestValidationError
 0009 | from fastapi.responses import JSONResponse
-0010 | 
+0010 |
 0011 | from .config import get_settings
 0012 | from .routers import auth, claims, profile, workspace
 0013 | from .documents import router as documents_router
 0014 | from .routers.claim_tools import router as claim_tools_router
 0015 | from .push import router as push_router
-0016 | 
-0017 | 
+0016 |
+0017 |
 0018 | APP_NAME = "ClaimLens API"
 0019 | APP_VERSION = "1.1.0"
-0020 | 
-0021 | 
+0020 |
+0021 |
 0022 | @asynccontextmanager
 0023 | async def lifespan(application: FastAPI):
 0024 |     application.state.http = httpx.AsyncClient(timeout=httpx.Timeout(60.0))
 0025 |     from .jobs import worker_loop
-0026 | 
+0026 |
 0027 |     worker = (
 0028 |         asyncio.create_task(worker_loop())
 0029 |         if os.getenv("PROCESSING_WORKER_ENABLED", "true").lower() == "true"
 0030 |         else None
 0031 |     )
 0032 |     from .push import push_loop
-0033 | 
+0033 |
 0034 |     push_worker = (
 0035 |         asyncio.create_task(push_loop())
 0036 |         if os.getenv("PUSH_WORKER_ENABLED", "true").lower() == "true"
@@ -8248,23 +8248,23 @@ Symbols: `lifespan`: L23–L46; `validation_error`: L59–L61; `root`: L83–L88
 0044 |         push_worker.cancel()
 0045 |         await asyncio.gather(push_worker, return_exceptions=True)
 0046 |     await application.state.http.aclose()
-0047 | 
-0048 | 
+0047 |
+0048 |
 0049 | app = FastAPI(
 0050 |     title=APP_NAME,
 0051 |     description="Firebase API for ClaimLens",
 0052 |     version=APP_VERSION,
 0053 |     lifespan=lifespan,
 0054 | )
-0055 | 
+0055 |
 0056 | settings = get_settings()
-0057 | 
+0057 |
 0058 | @app.exception_handler(RequestValidationError)
 0059 | async def validation_error(request, error):
 0060 |     # Do not echo passwords, tokens or medical input in validation errors.
 0061 |     return JSONResponse({'detail': [{'loc': list(item['loc']), 'msg': item['msg'], 'type': item['type']} for item in error.errors()]}, status_code=422)
 0062 | from .hardening import security_defaults
-0063 | 
+0063 |
 0064 | app.middleware("http")(security_defaults)
 0065 | app.add_middleware(
 0066 |     CORSMiddleware,
@@ -8273,7 +8273,7 @@ Symbols: `lifespan`: L23–L46; `validation_error`: L59–L61; `root`: L83–L88
 0069 |     allow_methods=["*"],
 0070 |     allow_headers=["*"],
 0071 | )
-0072 | 
+0072 |
 0073 | app.include_router(auth.router, prefix="/api/v1")
 0074 | app.include_router(profile.router, prefix="/api/v1")
 0075 | app.include_router(claims.router, prefix="/api/v1")
@@ -8281,8 +8281,8 @@ Symbols: `lifespan`: L23–L46; `validation_error`: L59–L61; `root`: L83–L88
 0077 | app.include_router(workspace.router, prefix="/api/v1")
 0078 | app.include_router(claim_tools_router, prefix="/api/v1")
 0079 | app.include_router(push_router, prefix="/api/v1")
-0080 | 
-0081 | 
+0080 |
+0081 |
 0082 | @app.get("/", tags=["service"])
 0083 | def root() -> dict[str, str]:
 0084 |     return {
@@ -8290,8 +8290,8 @@ Symbols: `lifespan`: L23–L46; `validation_error`: L59–L61; `root`: L83–L88
 0086 |         "version": APP_VERSION,
 0087 |         "status": "running",
 0088 |     }
-0089 | 
-0090 | 
+0089 |
+0090 |
 0091 | @app.get("/api/v1/health", tags=["service"])
 0092 | def health_check() -> dict[str, str]:
 0093 |     return {
@@ -8309,22 +8309,22 @@ Symbols: `_engine`: L13–L25; `extract_image`: L28–L54
 
 ```python
 0001 | """Lazy, serialized PaddleOCR inference for uploaded images and rasterized PDFs."""
-0002 | 
+0002 |
 0003 | from functools import lru_cache
 0004 | import os
 0005 | from threading import Lock
-0006 | 
+0006 |
 0007 | from .config import get_settings
-0008 | 
+0008 |
 0009 | _inference_lock = Lock()
-0010 | 
-0011 | 
+0010 |
+0011 |
 0012 | @lru_cache(maxsize=1)
 0013 | def _engine():
 0014 |     # Keep text-only PDF/DOCX extraction usable without loading the OCR models.
 0015 |     os.environ.setdefault("PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK", "True")
 0016 |     from paddleocr import PaddleOCR
-0017 | 
+0017 |
 0018 |     return PaddleOCR(
 0019 |         device=get_settings().paddle_device,
 0020 |         text_detection_model_name="PP-OCRv5_mobile_det",
@@ -8333,12 +8333,12 @@ Symbols: `_engine`: L13–L25; `extract_image`: L28–L54
 0023 |         use_doc_unwarping=False,
 0024 |         use_textline_orientation=False,
 0025 |     )
-0026 | 
-0027 | 
+0026 |
+0027 |
 0028 | def extract_image(content: bytes) -> tuple[str, str, float]:
 0029 |     from PIL import Image, UnidentifiedImageError
 0030 |     from io import BytesIO
-0031 | 
+0031 |
 0032 |     try:
 0033 |         with Image.open(BytesIO(content)) as source:
 0034 |             if source.width * source.height > 25_000_000:
@@ -8347,7 +8347,7 @@ Symbols: `_engine`: L13–L25; `extract_image`: L28–L54
 0037 |         raise ValueError('The image could not be decoded. Upload a JPEG or PNG image.') from exc
 0038 |     import cv2
 0039 |     import numpy as np
-0040 | 
+0040 |
 0041 |     image = cv2.imdecode(np.frombuffer(content, dtype=np.uint8), cv2.IMREAD_COLOR)
 0042 |     if image is None:
 0043 |         raise ValueError("The image could not be decoded. Upload a JPEG or PNG image.")
@@ -8372,9 +8372,9 @@ Symbols: `permissions`: L29–L34; `require`: L37–L41
 
 ```python
 0001 | """Server-side permissions: administrative access does not imply clinical authority."""
-0002 | 
+0002 |
 0003 | from fastapi import HTTPException
-0004 | 
+0004 |
 0005 | PERMISSIONS = {
 0006 |     "claims.review",
 0007 |     "claims.assign",
@@ -8397,16 +8397,16 @@ Symbols: `permissions`: L29–L34; `require`: L37–L41
 0024 |     "finance": {"payments.record", "analytics.view", "audit.view"},
 0025 |     "administrator": {"users.manage", "claims.assign", "analytics.view", "audit.view"},
 0026 | }
-0027 | 
-0028 | 
+0027 |
+0028 |
 0029 | def permissions(profile):
 0030 |     if profile.role == "client":
 0031 |         return set()
 0032 |     return DEFAULTS.get(profile.role, set()) | (
 0033 |         set(getattr(profile, "permissions", [])) & PERMISSIONS
 0034 |     )
-0035 | 
-0036 | 
+0035 |
+0036 |
 0037 | def require(user, permission):
 0038 |     if permission not in permissions(user.profile):
 0039 |         raise HTTPException(
@@ -8422,40 +8422,40 @@ Symbols: `_extract_docx`: L16–L24; `_ocr_image`: L27–L30; `_extract_pdf`: L3
 
 ```python
 0001 | from __future__ import annotations
-0002 | 
+0002 |
 0003 | import asyncio
 0004 | import hashlib
 0005 | import io
 0006 | from datetime import datetime, timezone
 0007 | from typing import Any
-0008 | 
+0008 |
 0009 | from fastapi import HTTPException
-0010 | 
+0010 |
 0011 | from .extraction import TextDocument, classify_document, extract_fields
 0012 | from .schemas import ProcessResult
 0013 | from .firebase import FirebaseGateway
-0014 | 
-0015 | 
+0014 |
+0015 |
 0016 | def _extract_docx(content: bytes) -> tuple[str, str, float]:
 0017 |     from docx import Document
-0018 | 
+0018 |
 0019 |     document = Document(io.BytesIO(content))
 0020 |     parts = [paragraph.text for paragraph in document.paragraphs]
 0021 |     for table in document.tables:
 0022 |         for row in table.rows:
 0023 |             parts.append("\t".join(cell.text for cell in row.cells))
 0024 |     return "\n".join(value for value in parts if value.strip()), "docx_text", 0.98
-0025 | 
-0026 | 
+0025 |
+0026 |
 0027 | def _ocr_image(content: bytes) -> tuple[str, str, float]:
 0028 |     from .ocr import extract_image
-0029 | 
+0029 |
 0030 |     return extract_image(content)
-0031 | 
-0032 | 
+0031 |
+0032 |
 0033 | def _extract_pdf(content: bytes) -> tuple[str, str, float]:
 0034 |     import pymupdf
-0035 | 
+0035 |
 0036 |     with pymupdf.open(stream=content, filetype="pdf") as document:
 0037 |         if document.needs_pass or len(document) > 30:
 0038 |             raise ValueError("Use an unprotected PDF with at most 30 pages.")
@@ -8475,8 +8475,8 @@ Symbols: `_extract_docx`: L16–L24; `_ocr_image`: L27–L30; `_extract_pdf`: L3
 0052 |             "paddleocr",
 0053 |             (sum(confidences) / len(confidences) if confidences else 0.55),
 0054 |         )
-0055 | 
-0056 | 
+0055 |
+0056 |
 0057 | def extract_document_text(content: bytes, mime_type: str) -> tuple[str, str, float]:
 0058 |     if mime_type == "application/pdf":
 0059 |         return _extract_pdf(content)
@@ -8488,8 +8488,8 @@ Symbols: `_extract_docx`: L16–L24; `_ocr_image`: L27–L30; `_extract_pdf`: L3
 0065 |     if mime_type in {"image/jpeg", "image/png"}:
 0066 |         return _ocr_image(content)
 0067 |     raise ValueError(f"Unsupported document type: {mime_type}")
-0068 | 
-0069 | 
+0068 |
+0069 |
 0070 | async def process_claim(
 0071 |     gateway: FirebaseGateway,
 0072 |     claim: dict[str, Any],
@@ -8658,7 +8658,7 @@ Symbols: `_extract_docx`: L16–L24; `_ocr_image`: L27–L30; `_extract_pdf`: L3
 0235 |                         "extracted_at": now,
 0236 |                     },
 0237 |                 )
-0238 | 
+0238 |
 0239 |         await gateway.records(
 0240 |             "PATCH",
 0241 |             "claims",
@@ -8735,19 +8735,19 @@ Symbols: `main`: L15–L78; `assign`: L43–L59
 
 ```python
 0001 | """Provision staff from a trusted operator terminal, never from public signup."""
-0002 | 
+0002 |
 0003 | import argparse
 0004 | from datetime import datetime, timezone
 0005 | import os
 0006 | from pathlib import Path
 0007 | import re
 0008 | import secrets
-0009 | 
+0009 |
 0010 | from firebase_admin import auth, firestore
-0011 | 
+0011 |
 0012 | from .firebase import firebase_app
-0013 | 
-0014 | 
+0013 |
+0014 |
 0015 | def main():
 0016 |     parser = argparse.ArgumentParser(description=__doc__)
 0017 |     parser.add_argument("--email", required=True)
@@ -8774,7 +8774,7 @@ Symbols: `main`: L15–L78; `assign`: L43–L59
 0038 |         )
 0039 |     db = firestore.client(app)
 0040 |     ref = db.collection("profiles").document(user.uid)
-0041 | 
+0041 |
 0042 |     @firestore.transactional
 0043 |     def assign(transaction):
 0044 |         snapshot = ref.get(transaction=transaction)
@@ -8793,7 +8793,7 @@ Symbols: `main`: L15–L78; `assign`: L43–L59
 0057 |                     "created_at": datetime.now(timezone.utc).isoformat(),
 0058 |                 },
 0059 |             )
-0060 | 
+0060 |
 0061 |     assign(db.transaction())
 0062 |     if password:
 0063 |         private_dir = (
@@ -8812,8 +8812,8 @@ Symbols: `main`: L15–L78; `assign`: L43–L59
 0076 |         print(
 0077 |             f"Existing account {email} assigned {args.role}; its password was retained."
 0078 |         )
-0079 | 
-0080 | 
+0079 |
+0080 |
 0081 | if __name__ == "__main__":
 0082 |     main()
 ```
@@ -8826,7 +8826,7 @@ Symbols: `Device`: L18–L19; `register`: L23–L33; `unregister`: L37–L48; `d
 
 ```python
 0001 | """Private device registration and generic, nonmedical push messages."""
-0002 | 
+0002 |
 0003 | import asyncio
 0004 | import hashlib
 0005 | import logging
@@ -8837,15 +8837,15 @@ Symbols: `Device`: L18–L19; `register`: L23–L33; `unregister`: L37–L48; `d
 0010 | from pydantic import BaseModel, Field
 0011 | from .firebase import FirebaseGateway, now
 0012 | from .security import CurrentUser, get_current_user
-0013 | 
+0013 |
 0014 | router = APIRouter(tags=["devices"])
 0015 | log = logging.getLogger(__name__)
-0016 | 
-0017 | 
+0016 |
+0017 |
 0018 | class Device(BaseModel):
 0019 |     token: str = Field(min_length=20, max_length=4096)
-0020 | 
-0021 | 
+0020 |
+0021 |
 0022 | @router.post("/devices")
 0023 | async def register(
 0024 |     payload: Device, request: Request, user: CurrentUser = Depends(get_current_user)
@@ -8858,8 +8858,8 @@ Symbols: `Device`: L18–L19; `register`: L23–L33; `unregister`: L37–L48; `d
 0031 |         ref.set, {"uid": user.id, "token": payload.token, "updated_at": now()}
 0032 |     )
 0033 |     return {"message": "Device registered."}
-0034 | 
-0035 | 
+0034 |
+0035 |
 0036 | @router.delete("/devices")
 0037 | async def unregister(
 0038 |     payload: Device, request: Request, user: CurrentUser = Depends(get_current_user)
@@ -8873,8 +8873,8 @@ Symbols: `Device`: L18–L19; `register`: L23–L33; `unregister`: L37–L48; `d
 0046 |         raise HTTPException(404, "Device not found.")
 0047 |     await asyncio.to_thread(ref.delete)
 0048 |     return {"message": "Device removed."}
-0049 | 
-0050 | 
+0049 |
+0050 |
 0051 | def deliver_pending(store):
 0052 |     for snapshot in (
 0053 |         store.db.collection("notifications")
@@ -8930,8 +8930,8 @@ Symbols: `Device`: L18–L19; `register`: L23–L33; `unregister`: L37–L48; `d
 0103 |             log.warning(
 0104 |                 "A push notification could not be delivered. In-app notifications remain available."
 0105 |             )
-0106 | 
-0107 | 
+0106 |
+0107 |
 0108 | async def push_loop():
 0109 |     while True:
 0110 |         try:
@@ -8974,10 +8974,10 @@ Symbols: `firebase_request`: L18–L47; `session`: L50–L67; `login`: L71–L81
 0011 |     EmailRequest,
 0012 | )
 0013 | from ..security import CurrentUser, get_current_user
-0014 | 
+0014 |
 0015 | router = APIRouter(prefix="/auth", tags=["authentication"])
-0016 | 
-0017 | 
+0016 |
+0017 |
 0018 | async def firebase_request(request, action, payload, *, refresh=False):
 0019 |     key = get_settings().firebase_api_key
 0020 |     if not key:
@@ -9008,8 +9008,8 @@ Symbols: `firebase_request`: L18–L47; `session`: L50–L67; `login`: L71–L81
 0045 |             ),
 0046 |         )
 0047 |     return response.json()
-0048 | 
-0049 | 
+0048 |
+0049 |
 0050 | async def session(request, data):
 0051 |     token = data.get("idToken") or data.get("id_token")
 0052 |     uid = data.get("localId") or data.get("user_id")
@@ -9028,8 +9028,8 @@ Symbols: `firebase_request`: L18–L47; `session`: L50–L67; `login`: L71–L81
 0065 |         expires_in=int(data.get("expiresIn") or data.get("expires_in", 3600)),
 0066 |         user=profile,
 0067 |     )
-0068 | 
-0069 | 
+0068 |
+0069 |
 0070 | @router.post("/login", response_model=AuthSession)
 0071 | async def login(payload: LoginRequest, request: Request):
 0072 |     data = await firebase_request(
@@ -9042,8 +9042,8 @@ Symbols: `firebase_request`: L18–L47; `session`: L50–L67; `login`: L71–L81
 0079 |         },
 0080 |     )
 0081 |     return await session(request, data)
-0082 | 
-0083 | 
+0082 |
+0083 |
 0084 | @router.post("/refresh", response_model=AuthSession)
 0085 | async def refresh(payload: RefreshRequest, request: Request):
 0086 |     data = await firebase_request(
@@ -9053,8 +9053,8 @@ Symbols: `firebase_request`: L18–L47; `session`: L50–L67; `login`: L71–L81
 0090 |         refresh=True,
 0091 |     )
 0092 |     return await session(request, data)
-0093 | 
-0094 | 
+0093 |
+0094 |
 0095 | @router.post("/signup")
 0096 | async def signup(payload: SignupRequest, request: Request):
 0097 |     data = await firebase_request(
@@ -9086,8 +9086,8 @@ Symbols: `firebase_request`: L18–L47; `session`: L50–L67; `login`: L71–L81
 0123 |     return {
 0124 |         "message": "Account created. Check your email for confirmation, then sign in."
 0125 |     }
-0126 | 
-0127 | 
+0126 |
+0127 |
 0128 | @router.post("/forgot-password")
 0129 | async def forgot_password(payload: EmailRequest, request: Request):
 0130 |     try:
@@ -9102,14 +9102,14 @@ Symbols: `firebase_request`: L18–L47; `session`: L50–L67; `login`: L71–L81
 0139 |     return {
 0140 |         "message": "If an account exists, Firebase will email you a password reset link. Open it to choose a new password, then return here to sign in."
 0141 |     }
-0142 | 
-0143 | 
+0142 |
+0143 |
 0144 | @router.post("/logout", status_code=204)
 0145 | async def logout(user: CurrentUser = Depends(get_current_user)):
 0146 |     await asyncio.to_thread(auth.revoke_refresh_tokens, user.id, app=firebase_app())
 0147 |     return Response(status_code=204)
-0148 | 
-0149 | 
+0148 |
+0149 |
 0150 | @router.post("/verification-email")
 0151 | async def send_verification(
 0152 |     request: Request, user: CurrentUser = Depends(get_current_user)
@@ -9130,32 +9130,32 @@ Symbols: `ClaimInformation`: L21–L25; `BusinessSettings`: L28–L45; `business
 
 ```python
 0001 | """Claim information, source previews, receipts, and controlled appeals."""
-0002 | 
+0002 |
 0003 | import asyncio
 0004 | from datetime import date
 0005 | from io import BytesIO
-0006 | 
+0006 |
 0007 | from fastapi import APIRouter, Depends, HTTPException, Query, Request
 0008 | from fastapi.responses import Response
 0009 | from firebase_admin import firestore
 0010 | from pydantic import BaseModel, Field
-0011 | 
+0011 |
 0012 | from ..firebase import FirebaseGateway, now
 0013 | from ..security import CurrentUser, get_current_user
 0014 | from ..workflow import write_event
 0015 | from .claims import accessible_claim
 0016 | from .workspace import administrator
-0017 | 
+0017 |
 0018 | router = APIRouter(tags=["claim tools"])
-0019 | 
-0020 | 
+0019 |
+0020 |
 0021 | class ClaimInformation(BaseModel):
 0022 |     member_number: str = Field(default="", max_length=80)
 0023 |     policy_number: str = Field(default="", max_length=80)
 0024 |     treatment_date: date | None = None
 0025 |     description: str = Field(default="", max_length=2000)
-0026 | 
-0027 | 
+0026 |
+0027 |
 0028 | class BusinessSettings(BaseModel):
 0029 |     require_member_number: bool = False
 0030 |     require_policy_number: bool = False
@@ -9174,8 +9174,8 @@ Symbols: `ClaimInformation`: L21–L25; `BusinessSettings`: L28–L45; `business
 0043 |         default="Use ClaimLens only for claims you are authorized to submit. Uploaded medical evidence is shared with authorized reviewers for claim processing.",
 0044 |         max_length=8000,
 0045 |     )
-0046 | 
-0047 | 
+0046 |
+0047 |
 0048 | async def business_settings(store):
 0049 |     snapshot = await asyncio.to_thread(
 0050 |         store.db.collection("configuration").document("business").get
@@ -9183,13 +9183,13 @@ Symbols: `ClaimInformation`: L21–L25; `BusinessSettings`: L28–L45; `business
 0052 |     return BusinessSettings.model_validate(
 0053 |         snapshot.to_dict() if snapshot.exists else {}
 0054 |     ).model_dump(mode="json")
-0055 | 
-0056 | 
+0055 |
+0056 |
 0057 | @router.get("/settings")
 0058 | async def settings(request: Request, user: CurrentUser = Depends(get_current_user)):
 0059 |     return await business_settings(FirebaseGateway(request))
-0060 | 
-0061 | 
+0060 |
+0061 |
 0062 | @router.put("/settings")
 0063 | async def edit_settings(
 0064 |     payload: BusinessSettings,
@@ -9210,11 +9210,11 @@ Symbols: `ClaimInformation`: L21–L25; `BusinessSettings`: L28–L45; `business
 0079 |         store.db.collection("configuration").document("business").set, values
 0080 |     )
 0081 |     from .workspace import account_event
-0082 | 
+0082 |
 0083 |     await account_event(store, user.id, "BUSINESS_SETTINGS_UPDATED", user.id)
 0084 |     return values
-0085 | 
-0086 | 
+0085 |
+0086 |
 0087 | @router.put("/claims/{reference}/information")
 0088 | async def information(
 0089 |     reference: str,
@@ -9229,7 +9229,7 @@ Symbols: `ClaimInformation`: L21–L25; `BusinessSettings`: L28–L45; `business
 0098 |     if payload.treatment_date and payload.treatment_date > date.today():
 0099 |         raise HTTPException(422, "The treatment date cannot be in the future.")
 0100 |     ref = store.db.collection("claims").document(claim["id"])
-0101 | 
+0101 |
 0102 |     @firestore.transactional
 0103 |     def save(transaction):
 0104 |         current = ref.get(transaction=transaction).to_dict()
@@ -9243,15 +9243,15 @@ Symbols: `ClaimInformation`: L21–L25; `BusinessSettings`: L28–L45; `business
 0112 |         transaction.update(
 0113 |             ref, {"information": payload.model_dump(mode="json"), "updated_at": now()}
 0114 |         )
-0115 | 
+0115 |
 0116 |     await asyncio.to_thread(save, store.db.transaction())
 0117 |     return {"message": "Draft information saved."}
-0118 | 
-0119 | 
+0118 |
+0119 |
 0120 | class Appeal(BaseModel):
 0121 |     reason: str = Field(min_length=10, max_length=2000)
-0122 | 
-0123 | 
+0122 |
+0123 |
 0124 | @router.post("/claims/{reference}/appeal")
 0125 | async def appeal(
 0126 |     reference: str,
@@ -9265,7 +9265,7 @@ Symbols: `ClaimInformation`: L21–L25; `BusinessSettings`: L28–L45; `business
 0134 |         raise HTTPException(403, "Only the claim owner can request an appeal.")
 0135 |     policy = await business_settings(store)
 0136 |     ref = store.db.collection("claims").document(claim["id"])
-0137 | 
+0137 |
 0138 |     @firestore.transactional
 0139 |     def submit(transaction):
 0140 |         current = ref.get(transaction=transaction).to_dict()
@@ -9307,11 +9307,11 @@ Symbols: `ClaimInformation`: L21–L25; `BusinessSettings`: L28–L45; `business
 0176 |             "APPEAL_SUBMITTED",
 0177 |             {"reason": payload.reason.strip()},
 0178 |         )
-0179 | 
+0179 |
 0180 |     await asyncio.to_thread(submit, store.db.transaction())
 0181 |     return {"message": "Appeal submitted to the review queue."}
-0182 | 
-0183 | 
+0182 |
+0183 |
 0184 | @router.get("/claims/{reference}/documents/{identifier}/preview")
 0185 | async def preview(
 0186 |     reference: str,
@@ -9333,11 +9333,11 @@ Symbols: `ClaimInformation`: L21–L25; `BusinessSettings`: L28–L45; `business
 0202 |         raise HTTPException(404, "Document not found.")
 0203 |     row = rows[0]
 0204 |     content = await store.download(row["storage_path"])
-0205 | 
+0205 |
 0206 |     def render():
 0207 |         if row["mime_type"] == "application/pdf":
 0208 |             import pymupdf
-0209 | 
+0209 |
 0210 |             with pymupdf.open(stream=content, filetype="pdf") as document:
 0211 |                 if document.needs_pass or page > len(document):
 0212 |                     raise HTTPException(
@@ -9353,14 +9353,14 @@ Symbols: `ClaimInformation`: L21–L25; `BusinessSettings`: L28–L45; `business
 0222 |                 )
 0223 |         if row["mime_type"].startswith("image/"):
 0224 |             from PIL import Image
-0225 | 
+0225 |
 0226 |             with Image.open(BytesIO(content)) as image:
 0227 |                 image.thumbnail((2048, 2048))
 0228 |                 output = BytesIO()
 0229 |                 image.convert("RGB").save(output, format="PNG")
 0230 |                 return output.getvalue(), "image/png", 1
 0231 |         from docx import Document
-0232 | 
+0232 |
 0233 |         document = Document(BytesIO(content))
 0234 |         text = "\n".join(
 0235 |             [p.text for p in document.paragraphs]
@@ -9371,7 +9371,7 @@ Symbols: `ClaimInformation`: L21–L25; `BusinessSettings`: L28–L45; `business
 0240 |             ]
 0241 |         )
 0242 |         return text.encode(), "text/plain; charset=utf-8", 1
-0243 | 
+0243 |
 0244 |     data, mime, pages = await asyncio.to_thread(render)
 0245 |     return Response(
 0246 |         data,
@@ -9382,8 +9382,8 @@ Symbols: `ClaimInformation`: L21–L25; `BusinessSettings`: L28–L45; `business
 0251 |             "X-Content-Type-Options": "nosniff",
 0252 |         },
 0253 |     )
-0254 | 
-0255 | 
+0254 |
+0255 |
 0256 | @router.get("/claims/{reference}/receipt")
 0257 | async def receipt(
 0258 |     reference: str, request: Request, user: CurrentUser = Depends(get_current_user)
@@ -9392,10 +9392,10 @@ Symbols: `ClaimInformation`: L21–L25; `BusinessSettings`: L28–L45; `business
 0261 |     claim = await accessible_claim(store, reference)
 0262 |     if claim["status"] in {"UPLOADED", "PROCESSING", "PROCESSING_FAILED"}:
 0263 |         raise HTTPException(409, "A receipt is available after submission.")
-0264 | 
+0264 |
 0265 |     def create():
 0266 |         import pymupdf
-0267 | 
+0267 |
 0268 |         document = pymupdf.open()
 0269 |         page = document.new_page()
 0270 |         lines = [
@@ -9417,7 +9417,7 @@ Symbols: `ClaimInformation`: L21–L25; `BusinessSettings`: L28–L45; `business
 0286 |         result = document.tobytes()
 0287 |         document.close()
 0288 |         return result
-0289 | 
+0289 |
 0290 |     data = await asyncio.to_thread(create)
 0291 |     return Response(
 0292 |         data,
@@ -9427,24 +9427,24 @@ Symbols: `ClaimInformation`: L21–L25; `BusinessSettings`: L28–L45; `business
 0296 |             "Cache-Control": "private, no-store",
 0297 |         },
 0298 |     )
-0299 | 
-0300 | 
+0299 |
+0300 |
 0301 | @router.get("/claims/{reference}/receipt/preview")
 0302 | async def receipt_preview(
 0303 |     reference: str, request: Request, user: CurrentUser = Depends(get_current_user)
 0304 | ):
 0305 |     pdf = await receipt(reference, request, user)
-0306 | 
+0306 |
 0307 |     def render():
 0308 |         import pymupdf
-0309 | 
+0309 |
 0310 |         with pymupdf.open(stream=pdf.body, filetype="pdf") as document:
 0311 |             return (
 0312 |                 document[0]
 0313 |                 .get_pixmap(matrix=pymupdf.Matrix(1.5, 1.5), alpha=False)
 0314 |                 .tobytes("png")
 0315 |             )
-0316 | 
+0316 |
 0317 |     return Response(
 0318 |         await asyncio.to_thread(render),
 0319 |         media_type="image/png",
@@ -9460,7 +9460,7 @@ Symbols: `summary`: L51–L52; `valid_signature`: L55–L76; `accessible_claim`:
 
 ```python
 0001 | from __future__ import annotations
-0002 | 
+0002 |
 0003 | import re
 0004 | import asyncio
 0005 | import uuid
@@ -9471,7 +9471,7 @@ Symbols: `summary`: L51–L52; `valid_signature`: L55–L76; `accessible_claim`:
 0010 | from pathlib import Path
 0011 | from typing import Any
 0012 | from typing import Literal
-0013 | 
+0013 |
 0014 | from fastapi import (
 0015 |     APIRouter,
 0016 |     BackgroundTasks,
@@ -9483,7 +9483,7 @@ Symbols: `summary`: L51–L52; `valid_signature`: L55–L76; `accessible_claim`:
 0022 |     UploadFile,
 0023 |     Header,
 0024 | )
-0025 | 
+0025 |
 0026 | from ..processing import process_claim
 0027 | from ..schemas import (
 0028 |     ClaimDetails,
@@ -9497,8 +9497,8 @@ Symbols: `summary`: L51–L52; `valid_signature`: L55–L76; `accessible_claim`:
 0036 | from ..security import CurrentUser, get_current_user
 0037 | from ..firebase import FirebaseGateway
 0038 | from ..workflow import workflow_details
-0039 | 
-0040 | 
+0039 |
+0040 |
 0041 | router = APIRouter(prefix="/claims", tags=["claims"])
 0042 | ALLOWED_MIME_TYPES = {
 0043 |     "application/pdf": ".pdf",
@@ -9507,12 +9507,12 @@ Symbols: `summary`: L51–L52; `valid_signature`: L55–L76; `accessible_claim`:
 0046 |     "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ".docx",
 0047 | }
 0048 | CLAIM_SELECT = "id,reference,patient_name,provider_name,claimed_amount,currency,status,warning_count,created_at,assigned_to"
-0049 | 
-0050 | 
+0049 |
+0050 |
 0051 | def summary(row: dict[str, Any]) -> ClaimSummary:
 0052 |     return ClaimSummary(**{key: row.get(key) for key in CLAIM_SELECT.split(",")})
-0053 | 
-0054 | 
+0053 |
+0054 |
 0055 | def valid_signature(content: bytes, mime_type: str) -> bool:
 0056 |     if mime_type == "application/pdf":
 0057 |         return content.startswith(b"%PDF-")
@@ -9535,8 +9535,8 @@ Symbols: `summary`: L51–L52; `valid_signature`: L55–L76; `accessible_claim`:
 0074 |         except zipfile.BadZipFile:
 0075 |             return False
 0076 |     return False
-0077 | 
-0078 | 
+0077 |
+0078 |
 0079 | async def accessible_claim(gateway: FirebaseGateway, reference: str) -> dict[str, Any]:
 0080 |     rows = await gateway.records(
 0081 |         "GET",
@@ -9546,8 +9546,8 @@ Symbols: `summary`: L51–L52; `valid_signature`: L55–L76; `accessible_claim`:
 0085 |     if not rows:
 0086 |         raise HTTPException(status_code=404, detail="Claim not found.")
 0087 |     return rows[0]
-0088 | 
-0089 | 
+0088 |
+0089 |
 0090 | @router.get("", response_model=list[ClaimSummary])
 0091 | async def list_claims(
 0092 |     request: Request,
@@ -9591,8 +9591,8 @@ Symbols: `summary`: L51–L52; `valid_signature`: L55–L76; `accessible_claim`:
 0130 |             }
 0131 |         ]
 0132 |     return [summary(row) for row in rows[:limit]]
-0133 | 
-0134 | 
+0133 |
+0134 |
 0135 | @router.get("/dashboard", response_model=DashboardSummary)
 0136 | async def dashboard(
 0137 |     request: Request,
@@ -9626,8 +9626,8 @@ Symbols: `summary`: L51–L52; `valid_signature`: L55–L76; `accessible_claim`:
 0165 |         processing_failed=counts["PROCESSING_FAILED"],
 0166 |         recent_claims=[summary(row) for row in rows[:5]],
 0167 |     )
-0168 | 
-0169 | 
+0168 |
+0169 |
 0170 | @router.post("", response_model=ClaimDetails, status_code=201)
 0171 | async def create_claim(
 0172 |     request: Request,
@@ -9661,7 +9661,7 @@ Symbols: `summary`: L51–L52; `valid_signature`: L55–L76; `accessible_claim`:
 0200 |                 detail=f"{upload.filename or 'Document'} does not match its reported file type.",
 0201 |             )
 0202 |         prepared.append((upload, content))
-0203 | 
+0203 |
 0204 |     rows = await gateway.records(
 0205 |         "POST",
 0206 |         "claims",
@@ -9751,8 +9751,8 @@ Symbols: `summary`: L51–L52; `valid_signature`: L55–L76; `accessible_claim`:
 0290 |         documents=[ClaimDocument(**document, fields=[]) for document in documents],
 0291 |         audit_events=[],
 0292 |     )
-0293 | 
-0294 | 
+0293 |
+0294 |
 0295 | @router.delete("/{reference}")
 0296 | async def delete_draft(
 0297 |     reference: str, request: Request, user: CurrentUser = Depends(get_current_user)
@@ -9778,8 +9778,8 @@ Symbols: `summary`: L51–L52; `valid_signature`: L55–L76; `accessible_claim`:
 0317 |         await asyncio.to_thread(gateway.db.collection('claims').document(claim['id']).update, {'status': old_status})
 0318 |         raise
 0319 |     return {"message": "Draft and its documents deleted."}
-0320 | 
-0321 | 
+0320 |
+0321 |
 0322 | @router.get("/{reference}", response_model=ClaimDetails)
 0323 | async def get_claim(
 0324 |     reference: str,
@@ -9837,8 +9837,8 @@ Symbols: `summary`: L51–L52; `valid_signature`: L55–L76; `accessible_claim`:
 0376 |         **(await workflow_details(gateway, claim)),
 0377 |         information=claim.get("information") or {},
 0378 |     )
-0379 | 
-0380 | 
+0379 |
+0380 |
 0381 | @router.post("/{reference}/process", response_model=ProcessResult)
 0382 | async def process(
 0383 |     reference: str,
@@ -9856,7 +9856,7 @@ Symbols: `summary`: L51–L52; `valid_signature`: L55–L76; `accessible_claim`:
 0395 |     await gateway.acquire_processing(claim["id"])
 0396 |     if background:
 0397 |         from ..jobs import enqueue
-0398 | 
+0398 |
 0399 |         try:
 0400 |             await enqueue(gateway, claim, user.id)
 0401 |         except Exception:
@@ -9877,8 +9877,8 @@ Symbols: `summary`: L51–L52; `valid_signature`: L55–L76; `accessible_claim`:
 0416 |             extracted_field_count=0,
 0417 |         )
 0418 |     return await finish_processing(gateway, claim, user.id)
-0419 | 
-0420 | 
+0419 |
+0420 |
 0421 | async def finish_processing(gateway, claim, actor_id):
 0422 |     try:
 0423 |         return await process_claim(
@@ -9899,8 +9899,8 @@ Symbols: `summary`: L51–L52; `valid_signature`: L55–L76; `accessible_claim`:
 0438 |             json={"status": "PROCESSING_FAILED"},
 0439 |         )
 0440 |         raise
-0441 | 
-0442 | 
+0441 |
+0442 |
 0443 | @router.post("/{reference}/confirm")
 0444 | async def confirm_claim(
 0445 |     reference: str,
@@ -9935,28 +9935,28 @@ Symbols: `profile`: L17–L18; `ProfileEdit`: L21–L25; `edit_profile`: L29–L
 0003 | from fastapi import APIRouter, Depends, Request
 0004 | from firebase_admin import auth
 0005 | from pydantic import BaseModel, Field
-0006 | 
+0006 |
 0007 | from ..schemas import Profile
 0008 | from ..security import CurrentUser, get_current_user
 0009 | from ..firebase import FirebaseGateway
 0010 | from .auth import firebase_request, session
-0011 | 
-0012 | 
+0011 |
+0012 |
 0013 | router = APIRouter(tags=["profile"])
-0014 | 
-0015 | 
+0014 |
+0015 |
 0016 | @router.get("/profile", response_model=Profile)
 0017 | async def profile(user: CurrentUser = Depends(get_current_user)) -> Profile:
 0018 |     return user.profile
-0019 | 
-0020 | 
+0019 |
+0020 |
 0021 | class ProfileEdit(BaseModel):
 0022 |     display_name: str = Field(min_length=2, max_length=120)
 0023 |     phone: str = Field(default="", max_length=32)
 0024 |     theme: Literal["system", "light", "dark"] = "system"
 0025 |     notifications_enabled: bool = True
-0026 | 
-0027 | 
+0026 |
+0027 |
 0028 | @router.put("/profile", response_model=Profile)
 0029 | async def edit_profile(
 0030 |     payload: ProfileEdit,
@@ -9968,7 +9968,7 @@ Symbols: `profile`: L17–L18; `ProfileEdit`: L21–L25; `edit_profile`: L29–L
 0036 |     update["display_name"] = payload.display_name.strip()
 0037 |     if len(update["display_name"]) < 2:
 0038 |         from fastapi import HTTPException
-0039 | 
+0039 |
 0040 |         raise HTTPException(422, "Enter a valid display name.")
 0041 |     await asyncio.to_thread(
 0042 |         auth.update_user, user.id, display_name=update["display_name"], app=store.app
@@ -9977,17 +9977,17 @@ Symbols: `profile`: L17–L18; `ProfileEdit`: L21–L25; `edit_profile`: L29–L
 0045 |         store.db.collection("profiles").document(user.id).update, update
 0046 |     )
 0047 |     return {**user.profile.model_dump(), **update}
-0048 | 
-0049 | 
+0048 |
+0049 |
 0050 | class PasswordEdit(BaseModel):
 0051 |     current_password: str = Field(min_length=1, max_length=128)
 0052 |     new_password: str = Field(min_length=12, max_length=128)
-0053 | 
-0054 | 
+0053 |
+0054 |
 0055 | class UnlockRequest(BaseModel):
 0056 |     password: str = Field(min_length=1, max_length=128)
-0057 | 
-0058 | 
+0057 |
+0058 |
 0059 | @router.post("/profile/unlock")
 0060 | async def unlock(
 0061 |     payload: UnlockRequest,
@@ -9995,7 +9995,7 @@ Symbols: `profile`: L17–L18; `ProfileEdit`: L21–L25; `edit_profile`: L29–L
 0063 |     user: CurrentUser = Depends(get_current_user),
 0064 | ):
 0065 |     from fastapi import HTTPException
-0066 | 
+0066 |
 0067 |     verified = await firebase_request(
 0068 |         request,
 0069 |         "signInWithPassword",
@@ -10004,8 +10004,8 @@ Symbols: `profile`: L17–L18; `ProfileEdit`: L21–L25; `edit_profile`: L29–L
 0072 |     if verified.get("localId") != user.id:
 0073 |         raise HTTPException(403, "Please sign in again.")
 0074 |     return {"message": "Session unlocked."}
-0075 | 
-0076 | 
+0075 |
+0076 |
 0077 | @router.post("/profile/password")
 0078 | async def change_password(
 0079 |     payload: PasswordEdit,
@@ -10014,7 +10014,7 @@ Symbols: `profile`: L17–L18; `ProfileEdit`: L21–L25; `edit_profile`: L29–L
 0082 | ):
 0083 |     if payload.current_password == payload.new_password:
 0084 |         from fastapi import HTTPException
-0085 | 
+0085 |
 0086 |         raise HTTPException(
 0087 |             422, "Choose a new password different from your current password."
 0088 |         )
@@ -10060,7 +10060,7 @@ Symbols: `staff`: L34–L36; `administrator`: L39–L41; `officers`: L45–L62; 
 0006 | from typing import Literal
 0007 | import re
 0008 | import uuid
-0009 | 
+0009 |
 0010 | from fastapi import (
 0011 |     APIRouter,
 0012 |     BackgroundTasks,
@@ -10074,32 +10074,32 @@ Symbols: `staff`: L34–L36; `administrator`: L39–L41; `officers`: L45–L62; 
 0020 | from firebase_admin import auth, firestore
 0021 | from google.cloud.firestore_v1.base_query import FieldFilter
 0022 | from pydantic import BaseModel, Field, field_validator
-0023 | 
+0023 |
 0024 | from ..firebase import FirebaseGateway, now
 0025 | from ..schemas import SignupRequest
 0026 | from ..permissions import PERMISSIONS, require
 0027 | from ..security import CurrentUser, get_current_user
 0028 | from ..workflow import WorkflowInput, apply_action, write_event, STAFF
 0029 | from .claims import accessible_claim, valid_signature, ALLOWED_MIME_TYPES
-0030 | 
+0030 |
 0031 | router = APIRouter(tags=["workspace"])
-0032 | 
-0033 | 
+0032 |
+0033 |
 0034 | def staff(user):
 0035 |     if user.profile.role not in STAFF:
 0036 |         raise HTTPException(403, "Staff permission required.")
-0037 | 
-0038 | 
+0037 |
+0038 |
 0039 | def administrator(user):
 0040 |     if user.profile.role != "administrator":
 0041 |         raise HTTPException(403, "Administrator permission required.")
-0042 | 
-0043 | 
+0042 |
+0043 |
 0044 | @router.get("/workspace/officers")
 0045 | async def officers(request: Request, user: CurrentUser = Depends(get_current_user)):
 0046 |     staff(user)
 0047 |     store = FirebaseGateway(request)
-0048 | 
+0048 |
 0049 |     def load():
 0050 |         rows = [
 0051 |             s.to_dict()
@@ -10112,10 +10112,10 @@ Symbols: `staff`: L34–L36; `administrator`: L39–L41; `officers`: L45–L62; 
 0058 |             for r in rows
 0059 |             if r.get("status") == "active"
 0060 |         ]
-0061 | 
+0061 |
 0062 |     return await asyncio.to_thread(load)
-0063 | 
-0064 | 
+0063 |
+0064 |
 0065 | @router.post("/claims/{reference}/actions/{action}")
 0066 | async def claim_action(
 0067 |     reference: str,
@@ -10128,8 +10128,8 @@ Symbols: `staff`: L34–L36; `administrator`: L39–L41; `officers`: L45–L62; 
 0074 |     claim = await accessible_claim(store, reference)
 0075 |     updated = await apply_action(store, claim["id"], action, payload)
 0076 |     return {"status": updated["status"], "message": "Claim updated successfully."}
-0077 | 
-0078 | 
+0077 |
+0078 |
 0079 | @router.post("/claims/{reference}/information/{request_id}/respond")
 0080 | async def information_response(
 0081 |     reference: str,
@@ -10187,7 +10187,7 @@ Symbols: `staff`: L34–L36; `administrator`: L39–L41; `officers`: L45–L62; 
 0133 |         info_ref = store.db.collection("claim_information_requests").document(
 0134 |             request_id
 0135 |         )
-0136 | 
+0136 |
 0137 |         @firestore.transactional
 0138 |         def submit(transaction):
 0139 |             current = ref.get(transaction=transaction).to_dict()
@@ -10246,12 +10246,12 @@ Symbols: `staff`: L34–L36; `administrator`: L39–L41; `officers`: L45–L62; 
 0192 |             )
 0193 |             if prepared and background:
 0194 |                 from ..jobs import queue_record
-0195 | 
+0195 |
 0196 |                 transaction.set(
 0197 |                     store.db.collection("processing_queue").document(claim["id"]),
 0198 |                     queue_record({**current, "needs_reconfirmation": True}, user.id),
 0199 |                 )
-0200 | 
+0200 |
 0201 |         await asyncio.to_thread(submit, store.db.transaction())
 0202 |         committed = True
 0203 |         if prepared:
@@ -10261,7 +10261,7 @@ Symbols: `staff`: L34–L36; `administrator`: L39–L41; `officers`: L45–L62; 
 0207 |                 }
 0208 |             # Process the added evidence without returning the submitted claim to draft.
 0209 |             from ..processing import process_claim
-0210 | 
+0210 |
 0211 |             try:
 0212 |                 await process_claim(
 0213 |                     store, claim, user.id, return_status="INFORMATION_RECEIVED"
@@ -10277,24 +10277,24 @@ Symbols: `staff`: L34–L36; `administrator`: L39–L41; `officers`: L45–L62; 
 0223 |     finally:
 0224 |         if not committed and uploaded:
 0225 |             await store.delete_objects(uploaded)
-0226 | 
-0227 | 
+0226 |
+0227 |
 0228 | async def finish_information_processing(store, claim, actor):
 0229 |     from .claims import finish_processing
-0230 | 
+0230 |
 0231 |     try:
 0232 |         await finish_processing(store, {**claim, "needs_reconfirmation": True}, actor)
 0233 |     except Exception:
 0234 |         # finish_processing records PROCESSING_FAILED; the response remains saved.
 0235 |         pass
-0236 | 
-0237 | 
+0236 |
+0237 |
 0238 | @router.get("/notifications")
 0239 | async def notifications(
 0240 |     request: Request, user: CurrentUser = Depends(get_current_user)
 0241 | ):
 0242 |     store = FirebaseGateway(request)
-0243 | 
+0243 |
 0244 |     def load():
 0245 |         rows = [
 0246 |             s.to_dict()
@@ -10303,27 +10303,27 @@ Symbols: `staff`: L34–L36; `administrator`: L39–L41; `officers`: L45–L62; 
 0249 |             .stream()
 0250 |         ]
 0251 |         return sorted(rows, key=lambda r: r.get("created_at", ""), reverse=True)[:100]
-0252 | 
+0252 |
 0253 |     return await asyncio.to_thread(load)
-0254 | 
-0255 | 
+0254 |
+0255 |
 0256 | @router.post("/notifications/{identifier}/read")
 0257 | async def read_notice(
 0258 |     identifier: str, request: Request, user: CurrentUser = Depends(get_current_user)
 0259 | ):
 0260 |     store = FirebaseGateway(request)
-0261 | 
+0261 |
 0262 |     def mark():
 0263 |         ref = store.db.collection("notifications").document(identifier)
 0264 |         snapshot = ref.get()
 0265 |         if not snapshot.exists or snapshot.to_dict().get("recipient_id") != user.id:
 0266 |             raise HTTPException(404, "Notification not found.")
 0267 |         ref.update({"read": True})
-0268 | 
+0268 |
 0269 |     await asyncio.to_thread(mark)
 0270 |     return {"message": "Notification marked as read."}
-0271 | 
-0272 | 
+0271 |
+0272 |
 0273 | @router.get("/workspace/audit")
 0274 | async def audit(
 0275 |     request: Request, search: str = "", user: CurrentUser = Depends(get_current_user)
@@ -10332,7 +10332,7 @@ Symbols: `staff`: L34–L36; `administrator`: L39–L41; `officers`: L45–L62; 
 0278 |     store = FirebaseGateway(request)
 0279 |     claims = await store.records("GET", "claims")
 0280 |     allowed = {c["id"]: c["reference"] for c in claims}
-0281 | 
+0281 |
 0282 |     def load():
 0283 |         rows = []
 0284 |         for snapshot in store.db.collection("audit_events").stream():
@@ -10352,10 +10352,10 @@ Symbols: `staff`: L34–L36; `administrator`: L39–L41; `officers`: L45–L62; 
 0298 |         return sorted(rows, key=lambda row: row.get("created_at", ""), reverse=True)[
 0299 |             :200
 0300 |         ]
-0301 | 
+0301 |
 0302 |     return await asyncio.to_thread(load)
-0303 | 
-0304 | 
+0303 |
+0304 |
 0305 | @router.get("/workspace/analytics")
 0306 | async def analytics(
 0307 |     request: Request,
@@ -10398,14 +10398,14 @@ Symbols: `staff`: L34–L36; `administrator`: L39–L41; `officers`: L45–L62; 
 0344 |         if user.profile.role == "claims_officer"
 0345 |         else "All accessible claims",
 0346 |     }
-0347 | 
-0348 | 
+0347 |
+0348 |
 0349 | class UserCreate(SignupRequest):
 0350 |     role: Literal[
 0351 |         "client", "claims_officer", "supervisor", "administrator", "finance"
 0352 |     ] = "client"
 0353 |     permissions: list[str] = Field(default_factory=list, max_length=7)
-0354 | 
+0354 |
 0355 |     @field_validator("permissions")
 0356 |     @classmethod
 0357 |     def valid_permissions(cls, values):
@@ -10414,8 +10414,8 @@ Symbols: `staff`: L34–L36; `administrator`: L39–L41; `officers`: L45–L62; 
 0360 |                 "Choose valid claim, finance, analytics or audit permissions. User administration requires the administrator role."
 0361 |             )
 0362 |         return sorted(set(values))
-0363 | 
-0364 | 
+0363 |
+0364 |
 0365 | class UserEdit(BaseModel):
 0366 |     display_name: str = Field(min_length=2, max_length=120)
 0367 |     role: Literal["client", "claims_officer", "supervisor", "administrator", "finance"]
@@ -10424,15 +10424,15 @@ Symbols: `staff`: L34–L36; `administrator`: L39–L41; `officers`: L45–L62; 
 0370 |         UserCreate.valid_permissions.__func__
 0371 |     )
 0372 |     status: Literal["active", "inactive"]
-0373 | 
+0373 |
 0374 |     @field_validator("display_name")
 0375 |     @classmethod
 0376 |     def valid_name(cls, value):
 0377 |         if len(value.strip()) < 2:
 0378 |             raise ValueError("Enter a name with at least two characters.")
 0379 |         return value.strip()
-0380 | 
-0381 | 
+0380 |
+0381 |
 0382 | @router.get("/users")
 0383 | async def users(request: Request, user: CurrentUser = Depends(get_current_user)):
 0384 |     administrator(user)
@@ -10447,8 +10447,8 @@ Symbols: `staff`: L34–L36; `administrator`: L39–L41; `officers`: L45–L62; 
 0393 |             key=lambda row: row.get("display_name", "").lower(),
 0394 |         )
 0395 |     )
-0396 | 
-0397 | 
+0396 |
+0397 |
 0398 | @router.post("/users", status_code=201)
 0399 | async def create_user(
 0400 |     payload: UserCreate, request: Request, user: CurrentUser = Depends(get_current_user)
@@ -10484,8 +10484,8 @@ Symbols: `staff`: L34–L36; `administrator`: L39–L41; `officers`: L45–L62; 
 0430 |         raise
 0431 |     await account_event(store, user.id, "USER_CREATED", created.uid)
 0432 |     return record
-0433 | 
-0434 | 
+0433 |
+0434 |
 0435 | async def account_event(store, actor, event, target):
 0436 |     ref = store.db.collection("audit_events").document()
 0437 |     await asyncio.to_thread(
@@ -10498,11 +10498,11 @@ Symbols: `staff`: L34–L36; `administrator`: L39–L41; `officers`: L45–L62; 
 0444 |             "created_at": now(),
 0445 |         },
 0446 |     )
-0447 | 
-0448 | 
+0447 |
+0448 |
 0449 | async def change_user(store, user, uid, payload, delete=False):
 0450 |     ref = store.db.collection("profiles").document(uid)
-0451 | 
+0451 |
 0452 |     @firestore.transactional
 0453 |     def change(transaction):
 0454 |         snapshot = ref.get(transaction=transaction)
@@ -10550,10 +10550,10 @@ Symbols: `staff`: L34–L36; `administrator`: L39–L41; `officers`: L45–L62; 
 0496 |                 "created_at": now(),
 0497 |             },
 0498 |         )
-0499 | 
+0499 |
 0500 |     await asyncio.to_thread(change, store.db.transaction())
-0501 | 
-0502 | 
+0501 |
+0502 |
 0503 | @router.put("/users/{uid}")
 0504 | async def edit_user(
 0505 |     uid: str,
@@ -10565,8 +10565,8 @@ Symbols: `staff`: L34–L36; `administrator`: L39–L41; `officers`: L45–L62; 
 0511 |     store = FirebaseGateway(request)
 0512 |     await change_user(store, user, uid, payload)
 0513 |     return {"message": "User access updated."}
-0514 | 
-0515 | 
+0514 |
+0515 |
 0516 | @router.delete("/users/{uid}")
 0517 | async def delete_user(
 0518 |     uid: str, request: Request, user: CurrentUser = Depends(get_current_user)
@@ -10579,8 +10579,8 @@ Symbols: `staff`: L34–L36; `administrator`: L39–L41; `officers`: L45–L62; 
 0525 |     except auth.UserNotFoundError:
 0526 |         pass
 0527 |     return {"message": "Login account deleted. Claim and audit records are retained."}
-0528 | 
-0529 | 
+0528 |
+0529 |
 0530 | @router.post("/users/{uid}/password-reset")
 0531 | async def user_reset(
 0532 |     uid: str, request: Request, user: CurrentUser = Depends(get_current_user)
@@ -10596,13 +10596,13 @@ Symbols: `staff`: L34–L36; `administrator`: L39–L41; `officers`: L45–L62; 
 0542 |         "link": link,
 0543 |         "message": "Share this recovery link privately with the account owner.",
 0544 |     }
-0545 | 
-0546 | 
+0545 |
+0546 |
 0547 | class AdminPassword(BaseModel):
 0548 |     new_password: str = Field(min_length=12, max_length=128)
 0549 |     admin_password: str = Field(min_length=1, max_length=128)
-0550 | 
-0551 | 
+0550 |
+0551 |
 0552 | @router.post("/users/{uid}/password")
 0553 | async def set_user_password(
 0554 |     uid: str,
@@ -10614,7 +10614,7 @@ Symbols: `staff`: L34–L36; `administrator`: L39–L41; `officers`: L45–L62; 
 0560 |     if uid == user.id:
 0561 |         raise HTTPException(422, "Use Account → Change password for your own account.")
 0562 |     from .auth import firebase_request
-0563 | 
+0563 |
 0564 |     verified = await firebase_request(
 0565 |         request,
 0566 |         "signInWithPassword",
@@ -10654,18 +10654,18 @@ Symbols: `Profile`: L14–L26; `LoginRequest`: L29–L31; `RefreshRequest`: L34�
 
 ```python
 0001 | from __future__ import annotations
-0002 | 
+0002 |
 0003 | from datetime import datetime
 0004 | from decimal import Decimal
 0005 | from typing import Any, Literal
 0006 | from uuid import UUID
-0007 | 
+0007 |
 0008 | from pydantic import BaseModel, Field, field_validator
-0009 | 
-0010 | 
+0009 |
+0010 |
 0011 | Role = Literal["client", "claims_officer", "supervisor", "administrator", "finance"]
-0012 | 
-0013 | 
+0012 |
+0013 |
 0014 | class Profile(BaseModel):
 0015 |     id: str
 0016 |     display_name: str
@@ -10679,25 +10679,25 @@ Symbols: `Profile`: L14–L26; `LoginRequest`: L29–L31; `RefreshRequest`: L34�
 0024 |     email_verified: bool = False
 0025 |     must_change_password: bool = False
 0026 |     verification_required: bool = False
-0027 | 
-0028 | 
+0027 |
+0028 |
 0029 | class LoginRequest(BaseModel):
 0030 |     email: str = Field(min_length=3)
 0031 |     password: str = Field(min_length=1)
-0032 | 
-0033 | 
+0032 |
+0033 |
 0034 | class RefreshRequest(BaseModel):
 0035 |     refresh_token: str = Field(min_length=1)
-0036 | 
-0037 | 
+0036 |
+0037 |
 0038 | class AuthSession(BaseModel):
 0039 |     access_token: str
 0040 |     refresh_token: str
 0041 |     expires_in: int
 0042 |     token_type: str = "bearer"
 0043 |     user: Profile
-0044 | 
-0045 | 
+0044 |
+0045 |
 0046 | class ExtractedField(BaseModel):
 0047 |     id: str | None = None
 0048 |     document_id: str | None = None
@@ -10707,8 +10707,8 @@ Symbols: `Profile`: L14–L26; `LoginRequest`: L29–L31; `RefreshRequest`: L34�
 0052 |     confidence: float
 0053 |     extraction_method: str
 0054 |     page_number: int = 1
-0055 | 
-0056 | 
+0055 |
+0056 |
 0057 | class ClaimDocument(BaseModel):
 0058 |     id: str
 0059 |     original_name: str
@@ -10726,8 +10726,8 @@ Symbols: `Profile`: L14–L26; `LoginRequest`: L29–L31; `RefreshRequest`: L34�
 0071 |     extraction_notes: str | None = None
 0072 |     signed_url: str | None = None
 0073 |     fields: list[ExtractedField] = Field(default_factory=list)
-0074 | 
-0075 | 
+0074 |
+0075 |
 0076 | class ClaimSummary(BaseModel):
 0077 |     id: str
 0078 |     reference: str
@@ -10739,8 +10739,8 @@ Symbols: `Profile`: L14–L26; `LoginRequest`: L29–L31; `RefreshRequest`: L34�
 0084 |     warning_count: int = 0
 0085 |     created_at: datetime
 0086 |     assigned_to: str | None = None
-0087 | 
-0088 | 
+0087 |
+0088 |
 0089 | class ClaimDetails(ClaimSummary):
 0090 |     information: dict[str, Any] = Field(default_factory=dict)
 0091 |     documents: list[ClaimDocument] = Field(default_factory=list)
@@ -10748,34 +10748,34 @@ Symbols: `Profile`: L14–L26; `LoginRequest`: L29–L31; `RefreshRequest`: L34�
 0093 |     available_actions: list[str] = Field(default_factory=list)
 0094 |     information_requests: list[dict[str, Any]] = Field(default_factory=list)
 0095 |     workflow: dict[str, Any] = Field(default_factory=dict)
-0096 | 
-0097 | 
+0096 |
+0097 |
 0098 | class DocumentConfirmation(BaseModel):
 0099 |     id: str
 0100 |     include: bool
 0101 |     amount: Decimal | None = None
 0102 |     currency: str | None = None
-0103 | 
-0104 | 
+0103 |
+0104 |
 0105 | class FieldCorrection(BaseModel):
 0106 |     id: UUID
 0107 |     value: str = Field(min_length=1, max_length=500)
-0108 | 
-0109 | 
+0108 |
+0109 |
 0110 | class ConfirmClaimRequest(BaseModel):
 0111 |     patient_name: str = Field(min_length=2, max_length=200)
 0112 |     provider_name: str = Field(min_length=2, max_length=200)
 0113 |     documents: list[DocumentConfirmation]
 0114 |     fields: list[FieldCorrection] = Field(default_factory=list)
-0115 | 
-0116 | 
+0115 |
+0116 |
 0117 | class ProcessResult(BaseModel):
 0118 |     claim_reference: str
 0119 |     status: str
 0120 |     document_count: int
 0121 |     extracted_field_count: int
-0122 | 
-0123 | 
+0122 |
+0123 |
 0124 | class DashboardSummary(BaseModel):
 0125 |     action_required_claims: list[ClaimSummary] = Field(default_factory=list)
 0126 |     unassigned: int = 0
@@ -10786,18 +10786,18 @@ Symbols: `Profile`: L14–L26; `LoginRequest`: L29–L31; `RefreshRequest`: L34�
 0131 |     verified: int
 0132 |     processing_failed: int
 0133 |     recent_claims: list[ClaimSummary]
-0134 | 
-0135 | 
+0134 |
+0135 |
 0136 | class EmailRequest(BaseModel):
 0137 |     email: str = Field(
 0138 |         min_length=3, max_length=254, pattern=r"^[^\s@]+@[^\s@]+\.[^\s@]+$"
 0139 |     )
-0140 | 
-0141 | 
+0140 |
+0141 |
 0142 | class SignupRequest(EmailRequest):
 0143 |     display_name: str = Field(min_length=2, max_length=120)
 0144 |     password: str = Field(min_length=12, max_length=128)
-0145 | 
+0145 |
 0146 |     @field_validator("display_name")
 0147 |     @classmethod
 0148 |     def valid_name(cls, value):
@@ -10814,29 +10814,29 @@ Symbols: `CurrentUser`: L18–L22; `get_current_user`: L25–L65
 
 ```python
 0001 | from __future__ import annotations
-0002 | 
+0002 |
 0003 | from dataclasses import dataclass
 0004 | import asyncio
 0005 | from firebase_admin import auth
-0006 | 
+0006 |
 0007 | from fastapi import Depends, HTTPException, Request, status
 0008 | from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-0009 | 
+0009 |
 0010 | from .schemas import Profile
 0011 | from .firebase import FirebaseGateway, firebase_app
-0012 | 
-0013 | 
+0012 |
+0013 |
 0014 | bearer = HTTPBearer(auto_error=False)
-0015 | 
-0016 | 
+0015 |
+0016 |
 0017 | @dataclass(frozen=True)
 0018 | class CurrentUser:
 0019 |     id: str
 0020 |     email: str | None
 0021 |     token: str
 0022 |     profile: Profile
-0023 | 
-0024 | 
+0023 |
+0024 |
 0025 | async def get_current_user(
 0026 |     request: Request,
 0027 |     credentials: HTTPAuthorizationCredentials | None = Depends(bearer),
@@ -10845,7 +10845,7 @@ Symbols: `CurrentUser`: L18–L22; `get_current_user`: L25–L65
 0030 |         raise HTTPException(
 0031 |             status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required."
 0032 |         )
-0033 | 
+0033 |
 0034 |     try:
 0035 |         user = await asyncio.to_thread(
 0036 |             auth.verify_id_token,
@@ -10888,15 +10888,15 @@ Symbols: `main`: L11–L20
 
 ```python
 0001 | """Start the mobile API after PaddleOCR models are ready."""
-0002 | 
+0002 |
 0003 | import argparse
 0004 | import logging
-0005 | 
+0005 |
 0006 | import uvicorn
-0007 | 
+0007 |
 0008 | from .ocr import _engine
-0009 | 
-0010 | 
+0009 |
+0010 |
 0011 | def main() -> None:
 0012 |     parser = argparse.ArgumentParser(description=__doc__)
 0013 |     parser.add_argument("--host", default="127.0.0.1")
@@ -10907,8 +10907,8 @@ Symbols: `main`: L11–L20
 0018 |     _engine()
 0019 |     logging.info("PaddleOCR models are ready.")
 0020 |     uvicorn.run("app.main:app", host=args.host, port=args.port)
-0021 | 
-0022 | 
+0021 |
+0022 |
 0023 | if __name__ == "__main__":
 0024 |     main()
 ```
@@ -10921,26 +10921,26 @@ Symbols: `WorkflowInput`: L22–L54; `available_actions`: L57–L88; `workflow_p
 
 ```python
 0001 | """Role-aware claim workflow shared by the API and its regression tests."""
-0002 | 
+0002 |
 0003 | import asyncio
 0004 | from datetime import date, datetime
 0005 | from decimal import Decimal
 0006 | from zoneinfo import ZoneInfo
-0007 | 
+0007 |
 0008 | from fastapi import HTTPException
 0009 | from firebase_admin import firestore
 0010 | from google.cloud.firestore_v1.base_query import FieldFilter
 0011 | from pydantic import BaseModel, Field, field_validator
 0012 | from .schemas import DocumentConfirmation, FieldCorrection
-0013 | 
+0013 |
 0014 | from .firebase import can_access_claim, now
 0015 | from .permissions import permissions
-0016 | 
+0016 |
 0017 | STAFF = {"claims_officer", "supervisor", "administrator", "finance"}
 0018 | MANAGEMENT = {"supervisor", "administrator"}
 0019 | REVIEWABLE = {"REVIEW_REQUIRED", "INFORMATION_RECEIVED"}
-0020 | 
-0021 | 
+0020 |
+0021 |
 0022 | class WorkflowInput(BaseModel):
 0023 |     assignee: str | None = None
 0024 |     notes: str = Field(default="", max_length=2000)
@@ -10958,7 +10958,7 @@ Symbols: `WorkflowInput`: L22–L54; `available_actions`: L57–L88; `workflow_p
 0036 |     fields: list[dict] = Field(default_factory=list, max_length=100)
 0037 |     payment_reference: str = Field(default="", max_length=120)
 0038 |     payment_method: str = Field(default="", max_length=60)
-0039 | 
+0039 |
 0040 |     @field_validator("documents", mode="before")
 0041 |     @classmethod
 0042 |     def checked_documents(cls, values):
@@ -10966,7 +10966,7 @@ Symbols: `WorkflowInput`: L22–L54; `available_actions`: L57–L88; `workflow_p
 0044 |             DocumentConfirmation.model_validate(value).model_dump(mode="json")
 0045 |             for value in values
 0046 |         ]
-0047 | 
+0047 |
 0048 |     @field_validator("fields", mode="before")
 0049 |     @classmethod
 0050 |     def checked_fields(cls, values):
@@ -10974,8 +10974,8 @@ Symbols: `WorkflowInput`: L22–L54; `available_actions`: L57–L88; `workflow_p
 0052 |             FieldCorrection.model_validate(value).model_dump(mode="json")
 0053 |             for value in values
 0054 |         ]
-0055 | 
-0056 | 
+0055 |
+0056 |
 0057 | def available_actions(user, claim):
 0058 |     role = user.profile.role
 0059 |     status = claim["status"]
@@ -11008,8 +11008,8 @@ Symbols: `WorkflowInput`: L22–L54; `available_actions`: L57–L88; `workflow_p
 0086 |     if "payments.record" in rights and status == "PAYMENT_PENDING":
 0087 |         result.append("paid")
 0088 |     return result
-0089 | 
-0090 | 
+0089 |
+0090 |
 0091 | def workflow_patch(user, claim, action, payload):
 0092 |     if action not in available_actions(user, claim):
 0093 |         raise HTTPException(
@@ -11107,8 +11107,8 @@ Symbols: `WorkflowInput`: L22–L54; `available_actions`: L57–L88; `workflow_p
 0185 |         patch.update(status="INFORMATION_REQUIRED")
 0186 |         event = "INFORMATION_REQUESTED"
 0187 |     return patch, event
-0188 | 
-0189 | 
+0188 |
+0189 |
 0190 | def write_event(db, transaction, claim, actor, event, metadata=None, watchers=()):
 0191 |     ref = db.collection("audit_events").document()
 0192 |     transaction.set(
@@ -11142,13 +11142,13 @@ Symbols: `WorkflowInput`: L22–L54; `available_actions`: L57–L88; `workflow_p
 0220 |                 "created_at": now(),
 0221 |             },
 0222 |         )
-0223 | 
-0224 | 
+0223 |
+0224 |
 0225 | async def apply_action(gateway, claim_id, action, payload):
 0226 |     user = gateway._user()
 0227 |     db = gateway.db
 0228 |     ref = db.collection("claims").document(claim_id)
-0229 | 
+0229 |
 0230 |     @firestore.transactional
 0231 |     def run(transaction):
 0232 |         snapshot = ref.get(transaction=transaction)
@@ -11314,10 +11314,10 @@ Symbols: `WorkflowInput`: L22–L54; `available_actions`: L57–L88; `workflow_p
 0392 |             watchers=watchers,
 0393 |         )
 0394 |         return {**claim, **patch}
-0395 | 
+0395 |
 0396 |     return await asyncio.to_thread(run, db.transaction())
-0397 | 
-0398 | 
+0397 |
+0398 |
 0399 | async def workflow_details(gateway, claim):
 0400 |     def load():
 0401 |         rows = [
@@ -11369,7 +11369,7 @@ Symbols: `WorkflowInput`: L22–L54; `available_actions`: L57–L88; `workflow_p
 0447 |             "information_requests": rows,
 0448 |             "workflow": workflow,
 0449 |         }
-0450 | 
+0450 |
 0451 |     return await asyncio.to_thread(load)
 ```
 
@@ -11393,7 +11393,7 @@ Symbols: Configuration/resource file.
 0011 | Pillow==12.1.1
 0012 | python-docx==1.2.0
 0013 | firebase-admin==7.8.0
-0014 | 
+0014 |
 0015 | cryptography==50.0.2
 ```
 

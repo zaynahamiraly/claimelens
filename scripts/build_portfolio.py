@@ -55,7 +55,7 @@ def main():
         language = {'.py': 'python', '.dart': 'dart', '.xml': 'xml', '.kt': 'kotlin', '.kts': 'kotlin'}.get(path.suffix, 'text')
         sections.extend([f'## {name}', f'{len(lines)} lines. SHA-256: `{digest}`.',
                          'Symbols: ' + ('; '.join(symbols) or 'Configuration/resource file.'),
-                         f'```{language}\n' + '\n'.join(f'{i:04d} | {line}' for i, line in enumerate(lines, 1)) + '\n```'])
+                         f'```{language}\n' + '\n'.join(f'{i:04d} | {line}' if line else f'{i:04d} |' for i, line in enumerate(lines, 1)) + '\n```'])
     tests = sorted(p for p in paths if '/test' in p and p.endswith(('.py', '.dart')))
     sections += ['## Test-file inventory', '\n'.join(f'- `{p}`' for p in tests)]
     (OUT / 'ClaimLens_Source_Reference.md').write_text('\n\n'.join(sections) + '\n', encoding='utf-8')
