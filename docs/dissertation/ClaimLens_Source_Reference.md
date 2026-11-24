@@ -2,7 +2,7 @@
 
 Generated from the local working tree. This is an implementation reference, not evidence of production deployment.
 
-Parent Git revision: `540d7ea6d5f8efa5d039e19376244368ded0d54e`. Working-tree changes may be newer; SHA-256 hashes below identify the exact files.
+Parent Git revision: `40dde30776b365fde028e887de7c06656606d915`. Working-tree changes may be newer; SHA-256 hashes below identify the exact files.
 
 Read ClaimLens_Project_Portfolio.md first. Source lines are exact UTF-8 text, prefixed with line numbers. Private environment files, service-account keys, SDK client configuration, runtime data, uploads and test credentials are excluded. Use this reference to explain code; never infer unimplemented features from function names.
 
@@ -478,9 +478,9 @@ Symbols: `ClaimLensApp`: L27; `AuthGate`: L56
 
 ## mobile/claimlens_mobile/lib/models/claim.dart
 
-253 lines. SHA-256: `8389032275b83c896caddaae1b7ea6652b6b3dc8ea3f4c6266c1ece89d71216e`.
+264 lines. SHA-256: `b9f82e251f300acb7f80063bc80a46865296cc40c931fe0a1fe408ede3741e21`.
 
-Symbols: `ClaimSummary`: L4; `ExtractedField`: L43; `ClaimDocument`: L70; `ClaimDetails`: L127; `DashboardData`: L183; `DocumentConfirmation`: L223; `FieldCorrection`: L243
+Symbols: `ClaimSummary`: L4; `ExtractedField`: L43; `ClaimDocument`: L70; `ClaimDetails`: L137; `DashboardData`: L193; `DocumentConfirmation`: L233; `FieldCorrection`: L254
 
 ```dart
 0001 | double? _number(dynamic value) =>
@@ -565,177 +565,188 @@ Symbols: `ClaimSummary`: L4; `ExtractedField`: L43; `ClaimDocument`: L70; `Claim
 0080 |     this.extractedCurrency,
 0081 |     this.confirmedAmount,
 0082 |     this.confirmedCurrency,
-0083 |     this.amountConfidence,
-0084 |     this.duplicateOf,
-0085 |     this.extractionNotes,
-0086 |     this.signedUrl,
-0087 |   });
-0088 |
-0089 |   final String id;
-0090 |   final String originalName;
-0091 |   final String documentType;
-0092 |   final String mimeType;
-0093 |   final String extractionStatus;
-0094 |   final double? extractedAmount;
-0095 |   final String? extractedCurrency;
-0096 |   final double? confirmedAmount;
-0097 |   final String? confirmedCurrency;
-0098 |   final double? amountConfidence;
-0099 |   final bool includeInTotal;
-0100 |   final String? duplicateOf;
-0101 |   final String? extractionNotes;
-0102 |   final String? signedUrl;
-0103 |   final List<ExtractedField> fields;
-0104 |
-0105 |   factory ClaimDocument.fromJson(Map<String, dynamic> json) => ClaimDocument(
-0106 |         id: json['id'] as String,
-0107 |         originalName: json['original_name'] as String,
-0108 |         documentType: json['document_type'] as String,
-0109 |         mimeType: json['mime_type'] as String,
-0110 |         extractionStatus: json['extraction_status'] as String? ?? 'PENDING',
-0111 |         extractedAmount: _number(json['extracted_amount']),
-0112 |         extractedCurrency: json['extracted_currency'] as String?,
-0113 |         confirmedAmount: _number(json['confirmed_amount']),
-0114 |         confirmedCurrency: json['confirmed_currency'] as String?,
-0115 |         amountConfidence: _number(json['amount_confidence']),
-0116 |         includeInTotal: json['include_in_total'] as bool? ?? false,
-0117 |         duplicateOf: json['duplicate_of'] as String?,
-0118 |         extractionNotes: json['extraction_notes'] as String?,
-0119 |         signedUrl: json['signed_url'] as String?,
-0120 |         fields: (json['fields'] as List<dynamic>? ?? const [])
-0121 |             .map(
-0122 |                 (item) => ExtractedField.fromJson(item as Map<String, dynamic>))
-0123 |             .toList(),
-0124 |       );
-0125 | }
-0126 |
-0127 | class ClaimDetails extends ClaimSummary {
-0128 |   const ClaimDetails({
-0129 |     required super.id,
-0130 |     required super.reference,
-0131 |     required super.patientName,
-0132 |     required super.providerName,
-0133 |     required super.currency,
-0134 |     required super.status,
-0135 |     required super.warningCount,
-0136 |     required super.createdAt,
-0137 |     required this.documents,
-0138 |     required this.auditEvents,
-0139 |     this.availableActions = const [],
-0140 |     this.informationRequests = const [],
-0141 |     this.workflow = const {},
-0142 |     this.information = const {},
-0143 |     super.claimedAmount,
-0144 |     super.assignedTo,
-0145 |   });
-0146 |
-0147 |   final List<ClaimDocument> documents;
-0148 |   final List<Map<String, dynamic>> auditEvents;
-0149 |   final List<String> availableActions;
-0150 |   final List<Map<String, dynamic>> informationRequests;
-0151 |   final Map<String, dynamic> workflow;
-0152 |   final Map<String, dynamic> information;
-0153 |
-0154 |   factory ClaimDetails.fromJson(Map<String, dynamic> json) {
-0155 |     final base = ClaimSummary.fromJson(json);
-0156 |     return ClaimDetails(
-0157 |       id: base.id,
-0158 |       reference: base.reference,
-0159 |       patientName: base.patientName,
-0160 |       providerName: base.providerName,
-0161 |       claimedAmount: base.claimedAmount,
-0162 |       currency: base.currency,
-0163 |       status: base.status,
-0164 |       warningCount: base.warningCount,
-0165 |       createdAt: base.createdAt,
-0166 |       assignedTo: base.assignedTo,
-0167 |       availableActions: List<String>.from(json['available_actions'] ?? []),
-0168 |       informationRequests: (json['information_requests'] as List? ?? [])
-0169 |           .map((r) => Map<String, dynamic>.from(r as Map))
-0170 |           .toList(),
-0171 |       workflow: Map<String, dynamic>.from(json['workflow'] as Map? ?? {}),
-0172 |       information: Map<String, dynamic>.from(json['information'] as Map? ?? {}),
-0173 |       documents: (json['documents'] as List<dynamic>? ?? const [])
-0174 |           .map((item) => ClaimDocument.fromJson(item as Map<String, dynamic>))
-0175 |           .toList(),
-0176 |       auditEvents: (json['audit_events'] as List<dynamic>? ?? const [])
-0177 |           .map((item) => Map<String, dynamic>.from(item as Map))
-0178 |           .toList(),
-0179 |     );
-0180 |   }
-0181 | }
-0182 |
-0183 | class DashboardData {
-0184 |   const DashboardData({
-0185 |     required this.total,
-0186 |     required this.processing,
-0187 |     required this.reviewRequired,
-0188 |     required this.verified,
-0189 |     required this.failed,
-0190 |     required this.recent,
-0191 |     this.byStatus = const {},
-0192 |     this.actionRequired = const [],
-0193 |     this.unassigned = 0,
-0194 |   });
-0195 |   final int total;
-0196 |   final int processing;
-0197 |   final int reviewRequired;
-0198 |   final int verified;
-0199 |   final int failed;
-0200 |   final List<ClaimSummary> recent;
-0201 |   final Map<String, int> byStatus;
-0202 |   final List<ClaimSummary> actionRequired;
-0203 |   final int unassigned;
-0204 |
-0205 |   factory DashboardData.fromJson(Map<String, dynamic> json) => DashboardData(
-0206 |         actionRequired: (json['action_required_claims'] as List? ?? [])
-0207 |             .map((row) =>
-0208 |                 ClaimSummary.fromJson(Map<String, dynamic>.from(row as Map)))
-0209 |             .toList(),
-0210 |         unassigned: json['unassigned'] as int? ?? 0,
-0211 |         byStatus: Map<String, int>.from(json['by_status'] as Map? ?? {}),
-0212 |         total: json['total_claims'] as int,
-0213 |         processing: json['processing'] as int,
-0214 |         reviewRequired: json['review_required'] as int,
-0215 |         verified: json['verified'] as int,
-0216 |         failed: json['processing_failed'] as int,
-0217 |         recent: (json['recent_claims'] as List<dynamic>)
-0218 |             .map((item) => ClaimSummary.fromJson(item as Map<String, dynamic>))
+0083 |     this.clientProposedAmount,
+0084 |     this.clientProposedCurrency,
+0085 |     this.clientReportedIncorrectAmount = false,
+0086 |     this.amountConfidence,
+0087 |     this.duplicateOf,
+0088 |     this.extractionNotes,
+0089 |     this.signedUrl,
+0090 |   });
+0091 |
+0092 |   final String id;
+0093 |   final String originalName;
+0094 |   final String documentType;
+0095 |   final String mimeType;
+0096 |   final String extractionStatus;
+0097 |   final double? extractedAmount;
+0098 |   final String? extractedCurrency;
+0099 |   final double? confirmedAmount;
+0100 |   final String? confirmedCurrency;
+0101 |   final double? clientProposedAmount;
+0102 |   final String? clientProposedCurrency;
+0103 |   final bool clientReportedIncorrectAmount;
+0104 |   final double? amountConfidence;
+0105 |   final bool includeInTotal;
+0106 |   final String? duplicateOf;
+0107 |   final String? extractionNotes;
+0108 |   final String? signedUrl;
+0109 |   final List<ExtractedField> fields;
+0110 |
+0111 |   factory ClaimDocument.fromJson(Map<String, dynamic> json) => ClaimDocument(
+0112 |         id: json['id'] as String,
+0113 |         originalName: json['original_name'] as String,
+0114 |         documentType: json['document_type'] as String,
+0115 |         mimeType: json['mime_type'] as String,
+0116 |         extractionStatus: json['extraction_status'] as String? ?? 'PENDING',
+0117 |         extractedAmount: _number(json['extracted_amount']),
+0118 |         extractedCurrency: json['extracted_currency'] as String?,
+0119 |         confirmedAmount: _number(json['confirmed_amount']),
+0120 |         confirmedCurrency: json['confirmed_currency'] as String?,
+0121 |         clientProposedAmount: _number(json['client_proposed_amount']),
+0122 |         clientProposedCurrency: json['client_proposed_currency'] as String?,
+0123 |         clientReportedIncorrectAmount:
+0124 |             json['client_reported_incorrect_amount'] == true,
+0125 |         amountConfidence: _number(json['amount_confidence']),
+0126 |         includeInTotal: json['include_in_total'] as bool? ?? false,
+0127 |         duplicateOf: json['duplicate_of'] as String?,
+0128 |         extractionNotes: json['extraction_notes'] as String?,
+0129 |         signedUrl: json['signed_url'] as String?,
+0130 |         fields: (json['fields'] as List<dynamic>? ?? const [])
+0131 |             .map(
+0132 |                 (item) => ExtractedField.fromJson(item as Map<String, dynamic>))
+0133 |             .toList(),
+0134 |       );
+0135 | }
+0136 |
+0137 | class ClaimDetails extends ClaimSummary {
+0138 |   const ClaimDetails({
+0139 |     required super.id,
+0140 |     required super.reference,
+0141 |     required super.patientName,
+0142 |     required super.providerName,
+0143 |     required super.currency,
+0144 |     required super.status,
+0145 |     required super.warningCount,
+0146 |     required super.createdAt,
+0147 |     required this.documents,
+0148 |     required this.auditEvents,
+0149 |     this.availableActions = const [],
+0150 |     this.informationRequests = const [],
+0151 |     this.workflow = const {},
+0152 |     this.information = const {},
+0153 |     super.claimedAmount,
+0154 |     super.assignedTo,
+0155 |   });
+0156 |
+0157 |   final List<ClaimDocument> documents;
+0158 |   final List<Map<String, dynamic>> auditEvents;
+0159 |   final List<String> availableActions;
+0160 |   final List<Map<String, dynamic>> informationRequests;
+0161 |   final Map<String, dynamic> workflow;
+0162 |   final Map<String, dynamic> information;
+0163 |
+0164 |   factory ClaimDetails.fromJson(Map<String, dynamic> json) {
+0165 |     final base = ClaimSummary.fromJson(json);
+0166 |     return ClaimDetails(
+0167 |       id: base.id,
+0168 |       reference: base.reference,
+0169 |       patientName: base.patientName,
+0170 |       providerName: base.providerName,
+0171 |       claimedAmount: base.claimedAmount,
+0172 |       currency: base.currency,
+0173 |       status: base.status,
+0174 |       warningCount: base.warningCount,
+0175 |       createdAt: base.createdAt,
+0176 |       assignedTo: base.assignedTo,
+0177 |       availableActions: List<String>.from(json['available_actions'] ?? []),
+0178 |       informationRequests: (json['information_requests'] as List? ?? [])
+0179 |           .map((r) => Map<String, dynamic>.from(r as Map))
+0180 |           .toList(),
+0181 |       workflow: Map<String, dynamic>.from(json['workflow'] as Map? ?? {}),
+0182 |       information: Map<String, dynamic>.from(json['information'] as Map? ?? {}),
+0183 |       documents: (json['documents'] as List<dynamic>? ?? const [])
+0184 |           .map((item) => ClaimDocument.fromJson(item as Map<String, dynamic>))
+0185 |           .toList(),
+0186 |       auditEvents: (json['audit_events'] as List<dynamic>? ?? const [])
+0187 |           .map((item) => Map<String, dynamic>.from(item as Map))
+0188 |           .toList(),
+0189 |     );
+0190 |   }
+0191 | }
+0192 |
+0193 | class DashboardData {
+0194 |   const DashboardData({
+0195 |     required this.total,
+0196 |     required this.processing,
+0197 |     required this.reviewRequired,
+0198 |     required this.verified,
+0199 |     required this.failed,
+0200 |     required this.recent,
+0201 |     this.byStatus = const {},
+0202 |     this.actionRequired = const [],
+0203 |     this.unassigned = 0,
+0204 |   });
+0205 |   final int total;
+0206 |   final int processing;
+0207 |   final int reviewRequired;
+0208 |   final int verified;
+0209 |   final int failed;
+0210 |   final List<ClaimSummary> recent;
+0211 |   final Map<String, int> byStatus;
+0212 |   final List<ClaimSummary> actionRequired;
+0213 |   final int unassigned;
+0214 |
+0215 |   factory DashboardData.fromJson(Map<String, dynamic> json) => DashboardData(
+0216 |         actionRequired: (json['action_required_claims'] as List? ?? [])
+0217 |             .map((row) =>
+0218 |                 ClaimSummary.fromJson(Map<String, dynamic>.from(row as Map)))
 0219 |             .toList(),
-0220 |       );
-0221 | }
-0222 |
-0223 | class DocumentConfirmation {
-0224 |   DocumentConfirmation({
-0225 |     required this.document,
-0226 |     required this.include,
-0227 |     required this.amount,
-0228 |     required this.currency,
-0229 |   });
-0230 |   final ClaimDocument document;
-0231 |   bool include;
-0232 |   double? amount;
-0233 |   String currency;
-0234 |
-0235 |   Map<String, dynamic> toJson() => {
-0236 |         'id': document.id,
-0237 |         'include': include,
-0238 |         'amount': amount,
-0239 |         'currency': currency,
-0240 |       };
-0241 | }
-0242 |
-0243 | class FieldCorrection {
-0244 |   const FieldCorrection({
-0245 |     required this.id,
-0246 |     required this.label,
-0247 |     required this.value,
-0248 |   });
-0249 |   final String id;
-0250 |   final String label;
-0251 |   final String value;
-0252 |   Map<String, dynamic> toJson() => {'id': id, 'value': value};
-0253 | }
+0220 |         unassigned: json['unassigned'] as int? ?? 0,
+0221 |         byStatus: Map<String, int>.from(json['by_status'] as Map? ?? {}),
+0222 |         total: json['total_claims'] as int,
+0223 |         processing: json['processing'] as int,
+0224 |         reviewRequired: json['review_required'] as int,
+0225 |         verified: json['verified'] as int,
+0226 |         failed: json['processing_failed'] as int,
+0227 |         recent: (json['recent_claims'] as List<dynamic>)
+0228 |             .map((item) => ClaimSummary.fromJson(item as Map<String, dynamic>))
+0229 |             .toList(),
+0230 |       );
+0231 | }
+0232 |
+0233 | class DocumentConfirmation {
+0234 |   DocumentConfirmation({
+0235 |     required this.document,
+0236 |     required this.include,
+0237 |     required this.amount,
+0238 |     required this.currency,
+0239 |   });
+0240 |   final ClaimDocument document;
+0241 |   bool include;
+0242 |   double? amount;
+0243 |   String currency;
+0244 |   bool amountReported = false;
+0245 |
+0246 |   Map<String, dynamic> toJson() => {
+0247 |         'id': document.id,
+0248 |         'include': include,
+0249 |         'amount': amount,
+0250 |         'currency': currency,
+0251 |       };
+0252 | }
+0253 |
+0254 | class FieldCorrection {
+0255 |   const FieldCorrection({
+0256 |     required this.id,
+0257 |     required this.label,
+0258 |     required this.value,
+0259 |   });
+0260 |   final String id;
+0261 |   final String label;
+0262 |   final String value;
+0263 |   Map<String, dynamic> toJson() => {'id': id, 'value': value};
+0264 | }
 ```
 
 ## mobile/claimlens_mobile/lib/models/selected_document.dart
@@ -818,161 +829,170 @@ Symbols: `UserProfile`: L1
 
 ## mobile/claimlens_mobile/lib/providers/auth_provider.dart
 
-150 lines. SHA-256: `b5f81106c32335e9773ec9c6a1ba56bf0cdf38a8d25a35b930b4e8344a9b1ccb`.
+159 lines. SHA-256: `ea8a0a276b6ea9ed550e8892839ed43b6caff68fe18b58aac103a226e1147758`.
 
-Symbols: `AuthProvider`: L9
+Symbols: `AuthProvider`: L10
 
 ```dart
 0001 | import 'package:flutter/foundation.dart';
-0002 |
-0003 | import '../models/user_profile.dart';
-0004 | import '../services/api_client.dart';
-0005 | import '../services/auth_service.dart';
-0006 | import '../services/push_service.dart';
-0007 | import 'package:local_auth/local_auth.dart';
-0008 |
-0009 | class AuthProvider extends ChangeNotifier {
-0010 |   AuthProvider(this.client) : service = AuthService(client) {
-0011 |     client.onSessionExpired = () {
-0012 |       user = null;
-0013 |       notifyListeners();
-0014 |     };
-0015 |   }
-0016 |   final ApiClient client;
-0017 |   final AuthService service;
-0018 |
-0019 |   UserProfile? user;
-0020 |   bool initialising = true;
-0021 |   bool busy = false;
-0022 |   String? error;
-0023 |
-0024 |   bool get authenticated => user != null;
-0025 |   bool locked = false;
-0026 |   DateTime lastActivity = DateTime.now();
-0027 |   void touch() {
-0028 |     if (!locked) lastActivity = DateTime.now();
-0029 |   }
-0030 |
-0031 |   void lock() {
-0032 |     if (user != null && !locked) {
-0033 |       locked = true;
-0034 |       notifyListeners();
-0035 |     }
-0036 |   }
-0037 |
-0038 |   Future<void> unlock(String password) async {
-0039 |     await client.dio
-0040 |         .post<dynamic>('/profile/unlock', data: {'password': password});
-0041 |     locked = false;
-0042 |     lastActivity = DateTime.now();
-0043 |     notifyListeners();
-0044 |   }
-0045 |
-0046 |   Future<bool> unlockWithDevice() async {
-0047 |     final local = LocalAuthentication();
-0048 |     if (!await local.isDeviceSupported()) {
-0049 |       throw Exception(
-0050 |           'Device authentication is unavailable. Use your password instead.');
-0051 |     }
-0052 |     if (!await local.authenticate(
-0053 |         localizedReason: 'Unlock your ClaimLens workspace',
-0054 |         persistAcrossBackgrounding: true)) {
-0055 |       return false;
-0056 |     }
-0057 |     // Device authentication unlocks the local view. Server authorization and
-0058 |     // active-account checks still run on every API request.
-0059 |     await reloadProfile();
-0060 |     locked = false;
-0061 |     lastActivity = DateTime.now();
-0062 |     notifyListeners();
-0063 |     return true;
-0064 |   }
-0065 |
-0066 |   Future<void> reloadProfile({bool refreshToken = false}) async {
-0067 |     if (refreshToken && !await client.refreshSession()) {
-0068 |       throw Exception('Sign in again to refresh your session.');
-0069 |     }
-0070 |     user = await service.profile();
-0071 |     notifyListeners();
-0072 |   }
-0073 |
-0074 |   Future<void> updateProfile(Map<String, dynamic> values) async {
-0075 |     final response =
-0076 |         await client.dio.put<Map<String, dynamic>>('/profile', data: values);
-0077 |     user = UserProfile.fromJson(response.data!);
-0078 |     notifyListeners();
-0079 |   }
-0080 |
-0081 |   Future<void> changePassword(String current, String password) async {
-0082 |     final response = await client.dio.post<Map<String, dynamic>>(
-0083 |         '/profile/password',
-0084 |         data: {'current_password': current, 'new_password': password});
-0085 |     final data = response.data!;
-0086 |     await client.saveSession(
-0087 |         data['access_token'] as String, data['refresh_token'] as String);
-0088 |     user = await service.profile();
-0089 |     notifyListeners();
-0090 |   }
-0091 |
-0092 |   void clearError() {
-0093 |     error = null;
-0094 |     notifyListeners();
-0095 |   }
-0096 |
-0097 |   Future<void> initialise() async {
-0098 |     await client.initialise();
-0099 |     if (client.hasSession) {
-0100 |       try {
-0101 |         user = await service.profile();
-0102 |         locked = user?.isClient == false;
-0103 |       } catch (_) {
-0104 |         await client.clearSession();
-0105 |       }
-0106 |     }
-0107 |     initialising = false;
-0108 |     notifyListeners();
-0109 |   }
-0110 |
-0111 |   Future<bool> login(String email, String password) async {
-0112 |     busy = true;
-0113 |     error = null;
-0114 |     notifyListeners();
-0115 |     try {
-0116 |       user = await service.login(email, password);
-0117 |       locked = false;
-0118 |       lastActivity = DateTime.now();
-0119 |       return true;
-0120 |     } catch (exception) {
-0121 |       error = readableApiError(exception);
-0122 |       return false;
-0123 |     } finally {
-0124 |       busy = false;
-0125 |       notifyListeners();
-0126 |     }
-0127 |   }
-0128 |
-0129 |   Future<void> logout() async {
-0130 |     busy = true;
-0131 |     notifyListeners();
-0132 |     try {
-0133 |       await PushService.unregister(client);
-0134 |       await service.logout();
-0135 |     } catch (_) {/* Local sign-out must work without a connection. */} finally {
-0136 |       user = null;
-0137 |       locked = false;
-0138 |       busy = false;
-0139 |       notifyListeners();
-0140 |     }
-0141 |   }
-0142 |
-0143 |   Future<void> changeServer(String value) async {
-0144 |     await client.configureServer(value);
-0145 |     user = null;
-0146 |     locked = false;
-0147 |     error = null;
-0148 |     notifyListeners();
-0149 |   }
-0150 | }
+0002 | import 'package:dio/dio.dart';
+0003 |
+0004 | import '../models/user_profile.dart';
+0005 | import '../services/api_client.dart';
+0006 | import '../services/auth_service.dart';
+0007 | import '../services/push_service.dart';
+0008 | import 'package:local_auth/local_auth.dart';
+0009 |
+0010 | class AuthProvider extends ChangeNotifier {
+0011 |   AuthProvider(this.client) : service = AuthService(client) {
+0012 |     client.onSessionExpired = () {
+0013 |       user = null;
+0014 |       notifyListeners();
+0015 |     };
+0016 |   }
+0017 |   final ApiClient client;
+0018 |   final AuthService service;
+0019 |
+0020 |   UserProfile? user;
+0021 |   bool initialising = true;
+0022 |   bool busy = false;
+0023 |   String? error;
+0024 |
+0025 |   bool get authenticated => user != null;
+0026 |   bool locked = false;
+0027 |   DateTime lastActivity = DateTime.now();
+0028 |   void touch() {
+0029 |     if (!locked) lastActivity = DateTime.now();
+0030 |   }
+0031 |
+0032 |   void lock() {
+0033 |     if (user != null && !locked) {
+0034 |       locked = true;
+0035 |       notifyListeners();
+0036 |     }
+0037 |   }
+0038 |
+0039 |   Future<void> unlock(String password) async {
+0040 |     await client.dio
+0041 |         .post<dynamic>('/profile/unlock', data: {'password': password});
+0042 |     locked = false;
+0043 |     lastActivity = DateTime.now();
+0044 |     notifyListeners();
+0045 |   }
+0046 |
+0047 |   Future<bool> unlockWithDevice() async {
+0048 |     final local = LocalAuthentication();
+0049 |     if (!await local.isDeviceSupported()) {
+0050 |       throw Exception(
+0051 |           'Device authentication is unavailable. Use your password instead.');
+0052 |     }
+0053 |     if (!await local.authenticate(
+0054 |         localizedReason: 'Unlock your ClaimLens workspace',
+0055 |         persistAcrossBackgrounding: true)) {
+0056 |       return false;
+0057 |     }
+0058 |     // Device authentication unlocks the local view. Server authorization and
+0059 |     // active-account checks still run on every API request.
+0060 |     await reloadProfile();
+0061 |     locked = false;
+0062 |     lastActivity = DateTime.now();
+0063 |     notifyListeners();
+0064 |     return true;
+0065 |   }
+0066 |
+0067 |   Future<void> reloadProfile({bool refreshToken = false}) async {
+0068 |     if (refreshToken && !await client.refreshSession()) {
+0069 |       throw Exception('Sign in again to refresh your session.');
+0070 |     }
+0071 |     user = await service.profile();
+0072 |     notifyListeners();
+0073 |   }
+0074 |
+0075 |   Future<void> updateProfile(Map<String, dynamic> values) async {
+0076 |     final response =
+0077 |         await client.dio.put<Map<String, dynamic>>('/profile', data: values);
+0078 |     user = UserProfile.fromJson(response.data!);
+0079 |     notifyListeners();
+0080 |   }
+0081 |
+0082 |   Future<void> changePassword(String current, String password) async {
+0083 |     final response = await client.dio.post<Map<String, dynamic>>(
+0084 |         '/profile/password',
+0085 |         data: {'current_password': current, 'new_password': password});
+0086 |     final data = response.data!;
+0087 |     await client.saveSession(
+0088 |         data['access_token'] as String, data['refresh_token'] as String);
+0089 |     user = await service.profile();
+0090 |     notifyListeners();
+0091 |   }
+0092 |
+0093 |   void clearError() {
+0094 |     error = null;
+0095 |     notifyListeners();
+0096 |   }
+0097 |
+0098 |   Future<void> initialise() async {
+0099 |     initialising = true;
+0100 |     error = null;
+0101 |     notifyListeners();
+0102 |     await client.initialise();
+0103 |     if (client.hasSession) {
+0104 |       try {
+0105 |         user = await service.profile();
+0106 |         locked = user?.isClient == false;
+0107 |       } catch (exception) {
+0108 |         final status =
+0109 |             exception is DioException ? exception.response?.statusCode : null;
+0110 |         if ([400, 401, 403, 404].contains(status)) {
+0111 |           await client.clearSession();
+0112 |         }
+0113 |         error = readableApiError(exception);
+0114 |       }
+0115 |     }
+0116 |     initialising = false;
+0117 |     notifyListeners();
+0118 |   }
+0119 |
+0120 |   Future<bool> login(String email, String password) async {
+0121 |     busy = true;
+0122 |     error = null;
+0123 |     notifyListeners();
+0124 |     try {
+0125 |       user = await service.login(email, password);
+0126 |       locked = false;
+0127 |       lastActivity = DateTime.now();
+0128 |       return true;
+0129 |     } catch (exception) {
+0130 |       error = readableApiError(exception);
+0131 |       return false;
+0132 |     } finally {
+0133 |       busy = false;
+0134 |       notifyListeners();
+0135 |     }
+0136 |   }
+0137 |
+0138 |   Future<void> logout() async {
+0139 |     busy = true;
+0140 |     notifyListeners();
+0141 |     try {
+0142 |       await PushService.unregister(client);
+0143 |       await service.logout();
+0144 |     } catch (_) {/* Local sign-out must work without a connection. */} finally {
+0145 |       user = null;
+0146 |       locked = false;
+0147 |       busy = false;
+0148 |       notifyListeners();
+0149 |     }
+0150 |   }
+0151 |
+0152 |   Future<void> changeServer(String value) async {
+0153 |     await client.configureServer(value);
+0154 |     user = null;
+0155 |     locked = false;
+0156 |     error = null;
+0157 |     notifyListeners();
+0158 |   }
+0159 | }
 ```
 
 ## mobile/claimlens_mobile/lib/providers/claims_provider.dart
@@ -1959,7 +1979,7 @@ Symbols: `ClaimDetailsScreen`: L19; `_ClaimDetailsScreenState`: L31; `_ProgressT
 
 ## mobile/claimlens_mobile/lib/screens/claim_review_screen.dart
 
-191 lines. SHA-256: `e07250eaad160fb6643a98621c761f2ff08a455315085eb7499ee29026efdc4d`.
+194 lines. SHA-256: `d8069357e6ef39380e2321c9e5c06acbc779bacdc86fa2be64033dbe9bc8e950`.
 
 Symbols: `ClaimReviewScreen`: L9; `_ClaimReviewScreenState`: L27
 
@@ -2034,127 +2054,130 @@ Symbols: `ClaimReviewScreen`: L9; `_ClaimReviewScreenState`: L27
 0068 |   Widget build(BuildContext context) => Scaffold(
 0069 |         appBar: AppBar(title: const Text('Review and submit')),
 0070 |         body: ListView(
-0071 |           padding: const EdgeInsets.all(16),
-0072 |           children: [
-0073 |             Text(
-0074 |               widget.reference,
-0075 |               style: Theme.of(
-0076 |                 context,
-0077 |               ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-0078 |             ),
-0079 |             const SizedBox(height: 16),
-0080 |             Card(
-0081 |               child: Padding(
-0082 |                 padding: const EdgeInsets.all(16),
-0083 |                 child: Column(
-0084 |                   children: [
-0085 |                     ListTile(
-0086 |                       contentPadding: EdgeInsets.zero,
-0087 |                       title: const Text('Patient'),
-0088 |                       subtitle: Text(widget.patientName),
-0089 |                     ),
-0090 |                     ListTile(
-0091 |                       contentPadding: EdgeInsets.zero,
-0092 |                       title: const Text('Provider'),
-0093 |                       subtitle: Text(widget.providerName),
-0094 |                     ),
-0095 |                   ],
-0096 |                 ),
-0097 |               ),
-0098 |             ),
-0099 |             const SizedBox(height: 16),
-0100 |             ...widget.documents.map(
-0101 |               (item) => ListTile(
-0102 |                 leading: Icon(
-0103 |                   item.include
-0104 |                       ? Icons.check_circle
-0105 |                       : Icons.remove_circle_outline,
-0106 |                   color: item.include ? Colors.green : Colors.grey,
-0107 |                 ),
-0108 |                 title: Text(item.document.originalName),
-0109 |                 subtitle: Text(
-0110 |                   item.include
-0111 |                       ? '${item.currency} ${item.amount!.toStringAsFixed(2)}'
-0112 |                       : 'Not included in total',
-0113 |                 ),
-0114 |               ),
-0115 |             ),
-0116 |             if (widget.fields.isNotEmpty) ...[
-0117 |               const Divider(height: 24),
-0118 |               Text(
-0119 |                 'Other extracted information',
-0120 |                 style: Theme.of(
-0121 |                   context,
-0122 |                 ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-0123 |               ),
-0124 |               ...widget.fields.map(
-0125 |                 (field) => ListTile(
-0126 |                   contentPadding: EdgeInsets.zero,
-0127 |                   title: Text(field.label),
-0128 |                   subtitle: Text(field.value),
-0129 |                 ),
-0130 |               ),
-0131 |             ],
-0132 |             const Divider(height: 32),
-0133 |             Row(
-0134 |               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-0135 |               children: [
-0136 |                 Text('Claim total',
-0137 |                     style: Theme.of(context).textTheme.titleLarge),
-0138 |                 Text(
-0139 |                   '$currency ${total.toStringAsFixed(2)}',
-0140 |                   style: Theme.of(
-0141 |                     context,
-0142 |                   )
-0143 |                       .textTheme
-0144 |                       .headlineSmall
-0145 |                       ?.copyWith(fontWeight: FontWeight.w900),
-0146 |                 ),
-0147 |               ],
-0148 |             ),
-0149 |             const SizedBox(height: 12),
-0150 |             const Text(
-0151 |               'By submitting, you confirm that these values match your documents. High-confidence consistent claims may be verified automatically; all others go to human review.',
-0152 |             ),
-0153 |             if (error != null)
-0154 |               Padding(
-0155 |                 padding: const EdgeInsets.only(top: 12),
-0156 |                 child: Text(
-0157 |                   error!,
-0158 |                   style: TextStyle(color: Theme.of(context).colorScheme.error),
-0159 |                 ),
-0160 |               ),
-0161 |             const SizedBox(height: 20),
-0162 |             OutlinedButton.icon(
-0163 |               onPressed: busy ? null : () => Navigator.pop(context),
-0164 |               icon: const Icon(Icons.edit_outlined),
-0165 |               label: const Text('Go back and edit'),
-0166 |             ),
-0167 |             const SizedBox(height: 8),
-0168 |             TextButton(
-0169 |               onPressed: busy
-0170 |                   ? null
-0171 |                   : () => Navigator.popUntil(context, (route) => route.isFirst),
-0172 |               child: const Text('Cancel for now and keep as draft'),
-0173 |             ),
-0174 |             const SizedBox(height: 8),
-0175 |             FilledButton.icon(
-0176 |               onPressed: busy ? null : _submit,
-0177 |               icon: busy
-0178 |                   ? const SizedBox.square(
-0179 |                       dimension: 18,
-0180 |                       child: CircularProgressIndicator(strokeWidth: 2),
-0181 |                     )
-0182 |                   : const Icon(Icons.send),
-0183 |               label: const Padding(
-0184 |                 padding: EdgeInsets.symmetric(vertical: 14),
-0185 |                 child: Text('Confirm and submit claim'),
-0186 |               ),
-0187 |             ),
-0188 |           ],
-0189 |         ),
-0190 |       );
-0191 | }
+0071 |           padding: EdgeInsets.fromLTRB(
+0072 |               16, 16, 16, 16 + MediaQuery.paddingOf(context).bottom),
+0073 |           children: [
+0074 |             Text(
+0075 |               widget.reference,
+0076 |               style: Theme.of(
+0077 |                 context,
+0078 |               ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+0079 |             ),
+0080 |             const SizedBox(height: 16),
+0081 |             Card(
+0082 |               child: Padding(
+0083 |                 padding: const EdgeInsets.all(16),
+0084 |                 child: Column(
+0085 |                   children: [
+0086 |                     ListTile(
+0087 |                       contentPadding: EdgeInsets.zero,
+0088 |                       title: const Text('Patient'),
+0089 |                       subtitle: Text(widget.patientName),
+0090 |                     ),
+0091 |                     ListTile(
+0092 |                       contentPadding: EdgeInsets.zero,
+0093 |                       title: const Text('Provider'),
+0094 |                       subtitle: Text(widget.providerName),
+0095 |                     ),
+0096 |                   ],
+0097 |                 ),
+0098 |               ),
+0099 |             ),
+0100 |             const SizedBox(height: 16),
+0101 |             ...widget.documents.map(
+0102 |               (item) => ListTile(
+0103 |                 leading: Icon(
+0104 |                   item.include
+0105 |                       ? Icons.check_circle
+0106 |                       : Icons.remove_circle_outline,
+0107 |                   color: item.include ? Colors.green : Colors.grey,
+0108 |                 ),
+0109 |                 title: Text(item.document.originalName),
+0110 |                 subtitle: Text(
+0111 |                   item.include
+0112 |                       ? '${item.currency} ${item.amount!.toStringAsFixed(2)}'
+0113 |                       : 'Not included in total',
+0114 |                 ),
+0115 |               ),
+0116 |             ),
+0117 |             if (widget.fields.isNotEmpty) ...[
+0118 |               const Divider(height: 24),
+0119 |               Text(
+0120 |                 'Other extracted information',
+0121 |                 style: Theme.of(
+0122 |                   context,
+0123 |                 ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+0124 |               ),
+0125 |               ...widget.fields.map(
+0126 |                 (field) => ListTile(
+0127 |                   contentPadding: EdgeInsets.zero,
+0128 |                   title: Text(field.label),
+0129 |                   subtitle: Text(field.value),
+0130 |                 ),
+0131 |               ),
+0132 |             ],
+0133 |             const Divider(height: 32),
+0134 |             Wrap(
+0135 |               alignment: WrapAlignment.spaceBetween,
+0136 |               spacing: 16,
+0137 |               runSpacing: 8,
+0138 |               children: [
+0139 |                 Text('Claim total',
+0140 |                     style: Theme.of(context).textTheme.titleLarge),
+0141 |                 Text(
+0142 |                   '$currency ${total.toStringAsFixed(2)}',
+0143 |                   style: Theme.of(
+0144 |                     context,
+0145 |                   )
+0146 |                       .textTheme
+0147 |                       .headlineSmall
+0148 |                       ?.copyWith(fontWeight: FontWeight.w900),
+0149 |                 ),
+0150 |               ],
+0151 |             ),
+0152 |             const SizedBox(height: 12),
+0153 |             const Text(
+0154 |               'By submitting, you send the OCR results and any corrections as a proposal. A claims officer will compare them with your source documents and verify the correct amount before a decision.',
+0155 |             ),
+0156 |             if (error != null)
+0157 |               Padding(
+0158 |                 padding: const EdgeInsets.only(top: 12),
+0159 |                 child: Text(
+0160 |                   error!,
+0161 |                   style: TextStyle(color: Theme.of(context).colorScheme.error),
+0162 |                 ),
+0163 |               ),
+0164 |             const SizedBox(height: 20),
+0165 |             OutlinedButton.icon(
+0166 |               onPressed: busy ? null : () => Navigator.pop(context),
+0167 |               icon: const Icon(Icons.edit_outlined),
+0168 |               label: const Text('Go back and edit'),
+0169 |             ),
+0170 |             const SizedBox(height: 8),
+0171 |             TextButton(
+0172 |               onPressed: busy
+0173 |                   ? null
+0174 |                   : () => Navigator.popUntil(context, (route) => route.isFirst),
+0175 |               child: const Text('Cancel for now and keep as draft'),
+0176 |             ),
+0177 |             const SizedBox(height: 8),
+0178 |             FilledButton.icon(
+0179 |               onPressed: busy ? null : _submit,
+0180 |               icon: busy
+0181 |                   ? const SizedBox.square(
+0182 |                       dimension: 18,
+0183 |                       child: CircularProgressIndicator(strokeWidth: 2),
+0184 |                     )
+0185 |                   : const Icon(Icons.send),
+0186 |               label: const Padding(
+0187 |                 padding: EdgeInsets.symmetric(vertical: 14),
+0188 |                 child: Text('Confirm and submit claim'),
+0189 |               ),
+0190 |             ),
+0191 |           ],
+0192 |         ),
+0193 |       );
+0194 | }
 ```
 
 ## mobile/claimlens_mobile/lib/screens/dashboard_screen.dart
@@ -2581,9 +2604,9 @@ Symbols: `DocumentPreviewScreen`: L8; `_DocumentPreviewScreenState`: L19
 
 ## mobile/claimlens_mobile/lib/screens/extracted_info_screen.dart
 
-462 lines. SHA-256: `cd06fc5953ff3f323a7bc147f98d549cded2d73fc7e82d9f89eaa231f6b6457d`.
+493 lines. SHA-256: `302b08d5da3f8737932eb4fd13d625d26393e3b8d75e25273d39f0989ef3e20d`.
 
-Symbols: `ExtractedInfoScreen`: L11; `_ExtractedInfoScreenState`: L18; `_ConfidenceField`: L285; `_DocumentEditor`: L309
+Symbols: `ExtractedInfoScreen`: L11; `_ExtractedInfoScreenState`: L18; `_ConfidenceField`: L299; `_DocumentEditor`: L323
 
 ```dart
 0001 | import 'package:flutter/material.dart';
@@ -2641,413 +2664,444 @@ Symbols: `ExtractedInfoScreen`: L11; `_ExtractedInfoScreenState`: L18; `_Confide
 0053 |   }
 0054 |
 0055 |   Future<void> _load() async {
-0056 |     try {
-0057 |       final api = workspaceApi(context);
-0058 |       final service = context.read<ClaimsProvider>().service;
-0059 |       final settings = await api.get<Map<String, dynamic>>('/settings');
-0060 |       allowedCurrencies =
-0061 |           List<String>.from(settings.data!['allowed_currencies'] as List);
-0062 |       final value = await service.details(
-0063 |         widget.reference,
-0064 |       );
-0065 |       final patientField = _bestField(value, 'patient_name');
-0066 |       final providerField = _bestField(value, 'provider_name');
-0067 |       patient.text = patientField?.normalizedValue ?? value.patientName;
-0068 |       provider.text = providerField?.normalizedValue ?? value.providerName;
-0069 |       patientConfidence = patientField?.confidence;
-0070 |       providerConfidence = providerField?.confidence;
-0071 |       confirmations.clear();
-0072 |       for (final document in value.documents) {
-0073 |         final amount = document.confirmedAmount ?? document.extractedAmount;
-0074 |         final currency = document.confirmedCurrency ??
-0075 |             document.extractedCurrency ??
-0076 |             value.currency;
-0077 |         confirmations.add(
-0078 |           DocumentConfirmation(
-0079 |             document: document,
-0080 |             include: allowedCurrencies.contains(currency) &&
-0081 |                 document.duplicateOf == null &&
-0082 |                 (document.includeInTotal || amount != null),
-0083 |             amount: amount,
-0084 |             currency: allowedCurrencies.contains(currency)
-0085 |                 ? currency
-0086 |                 : allowedCurrencies.first,
-0087 |           ),
-0088 |         );
-0089 |         amountControllers[document.id]?.dispose();
-0090 |         amountControllers[document.id] = TextEditingController(
-0091 |           text: amount?.toStringAsFixed(2) ?? '',
-0092 |         );
-0093 |         for (final field in document.fields.where(
-0094 |           (item) => !{
-0095 |             'patient_name',
-0096 |             'provider_name',
-0097 |             'claimed_amount',
-0098 |             'invoice_total',
-0099 |           }.contains(item.fieldName),
-0100 |         )) {
-0101 |           fieldControllers[field.id]?.dispose();
-0102 |           fieldControllers[field.id] = TextEditingController(
-0103 |             text: field.normalizedValue,
-0104 |           );
-0105 |         }
-0106 |       }
-0107 |       setState(() => claim = value);
-0108 |     } catch (exception) {
-0109 |       setState(() => error = readableApiError(exception));
-0110 |     } finally {
-0111 |       if (mounted) setState(() => loading = false);
-0112 |     }
-0113 |   }
-0114 |
-0115 |   @override
-0116 |   void dispose() {
-0117 |     patient.dispose();
-0118 |     provider.dispose();
-0119 |     for (final controller in amountControllers.values) {
-0120 |       controller.dispose();
-0121 |     }
-0122 |     for (final controller in fieldControllers.values) {
-0123 |       controller.dispose();
-0124 |     }
-0125 |     super.dispose();
-0126 |   }
-0127 |
-0128 |   String? _required(String? value) =>
-0129 |       value == null || value.trim().length < 2 ? 'Confirm this value.' : null;
-0130 |
-0131 |   void _review() {
-0132 |     if (!formKey.currentState!.validate()) return;
-0133 |     for (final confirmation in confirmations) {
-0134 |       confirmation.amount = double.tryParse(
-0135 |         amountControllers[confirmation.document.id]!.text.trim(),
-0136 |       );
-0137 |       if (confirmation.include &&
-0138 |           (confirmation.amount == null || confirmation.amount! <= 0)) {
-0139 |         setState(() => error = 'Every included document needs a valid amount.');
-0140 |         return;
-0141 |       }
-0142 |     }
-0143 |     if (!confirmations.any((item) => item.include)) {
-0144 |       setState(() => error = 'Include at least one payable document.');
-0145 |       return;
-0146 |     }
-0147 |     final currencies = confirmations
-0148 |         .where((item) => item.include)
-0149 |         .map((item) => item.currency)
-0150 |         .toSet();
-0151 |     if (currencies.length != 1) {
-0152 |       setState(() => error = 'Included documents must use the same currency.');
-0153 |       return;
-0154 |     }
-0155 |     final fieldLabels = {
-0156 |       for (final field in claim!.documents.expand(
-0157 |         (document) => document.fields,
-0158 |       ))
-0159 |         field.id: field.fieldName.replaceAll('_', ' '),
-0160 |     };
-0161 |     final corrections = fieldControllers.entries
-0162 |         .map(
-0163 |           (entry) => FieldCorrection(
-0164 |             id: entry.key,
-0165 |             label: fieldLabels[entry.key] ?? 'extracted field',
-0166 |             value: entry.value.text.trim(),
-0167 |           ),
-0168 |         )
-0169 |         .where((field) => field.value.isNotEmpty)
-0170 |         .toList();
-0171 |     Navigator.push(
-0172 |       context,
-0173 |       MaterialPageRoute(
-0174 |         builder: (_) => ClaimReviewScreen(
-0175 |           reference: widget.reference,
-0176 |           patientName: patient.text.trim(),
-0177 |           providerName: provider.text.trim(),
-0178 |           documents: confirmations,
-0179 |           fields: corrections,
-0180 |         ),
-0181 |       ),
-0182 |     );
-0183 |   }
-0184 |
-0185 |   @override
-0186 |   Widget build(BuildContext context) => Scaffold(
-0187 |         appBar: AppBar(title: const Text('Confirm extracted information')),
-0188 |         body: loading
-0189 |             ? const Center(child: CircularProgressIndicator())
-0190 |             : claim == null
-0191 |                 ? Center(
-0192 |                     child: Padding(
-0193 |                       padding: const EdgeInsets.all(24),
-0194 |                       child: Text(error ?? 'The claim could not be loaded.'),
-0195 |                     ),
-0196 |                   )
-0197 |                 : Form(
-0198 |                     key: formKey,
-0199 |                     child: ListView(
-0200 |                       padding: const EdgeInsets.all(16),
-0201 |                       children: [
-0202 |                         Card(
-0203 |                           color:
-0204 |                               Theme.of(context).colorScheme.tertiaryContainer,
-0205 |                           child: const Padding(
-0206 |                             padding: EdgeInsets.all(16),
-0207 |                             child: Row(
-0208 |                               crossAxisAlignment: CrossAxisAlignment.start,
-0209 |                               children: [
-0210 |                                 Icon(Icons.fact_check_outlined),
-0211 |                                 SizedBox(width: 12),
-0212 |                                 Expanded(
-0213 |                                   child: Text(
-0214 |                                     'OCR values are proposals, not final decisions. Compare them with the source documents and correct anything that is wrong.',
-0215 |                                   ),
-0216 |                                 ),
-0217 |                               ],
-0218 |                             ),
-0219 |                           ),
-0220 |                         ),
-0221 |                         const SizedBox(height: 16),
-0222 |                         _ConfidenceField(
-0223 |                           controller: patient,
-0224 |                           label: 'Patient name',
-0225 |                           confidence: patientConfidence,
-0226 |                           validator: _required,
-0227 |                         ),
-0228 |                         const SizedBox(height: 12),
-0229 |                         _ConfidenceField(
-0230 |                           controller: provider,
-0231 |                           label: 'Provider name',
-0232 |                           confidence: providerConfidence,
-0233 |                           validator: _required,
+0056 |     if (!mounted) return;
+0057 |     setState(() {
+0058 |       loading = true;
+0059 |       error = null;
+0060 |     });
+0061 |     try {
+0062 |       final api = workspaceApi(context);
+0063 |       final service = context.read<ClaimsProvider>().service;
+0064 |       final settings = await api.get<Map<String, dynamic>>('/settings');
+0065 |       allowedCurrencies =
+0066 |           List<String>.from(settings.data!['allowed_currencies'] as List);
+0067 |       final value = await service.details(
+0068 |         widget.reference,
+0069 |       );
+0070 |       if (!mounted) return;
+0071 |       final patientField = _bestField(value, 'patient_name');
+0072 |       final providerField = _bestField(value, 'provider_name');
+0073 |       patient.text = patientField?.normalizedValue ?? value.patientName;
+0074 |       provider.text = providerField?.normalizedValue ?? value.providerName;
+0075 |       patientConfidence = patientField?.confidence;
+0076 |       providerConfidence = providerField?.confidence;
+0077 |       confirmations.clear();
+0078 |       for (final document in value.documents) {
+0079 |         final amount = document.confirmedAmount ?? document.extractedAmount;
+0080 |         final currency = document.confirmedCurrency ??
+0081 |             document.extractedCurrency ??
+0082 |             value.currency;
+0083 |         confirmations.add(
+0084 |           DocumentConfirmation(
+0085 |             document: document,
+0086 |             include: allowedCurrencies.contains(currency) &&
+0087 |                 document.duplicateOf == null &&
+0088 |                 (document.includeInTotal || amount != null),
+0089 |             amount: amount,
+0090 |             currency: allowedCurrencies.contains(currency)
+0091 |                 ? currency
+0092 |                 : allowedCurrencies.first,
+0093 |           ),
+0094 |         );
+0095 |         amountControllers[document.id]?.dispose();
+0096 |         amountControllers[document.id] = TextEditingController(
+0097 |           text: amount?.toStringAsFixed(2) ?? '',
+0098 |         );
+0099 |         for (final field in document.fields.where(
+0100 |           (item) => !{
+0101 |             'patient_name',
+0102 |             'provider_name',
+0103 |             'claimed_amount',
+0104 |             'invoice_total',
+0105 |           }.contains(item.fieldName),
+0106 |         )) {
+0107 |           fieldControllers[field.id]?.dispose();
+0108 |           fieldControllers[field.id] = TextEditingController(
+0109 |             text: field.normalizedValue,
+0110 |           );
+0111 |         }
+0112 |       }
+0113 |       setState(() => claim = value);
+0114 |     } catch (exception) {
+0115 |       if (mounted) setState(() => error = readableApiError(exception));
+0116 |     } finally {
+0117 |       if (mounted) setState(() => loading = false);
+0118 |     }
+0119 |   }
+0120 |
+0121 |   @override
+0122 |   void dispose() {
+0123 |     patient.dispose();
+0124 |     provider.dispose();
+0125 |     for (final controller in amountControllers.values) {
+0126 |       controller.dispose();
+0127 |     }
+0128 |     for (final controller in fieldControllers.values) {
+0129 |       controller.dispose();
+0130 |     }
+0131 |     super.dispose();
+0132 |   }
+0133 |
+0134 |   String? _required(String? value) =>
+0135 |       value == null || value.trim().length < 2 ? 'Confirm this value.' : null;
+0136 |
+0137 |   void _review() {
+0138 |     if (!formKey.currentState!.validate()) return;
+0139 |     for (final confirmation in confirmations) {
+0140 |       confirmation.amount = double.tryParse(
+0141 |         amountControllers[confirmation.document.id]!.text.trim(),
+0142 |       );
+0143 |       if (confirmation.include &&
+0144 |           (confirmation.amount == null || confirmation.amount! <= 0)) {
+0145 |         setState(() => error = 'Every included document needs a valid amount.');
+0146 |         return;
+0147 |       }
+0148 |     }
+0149 |     if (!confirmations.any((item) => item.include)) {
+0150 |       setState(() => error = 'Include at least one payable document.');
+0151 |       return;
+0152 |     }
+0153 |     final currencies = confirmations
+0154 |         .where((item) => item.include)
+0155 |         .map((item) => item.currency)
+0156 |         .toSet();
+0157 |     if (currencies.length != 1) {
+0158 |       setState(() => error = 'Included documents must use the same currency.');
+0159 |       return;
+0160 |     }
+0161 |     final fieldLabels = {
+0162 |       for (final field in claim!.documents.expand(
+0163 |         (document) => document.fields,
+0164 |       ))
+0165 |         field.id: field.fieldName.replaceAll('_', ' '),
+0166 |     };
+0167 |     final corrections = fieldControllers.entries
+0168 |         .map(
+0169 |           (entry) => FieldCorrection(
+0170 |             id: entry.key,
+0171 |             label: fieldLabels[entry.key] ?? 'extracted field',
+0172 |             value: entry.value.text.trim(),
+0173 |           ),
+0174 |         )
+0175 |         .where((field) => field.value.isNotEmpty)
+0176 |         .toList();
+0177 |     Navigator.push(
+0178 |       context,
+0179 |       MaterialPageRoute(
+0180 |         builder: (_) => ClaimReviewScreen(
+0181 |           reference: widget.reference,
+0182 |           patientName: patient.text.trim(),
+0183 |           providerName: provider.text.trim(),
+0184 |           documents: confirmations,
+0185 |           fields: corrections,
+0186 |         ),
+0187 |       ),
+0188 |     );
+0189 |   }
+0190 |
+0191 |   @override
+0192 |   Widget build(BuildContext context) => Scaffold(
+0193 |         appBar: AppBar(title: const Text('Confirm extracted information')),
+0194 |         body: loading
+0195 |             ? const Center(child: CircularProgressIndicator())
+0196 |             : claim == null
+0197 |                 ? Center(
+0198 |                     child: Padding(
+0199 |                       padding: const EdgeInsets.all(24),
+0200 |                       child: Column(mainAxisSize: MainAxisSize.min, children: [
+0201 |                         Text(error ?? 'The claim could not be loaded.'),
+0202 |                         const SizedBox(height: 16),
+0203 |                         FilledButton.icon(
+0204 |                             onPressed: _load,
+0205 |                             icon: const Icon(Icons.refresh),
+0206 |                             label: const Text('Retry loading claim')),
+0207 |                       ]),
+0208 |                     ),
+0209 |                   )
+0210 |                 : Form(
+0211 |                     key: formKey,
+0212 |                     child: ListView(
+0213 |                       padding: EdgeInsets.fromLTRB(16, 16, 16,
+0214 |                           16 + MediaQuery.paddingOf(context).bottom),
+0215 |                       children: [
+0216 |                         Card(
+0217 |                           color:
+0218 |                               Theme.of(context).colorScheme.tertiaryContainer,
+0219 |                           child: const Padding(
+0220 |                             padding: EdgeInsets.all(16),
+0221 |                             child: Row(
+0222 |                               crossAxisAlignment: CrossAxisAlignment.start,
+0223 |                               children: [
+0224 |                                 Icon(Icons.fact_check_outlined),
+0225 |                                 SizedBox(width: 12),
+0226 |                                 Expanded(
+0227 |                                   child: Text(
+0228 |                                     'OCR values are proposals, not final decisions. Compare them with the source documents and correct anything that is wrong.',
+0229 |                                   ),
+0230 |                                 ),
+0231 |                               ],
+0232 |                             ),
+0233 |                           ),
 0234 |                         ),
-0235 |                         const SizedBox(height: 24),
-0236 |                         Text(
-0237 |                           'Document amounts',
-0238 |                           style: Theme.of(
-0239 |                             context,
-0240 |                           )
-0241 |                               .textTheme
-0242 |                               .titleLarge
-0243 |                               ?.copyWith(fontWeight: FontWeight.w800),
-0244 |                         ),
-0245 |                         const SizedBox(height: 4),
-0246 |                         const Text(
-0247 |                           'Include payable evidence only. Medical certificates and duplicate copies should normally be excluded.',
+0235 |                         const SizedBox(height: 16),
+0236 |                         _ConfidenceField(
+0237 |                           controller: patient,
+0238 |                           label: 'Patient name',
+0239 |                           confidence: patientConfidence,
+0240 |                           validator: _required,
+0241 |                         ),
+0242 |                         const SizedBox(height: 12),
+0243 |                         _ConfidenceField(
+0244 |                           controller: provider,
+0245 |                           label: 'Provider name',
+0246 |                           confidence: providerConfidence,
+0247 |                           validator: _required,
 0248 |                         ),
-0249 |                         const SizedBox(height: 12),
-0250 |                         ...confirmations.map(
-0251 |                           (item) => _DocumentEditor(
-0252 |                             reference: widget.reference,
-0253 |                             allowedCurrencies: allowedCurrencies,
-0254 |                             item: item,
-0255 |                             controller: amountControllers[item.document.id]!,
-0256 |                             fieldControllers: fieldControllers,
-0257 |                             onChanged: () => setState(() {}),
-0258 |                           ),
-0259 |                         ),
-0260 |                         if (error != null)
-0261 |                           Padding(
-0262 |                             padding: const EdgeInsets.only(top: 8),
-0263 |                             child: Text(
-0264 |                               error!,
-0265 |                               style: TextStyle(
-0266 |                                 color: Theme.of(context).colorScheme.error,
-0267 |                               ),
-0268 |                             ),
-0269 |                           ),
-0270 |                         const SizedBox(height: 16),
-0271 |                         FilledButton.icon(
-0272 |                           onPressed: _review,
-0273 |                           icon: const Icon(Icons.arrow_forward),
-0274 |                           label: const Padding(
-0275 |                             padding: EdgeInsets.symmetric(vertical: 14),
-0276 |                             child: Text('Review claim total'),
-0277 |                           ),
-0278 |                         ),
-0279 |                       ],
-0280 |                     ),
-0281 |                   ),
-0282 |       );
-0283 | }
-0284 |
-0285 | class _ConfidenceField extends StatelessWidget {
-0286 |   const _ConfidenceField({
-0287 |     required this.controller,
-0288 |     required this.label,
-0289 |     required this.confidence,
-0290 |     required this.validator,
-0291 |   });
-0292 |   final TextEditingController controller;
-0293 |   final String label;
-0294 |   final double? confidence;
-0295 |   final FormFieldValidator<String> validator;
-0296 |   @override
-0297 |   Widget build(BuildContext context) => TextFormField(
-0298 |         controller: controller,
-0299 |         validator: validator,
-0300 |         decoration: InputDecoration(
-0301 |           labelText: label,
-0302 |           helperText: confidence == null
-0303 |               ? 'Not found by OCR - enter manually'
-0304 |               : 'OCR confidence ${(confidence! * 100).round()}%',
-0305 |         ),
-0306 |       );
-0307 | }
-0308 |
-0309 | class _DocumentEditor extends StatelessWidget {
-0310 |   const _DocumentEditor({
-0311 |     required this.item,
-0312 |     required this.controller,
-0313 |     required this.fieldControllers,
-0314 |     required this.onChanged,
-0315 |     required this.reference,
-0316 |     required this.allowedCurrencies,
-0317 |   });
-0318 |   final DocumentConfirmation item;
-0319 |   final String reference;
-0320 |   final List<String> allowedCurrencies;
-0321 |   final TextEditingController controller;
-0322 |   final Map<String, TextEditingController> fieldControllers;
-0323 |   final VoidCallback onChanged;
-0324 |   @override
-0325 |   Widget build(BuildContext context) {
-0326 |     final document = item.document;
-0327 |     return Card(
-0328 |       margin: const EdgeInsets.only(bottom: 12),
-0329 |       child: Padding(
-0330 |         padding: const EdgeInsets.all(14),
-0331 |         child: Column(
-0332 |           crossAxisAlignment: CrossAxisAlignment.start,
-0333 |           children: [
-0334 |             Row(
-0335 |               children: [
-0336 |                 Expanded(
-0337 |                   child: Text(
-0338 |                     document.originalName,
-0339 |                     maxLines: 2,
-0340 |                     overflow: TextOverflow.ellipsis,
-0341 |                     style: const TextStyle(fontWeight: FontWeight.w700),
-0342 |                   ),
-0343 |                 ),
-0344 |                 Switch(
-0345 |                   value: item.include,
-0346 |                   onChanged: document.duplicateOf == null
-0347 |                       ? (value) {
-0348 |                           item.include = value;
-0349 |                           onChanged();
-0350 |                         }
-0351 |                       : null,
-0352 |                 ),
-0353 |               ],
-0354 |             ),
-0355 |             Text(document.documentType.replaceAll('_', ' ')),
-0356 |             TextButton.icon(
-0357 |                 onPressed: () => Navigator.push(
-0358 |                     context,
-0359 |                     MaterialPageRoute(
-0360 |                         builder: (_) => DocumentPreviewScreen(
-0361 |                             reference: reference,
-0362 |                             documentId: document.id,
-0363 |                             name: document.originalName))),
-0364 |                 icon: const Icon(Icons.document_scanner_outlined),
-0365 |                 label: const Text('Compare source document')),
-0366 |             if (document.duplicateOf != null)
-0367 |               const Text(
-0368 |                 'Duplicate detected - excluded from total.',
-0369 |                 style: TextStyle(color: Colors.orange),
-0370 |               ),
-0371 |             if (document.extractionNotes != null)
-0372 |               Text(
-0373 |                 document.extractionNotes!,
-0374 |                 style: TextStyle(color: Theme.of(context).colorScheme.error),
-0375 |               ),
-0376 |             const SizedBox(height: 10),
-0377 |             Column(
-0378 |               children: [
-0379 |                 SizedBox(
-0380 |                   width: double.infinity,
-0381 |                   child: TextFormField(
-0382 |                     controller: controller,
-0383 |                     enabled: item.include,
-0384 |                     keyboardType: const TextInputType.numberWithOptions(
-0385 |                       decimal: true,
-0386 |                     ),
-0387 |                     decoration: InputDecoration(
-0388 |                       labelText: 'Amount',
-0389 |                       helperText: document.amountConfidence == null
-0390 |                           ? 'Manual value'
-0391 |                           : 'Confidence ${(document.amountConfidence! * 100).round()}%',
-0392 |                     ),
-0393 |                   ),
-0394 |                 ),
-0395 |                 const SizedBox(height: 14),
-0396 |                 SizedBox(
-0397 |                   width: double.infinity,
-0398 |                   child: DropdownButtonFormField<String>(
-0399 |                     initialValue: item.currency,
-0400 |                     decoration: const InputDecoration(labelText: 'Currency'),
-0401 |                     items: allowedCurrencies
-0402 |                         .map(
-0403 |                           (currency) => DropdownMenuItem(
-0404 |                             value: currency,
-0405 |                             child: Text(currency),
-0406 |                           ),
-0407 |                         )
-0408 |                         .toList(),
-0409 |                     onChanged: item.include
-0410 |                         ? (value) {
-0411 |                             if (value != null) {
-0412 |                               item.currency = value;
-0413 |                               onChanged();
-0414 |                             }
-0415 |                           }
-0416 |                         : null,
-0417 |                   ),
-0418 |                 ),
-0419 |               ],
-0420 |             ),
-0421 |             if (document.fields
-0422 |                 .where(
-0423 |                   (field) => !{
-0424 |                     'patient_name',
-0425 |                     'provider_name',
-0426 |                     'claimed_amount',
-0427 |                     'invoice_total',
-0428 |                   }.contains(field.fieldName),
-0429 |                 )
-0430 |                 .isNotEmpty) ...[
-0431 |               const Divider(height: 24),
-0432 |               ...document.fields
-0433 |                   .where(
-0434 |                     (field) => !{
-0435 |                       'patient_name',
-0436 |                       'provider_name',
-0437 |                       'claimed_amount',
-0438 |                       'invoice_total',
-0439 |                     }.contains(field.fieldName),
-0440 |                   )
-0441 |                   .map(
-0442 |                     (field) => Padding(
-0443 |                       padding: const EdgeInsets.only(bottom: 10),
-0444 |                       child: TextFormField(
-0445 |                         controller: fieldControllers[field.id],
-0446 |                         decoration: InputDecoration(
-0447 |                           labelText: field.fieldName.replaceAll('_', ' '),
-0448 |                           helperText: field.extractionMethod ==
-0449 |                                   'human_corrected'
-0450 |                               ? 'Human corrected'
-0451 |                               : 'OCR confidence ${(field.confidence * 100).round()}%',
-0452 |                         ),
-0453 |                       ),
-0454 |                     ),
-0455 |                   ),
-0456 |             ],
-0457 |           ],
-0458 |         ),
-0459 |       ),
-0460 |     );
-0461 |   }
-0462 | }
+0249 |                         const SizedBox(height: 24),
+0250 |                         Text(
+0251 |                           'Document amounts',
+0252 |                           style: Theme.of(
+0253 |                             context,
+0254 |                           )
+0255 |                               .textTheme
+0256 |                               .titleLarge
+0257 |                               ?.copyWith(fontWeight: FontWeight.w800),
+0258 |                         ),
+0259 |                         const SizedBox(height: 4),
+0260 |                         const Text(
+0261 |                           'Include payable evidence only. Medical certificates and duplicate copies should normally be excluded.',
+0262 |                         ),
+0263 |                         const SizedBox(height: 12),
+0264 |                         ...confirmations.map(
+0265 |                           (item) => _DocumentEditor(
+0266 |                             reference: widget.reference,
+0267 |                             allowedCurrencies: allowedCurrencies,
+0268 |                             item: item,
+0269 |                             controller: amountControllers[item.document.id]!,
+0270 |                             fieldControllers: fieldControllers,
+0271 |                             onChanged: () => setState(() {}),
+0272 |                           ),
+0273 |                         ),
+0274 |                         if (error != null)
+0275 |                           Padding(
+0276 |                             padding: const EdgeInsets.only(top: 8),
+0277 |                             child: Text(
+0278 |                               error!,
+0279 |                               style: TextStyle(
+0280 |                                 color: Theme.of(context).colorScheme.error,
+0281 |                               ),
+0282 |                             ),
+0283 |                           ),
+0284 |                         const SizedBox(height: 16),
+0285 |                         FilledButton.icon(
+0286 |                           onPressed: _review,
+0287 |                           icon: const Icon(Icons.arrow_forward),
+0288 |                           label: const Padding(
+0289 |                             padding: EdgeInsets.symmetric(vertical: 14),
+0290 |                             child: Text('Review claim total'),
+0291 |                           ),
+0292 |                         ),
+0293 |                       ],
+0294 |                     ),
+0295 |                   ),
+0296 |       );
+0297 | }
+0298 |
+0299 | class _ConfidenceField extends StatelessWidget {
+0300 |   const _ConfidenceField({
+0301 |     required this.controller,
+0302 |     required this.label,
+0303 |     required this.confidence,
+0304 |     required this.validator,
+0305 |   });
+0306 |   final TextEditingController controller;
+0307 |   final String label;
+0308 |   final double? confidence;
+0309 |   final FormFieldValidator<String> validator;
+0310 |   @override
+0311 |   Widget build(BuildContext context) => TextFormField(
+0312 |         controller: controller,
+0313 |         validator: validator,
+0314 |         decoration: InputDecoration(
+0315 |           labelText: label,
+0316 |           helperText: confidence == null
+0317 |               ? 'Not found by OCR - enter manually'
+0318 |               : 'OCR confidence ${(confidence! * 100).round()}%',
+0319 |         ),
+0320 |       );
+0321 | }
+0322 |
+0323 | class _DocumentEditor extends StatelessWidget {
+0324 |   const _DocumentEditor({
+0325 |     required this.item,
+0326 |     required this.controller,
+0327 |     required this.fieldControllers,
+0328 |     required this.onChanged,
+0329 |     required this.reference,
+0330 |     required this.allowedCurrencies,
+0331 |   });
+0332 |   final DocumentConfirmation item;
+0333 |   final String reference;
+0334 |   final List<String> allowedCurrencies;
+0335 |   final TextEditingController controller;
+0336 |   final Map<String, TextEditingController> fieldControllers;
+0337 |   final VoidCallback onChanged;
+0338 |   @override
+0339 |   Widget build(BuildContext context) {
+0340 |     final document = item.document;
+0341 |     return Card(
+0342 |       margin: const EdgeInsets.only(bottom: 12),
+0343 |       child: Padding(
+0344 |         padding: const EdgeInsets.all(14),
+0345 |         child: Column(
+0346 |           crossAxisAlignment: CrossAxisAlignment.start,
+0347 |           children: [
+0348 |             Row(
+0349 |               children: [
+0350 |                 Expanded(
+0351 |                   child: Text(
+0352 |                     document.originalName,
+0353 |                     maxLines: 2,
+0354 |                     overflow: TextOverflow.ellipsis,
+0355 |                     style: const TextStyle(fontWeight: FontWeight.w700),
+0356 |                   ),
+0357 |                 ),
+0358 |                 Switch(
+0359 |                   value: item.include,
+0360 |                   onChanged: document.duplicateOf == null
+0361 |                       ? (value) {
+0362 |                           item.include = value;
+0363 |                           onChanged();
+0364 |                         }
+0365 |                       : null,
+0366 |                 ),
+0367 |               ],
+0368 |             ),
+0369 |             Text(document.documentType.replaceAll('_', ' ')),
+0370 |             TextButton.icon(
+0371 |                 onPressed: () => Navigator.push(
+0372 |                     context,
+0373 |                     MaterialPageRoute(
+0374 |                         builder: (_) => DocumentPreviewScreen(
+0375 |                             reference: reference,
+0376 |                             documentId: document.id,
+0377 |                             name: document.originalName))),
+0378 |                 icon: const Icon(Icons.document_scanner_outlined),
+0379 |                 label: const Text('Compare source document')),
+0380 |             if (document.duplicateOf != null)
+0381 |               const Text(
+0382 |                 'Duplicate detected - excluded from total.',
+0383 |                 style: TextStyle(color: Colors.orange),
+0384 |               ),
+0385 |             if (document.extractionNotes != null)
+0386 |               Text(
+0387 |                 document.extractionNotes!,
+0388 |                 style: TextStyle(color: Theme.of(context).colorScheme.error),
+0389 |               ),
+0390 |             const SizedBox(height: 10),
+0391 |             if (document.extractedAmount != null) ...[
+0392 |               Text(
+0393 |                   'OCR amount: ${document.extractedCurrency ?? item.currency} ${document.extractedAmount!.toStringAsFixed(2)}'),
+0394 |               TextButton.icon(
+0395 |                   onPressed: item.include
+0396 |                       ? () {
+0397 |                           item.amountReported = true;
+0398 |                           onChanged();
+0399 |                         }
+0400 |                       : null,
+0401 |                   icon: const Icon(Icons.flag_outlined),
+0402 |                   label: Text(item.amountReported
+0403 |                       ? 'Correction will be checked by a claims officer'
+0404 |                       : 'Report incorrect amount')),
+0405 |             ],
+0406 |             Column(
+0407 |               children: [
+0408 |                 SizedBox(
+0409 |                   width: double.infinity,
+0410 |                   child: TextFormField(
+0411 |                     controller: controller,
+0412 |                     enabled: item.include,
+0413 |                     readOnly: document.extractedAmount != null &&
+0414 |                         !item.amountReported,
+0415 |                     keyboardType: const TextInputType.numberWithOptions(
+0416 |                       decimal: true,
+0417 |                     ),
+0418 |                     decoration: InputDecoration(
+0419 |                       labelText: 'Proposed amount',
+0420 |                       helperText: document.amountConfidence == null
+0421 |                           ? 'Enter a proposal for the claims officer to check'
+0422 |                           : 'Confidence ${(document.amountConfidence! * 100).round()}%',
+0423 |                     ),
+0424 |                   ),
+0425 |                 ),
+0426 |                 const SizedBox(height: 14),
+0427 |                 SizedBox(
+0428 |                   width: double.infinity,
+0429 |                   child: DropdownButtonFormField<String>(
+0430 |                     initialValue: item.currency,
+0431 |                     decoration: const InputDecoration(labelText: 'Currency'),
+0432 |                     items: allowedCurrencies
+0433 |                         .map(
+0434 |                           (currency) => DropdownMenuItem(
+0435 |                             value: currency,
+0436 |                             child: Text(currency),
+0437 |                           ),
+0438 |                         )
+0439 |                         .toList(),
+0440 |                     onChanged: item.include
+0441 |                         ? (value) {
+0442 |                             if (value != null) {
+0443 |                               item.currency = value;
+0444 |                               onChanged();
+0445 |                             }
+0446 |                           }
+0447 |                         : null,
+0448 |                   ),
+0449 |                 ),
+0450 |               ],
+0451 |             ),
+0452 |             if (document.fields
+0453 |                 .where(
+0454 |                   (field) => !{
+0455 |                     'patient_name',
+0456 |                     'provider_name',
+0457 |                     'claimed_amount',
+0458 |                     'invoice_total',
+0459 |                   }.contains(field.fieldName),
+0460 |                 )
+0461 |                 .isNotEmpty) ...[
+0462 |               const Divider(height: 24),
+0463 |               ...document.fields
+0464 |                   .where(
+0465 |                     (field) => !{
+0466 |                       'patient_name',
+0467 |                       'provider_name',
+0468 |                       'claimed_amount',
+0469 |                       'invoice_total',
+0470 |                     }.contains(field.fieldName),
+0471 |                   )
+0472 |                   .map(
+0473 |                     (field) => Padding(
+0474 |                       padding: const EdgeInsets.only(bottom: 10),
+0475 |                       child: TextFormField(
+0476 |                         controller: fieldControllers[field.id],
+0477 |                         decoration: InputDecoration(
+0478 |                           labelText: field.fieldName.replaceAll('_', ' '),
+0479 |                           helperText: field.extractionMethod ==
+0480 |                                   'human_corrected'
+0481 |                               ? 'Human corrected'
+0482 |                               : 'OCR confidence ${(field.confidence * 100).round()}%',
+0483 |                         ),
+0484 |                       ),
+0485 |                     ),
+0486 |                   ),
+0487 |             ],
+0488 |           ],
+0489 |         ),
+0490 |       ),
+0491 |     );
+0492 |   }
+0493 | }
 ```
 
 ## mobile/claimlens_mobile/lib/screens/help_screen.dart
@@ -3512,7 +3566,7 @@ Symbols: `InformationResponseScreen`: L7; `_InformationResponseScreenState`: L17
 
 ## mobile/claimlens_mobile/lib/screens/login_screen.dart
 
-175 lines. SHA-256: `0e2e72f418a03577f7f240abc65e156ba3939c73a6c3af69df58fa09fc51f162`.
+180 lines. SHA-256: `386f890cbb137e310f939fa372c0a9bc9f0cdb8e763557096ae035f8e7c01a5c`.
 
 Symbols: `LoginScreen`: L11; `_LoginScreenState`: L17
 
@@ -3629,74 +3683,79 @@ Symbols: `LoginScreen`: L11; `_LoginScreenState`: L17
 0110 |                         ),
 0111 |                       ),
 0112 |                     const SizedBox(height: 20),
-0113 |                     FilledButton.icon(
-0114 |                       onPressed: auth.busy
-0115 |                           ? null
-0116 |                           : () {
-0117 |                               if (formKey.currentState!.validate()) {
-0118 |                                 auth.login(email.text, password.text);
-0119 |                               }
-0120 |                             },
-0121 |                       icon: auth.busy
-0122 |                           ? const SizedBox.square(
-0123 |                               dimension: 18,
-0124 |                               child: CircularProgressIndicator(strokeWidth: 2),
-0125 |                             )
-0126 |                           : const Icon(Icons.login),
-0127 |                       label: const Padding(
-0128 |                         padding: EdgeInsets.symmetric(vertical: 14),
-0129 |                         child: Text('Sign in'),
-0130 |                       ),
-0131 |                     ),
-0132 |                     const SizedBox(height: 16),
-0133 |                     TextButton(
-0134 |                       onPressed: auth.busy
-0135 |                           ? null
-0136 |                           : () => Navigator.push(
-0137 |                                 context,
-0138 |                                 MaterialPageRoute<void>(
-0139 |                                   builder: (_) => PasswordRecoveryScreen(
-0140 |                                     initialEmail: email.text.trim(),
-0141 |                                   ),
-0142 |                                 ),
-0143 |                               ),
-0144 |                       child: const Text('Forgot password?'),
-0145 |                     ),
-0146 |                     OutlinedButton(
-0147 |                       onPressed: auth.busy ? null : openSignup,
-0148 |                       child: const Text('New client? Sign up'),
-0149 |                     ),
-0150 |                     if (kDebugMode)
-0151 |                       TextButton.icon(
-0152 |                           onPressed: auth.busy
-0153 |                               ? null
-0154 |                               : () => workspaceForm(context,
-0155 |                                   title: 'Development connection',
-0156 |                                   explanation:
-0157 |                                       'For USB debugging use http://127.0.0.1:8000. For a hotspot or Wi-Fi connection, enter the API computer’s local address. A hosted server must use HTTPS.',
-0158 |                                   fields: [
-0159 |                                     FormEntry('url', 'API server URL',
-0160 |                                         value: auth.client.dio.options.baseUrl)
-0161 |                                   ],
-0162 |                                   button: 'Check & save connection',
-0163 |                                   submit: (v) => auth.changeServer(v['url']!)),
-0164 |                           icon: const Icon(Icons.settings_ethernet),
-0165 |                           label: const Text('Development connection')),
-0166 |                   ],
-0167 |                 ),
-0168 |               ),
-0169 |             ),
-0170 |           ),
-0171 |         ),
-0172 |       ),
-0173 |     );
-0174 |   }
-0175 | }
+0113 |                     if (auth.client.hasSession)
+0114 |                       TextButton.icon(
+0115 |                           onPressed: auth.busy ? null : auth.initialise,
+0116 |                           icon: const Icon(Icons.refresh),
+0117 |                           label: const Text('Retry saved session')),
+0118 |                     FilledButton.icon(
+0119 |                       onPressed: auth.busy
+0120 |                           ? null
+0121 |                           : () {
+0122 |                               if (formKey.currentState!.validate()) {
+0123 |                                 auth.login(email.text, password.text);
+0124 |                               }
+0125 |                             },
+0126 |                       icon: auth.busy
+0127 |                           ? const SizedBox.square(
+0128 |                               dimension: 18,
+0129 |                               child: CircularProgressIndicator(strokeWidth: 2),
+0130 |                             )
+0131 |                           : const Icon(Icons.login),
+0132 |                       label: const Padding(
+0133 |                         padding: EdgeInsets.symmetric(vertical: 14),
+0134 |                         child: Text('Sign in'),
+0135 |                       ),
+0136 |                     ),
+0137 |                     const SizedBox(height: 16),
+0138 |                     TextButton(
+0139 |                       onPressed: auth.busy
+0140 |                           ? null
+0141 |                           : () => Navigator.push(
+0142 |                                 context,
+0143 |                                 MaterialPageRoute<void>(
+0144 |                                   builder: (_) => PasswordRecoveryScreen(
+0145 |                                     initialEmail: email.text.trim(),
+0146 |                                   ),
+0147 |                                 ),
+0148 |                               ),
+0149 |                       child: const Text('Forgot password?'),
+0150 |                     ),
+0151 |                     OutlinedButton(
+0152 |                       onPressed: auth.busy ? null : openSignup,
+0153 |                       child: const Text('New client? Sign up'),
+0154 |                     ),
+0155 |                     if (kDebugMode)
+0156 |                       TextButton.icon(
+0157 |                           onPressed: auth.busy
+0158 |                               ? null
+0159 |                               : () => workspaceForm(context,
+0160 |                                   title: 'Development connection',
+0161 |                                   explanation:
+0162 |                                       'For USB debugging use http://127.0.0.1:8000. For a hotspot or Wi-Fi connection, enter the API computer’s local address. A hosted server must use HTTPS.',
+0163 |                                   fields: [
+0164 |                                     FormEntry('url', 'API server URL',
+0165 |                                         value: auth.client.dio.options.baseUrl)
+0166 |                                   ],
+0167 |                                   button: 'Check & save connection',
+0168 |                                   submit: (v) => auth.changeServer(v['url']!)),
+0169 |                           icon: const Icon(Icons.settings_ethernet),
+0170 |                           label: const Text('Development connection')),
+0171 |                   ],
+0172 |                 ),
+0173 |               ),
+0174 |             ),
+0175 |           ),
+0176 |         ),
+0177 |       ),
+0178 |     );
+0179 |   }
+0180 | }
 ```
 
 ## mobile/claimlens_mobile/lib/screens/new_claim_screen.dart
 
-315 lines. SHA-256: `df990fd131a9bd0fb5798d71e34cabb8b79e0c9e523aa1fdf89da29b14505471`.
+316 lines. SHA-256: `b39482702a282032dc1e9c193cb73df8d2d7c6c9cab0913543d90aef8dcb1bac`.
 
 Symbols: `NewClaimScreen`: L15; `_NewClaimScreenState`: L21
 
@@ -3857,165 +3916,166 @@ Symbols: `NewClaimScreen`: L15; `_NewClaimScreenState`: L21
 0154 |   Widget build(BuildContext context) => Scaffold(
 0155 |         appBar: AppBar(title: const Text('New claim')),
 0156 |         body: ListView(
-0157 |           padding: const EdgeInsets.all(16),
-0158 |           children: [
-0159 |             Text(
-0160 |               'Upload every document for this claim',
-0161 |               style: Theme.of(
-0162 |                 context,
-0163 |               ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-0164 |             ),
-0165 |             const SizedBox(height: 8),
-0166 |             const Text(
-0167 |               'Add invoices, receipts, pharmacy documents, medical certificates, memos, claim forms, or other supporting evidence. OCR will propose values; you will confirm them before submission.',
-0168 |             ),
-0169 |             const SizedBox(height: 20),
-0170 |             TextField(
-0171 |                 controller: member,
-0172 |                 decoration: const InputDecoration(
-0173 |                     labelText: 'Member number (if applicable)')),
-0174 |             const SizedBox(height: 14),
-0175 |             TextField(
-0176 |                 controller: policy,
-0177 |                 decoration: const InputDecoration(
-0178 |                     labelText: 'Policy number (if applicable)')),
-0179 |             const SizedBox(height: 14),
-0180 |             ListTile(
-0181 |                 contentPadding: EdgeInsets.zero,
-0182 |                 leading: const Icon(Icons.calendar_today_outlined),
-0183 |                 title: const Text('Treatment date'),
-0184 |                 subtitle: Text(treatmentDate == null
-0185 |                     ? 'Choose a date'
-0186 |                     : treatmentDate!.toIso8601String().substring(0, 10)),
-0187 |                 trailing: const Icon(Icons.chevron_right),
-0188 |                 onTap: busy
-0189 |                     ? null
-0190 |                     : () async {
-0191 |                         final chosen = await showDatePicker(
-0192 |                             context: context,
-0193 |                             firstDate: DateTime(2000),
-0194 |                             lastDate: DateTime.now(),
-0195 |                             initialDate: treatmentDate ?? DateTime.now());
-0196 |                         if (chosen != null && mounted) {
-0197 |                           setState(() => treatmentDate = chosen);
-0198 |                         }
-0199 |                       }),
-0200 |             const SizedBox(height: 14),
-0201 |             TextField(
-0202 |                 controller: description,
-0203 |                 maxLines: 3,
-0204 |                 maxLength: 2000,
-0205 |                 decoration: const InputDecoration(
-0206 |                     labelText: 'What is this claim for?',
-0207 |                     alignLabelWithHint: true)),
-0208 |             TextButton.icon(
-0209 |                 onPressed: () => Navigator.push(context,
-0210 |                     MaterialPageRoute(builder: (_) => const HelpScreen())),
-0211 |                 icon: const Icon(Icons.checklist),
-0212 |                 label: const Text('View document requirements')),
-0213 |             const SizedBox(height: 20),
-0214 |             Wrap(spacing: 8, runSpacing: 8, children: [
-0215 |               OutlinedButton.icon(
-0216 |                   onPressed:
-0217 |                       busy ? null : () => _pickImages(ImageSource.camera),
-0218 |                   icon: const Icon(Icons.camera_alt_outlined),
-0219 |                   label: const Text('Camera')),
-0220 |               OutlinedButton.icon(
-0221 |                   onPressed:
-0222 |                       busy ? null : () => _pickImages(ImageSource.gallery),
-0223 |                   icon: const Icon(Icons.photo_library_outlined),
-0224 |                   label: const Text('Gallery')),
-0225 |             ]),
-0226 |             const SizedBox(height: 8),
-0227 |             OutlinedButton.icon(
-0228 |               onPressed: busy ? null : _pickFiles,
-0229 |               icon: const Icon(Icons.attach_file),
-0230 |               label: const Padding(
-0231 |                 padding: EdgeInsets.symmetric(vertical: 12),
-0232 |                 child: Text('PDF, Word, or image files'),
-0233 |               ),
-0234 |             ),
-0235 |             const SizedBox(height: 20),
-0236 |             Text(
-0237 |               '${documents.length} document${documents.length == 1 ? '' : 's'} selected',
-0238 |               style: Theme.of(
-0239 |                 context,
-0240 |               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-0241 |             ),
-0242 |             const SizedBox(height: 8),
-0243 |             if (documents.isEmpty)
-0244 |               const Card(
-0245 |                 child: Padding(
-0246 |                   padding: EdgeInsets.all(20),
-0247 |                   child: Text('No documents selected yet.'),
-0248 |                 ),
-0249 |               ),
-0250 |             ...documents.asMap().entries.map(
-0251 |                   (entry) => Card(
-0252 |                     margin: const EdgeInsets.only(bottom: 8),
-0253 |                     child: ListTile(
-0254 |                       leading: const Icon(Icons.description_outlined),
-0255 |                       title: Text(
-0256 |                         entry.value.name,
-0257 |                         maxLines: 2,
-0258 |                         overflow: TextOverflow.ellipsis,
-0259 |                       ),
-0260 |                       subtitle: Text(
-0261 |                         '${(entry.value.bytes.length / 1024).toStringAsFixed(0)} KB',
-0262 |                       ),
-0263 |                       trailing: IconButton(
-0264 |                         onPressed: busy
-0265 |                             ? null
-0266 |                             : () =>
-0267 |                                 setState(() => documents.removeAt(entry.key)),
-0268 |                         icon: const Icon(Icons.close),
-0269 |                       ),
-0270 |                     ),
-0271 |                   ),
-0272 |                 ),
-0273 |             if (error != null)
-0274 |               Padding(
-0275 |                 padding: const EdgeInsets.symmetric(vertical: 8),
-0276 |                 child: Text(
-0277 |                   error!,
-0278 |                   style: TextStyle(color: Theme.of(context).colorScheme.error),
-0279 |                 ),
-0280 |               ),
-0281 |             const SizedBox(height: 12),
-0282 |             FilledButton.icon(
-0283 |               onPressed: busy ? null : () => _submit(),
-0284 |               icon: busy
-0285 |                   ? const SizedBox.square(
-0286 |                       dimension: 18,
-0287 |                       child: CircularProgressIndicator(strokeWidth: 2),
-0288 |                     )
-0289 |                   : const Icon(Icons.cloud_upload_outlined),
-0290 |               label: const Padding(
-0291 |                 padding: EdgeInsets.symmetric(vertical: 14),
-0292 |                 child: Text('Upload and extract'),
-0293 |               ),
-0294 |             ),
-0295 |             if (busy)
-0296 |               Padding(
-0297 |                   padding: const EdgeInsets.symmetric(vertical: 12),
-0298 |                   child: Column(children: [
-0299 |                     LinearProgressIndicator(value: progress),
-0300 |                     const SizedBox(height: 8),
-0301 |                     Text(progress == null
-0302 |                         ? 'Preparing upload…'
-0303 |                         : progress! < 1
-0304 |                             ? 'Uploading ${(progress! * 100).round()}%'
-0305 |                             : 'Saving your draft…')
-0306 |                   ])),
-0307 |             const SizedBox(height: 12),
-0308 |             OutlinedButton.icon(
-0309 |                 onPressed: busy ? null : () => _submit(extract: false),
-0310 |                 icon: const Icon(Icons.save_outlined),
-0311 |                 label: const Text('Save draft for later')),
-0312 |           ],
-0313 |         ),
-0314 |       );
-0315 | }
+0157 |           padding: EdgeInsets.fromLTRB(
+0158 |               16, 16, 16, 16 + MediaQuery.paddingOf(context).bottom),
+0159 |           children: [
+0160 |             Text(
+0161 |               'Upload every document for this claim',
+0162 |               style: Theme.of(
+0163 |                 context,
+0164 |               ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+0165 |             ),
+0166 |             const SizedBox(height: 8),
+0167 |             const Text(
+0168 |               'Add invoices, receipts, pharmacy documents, medical certificates, memos, claim forms, or other supporting evidence. OCR will propose values; you will confirm them before submission.',
+0169 |             ),
+0170 |             const SizedBox(height: 20),
+0171 |             TextField(
+0172 |                 controller: member,
+0173 |                 decoration: const InputDecoration(
+0174 |                     labelText: 'Member number (if applicable)')),
+0175 |             const SizedBox(height: 14),
+0176 |             TextField(
+0177 |                 controller: policy,
+0178 |                 decoration: const InputDecoration(
+0179 |                     labelText: 'Policy number (if applicable)')),
+0180 |             const SizedBox(height: 14),
+0181 |             ListTile(
+0182 |                 contentPadding: EdgeInsets.zero,
+0183 |                 leading: const Icon(Icons.calendar_today_outlined),
+0184 |                 title: const Text('Treatment date'),
+0185 |                 subtitle: Text(treatmentDate == null
+0186 |                     ? 'Choose a date'
+0187 |                     : treatmentDate!.toIso8601String().substring(0, 10)),
+0188 |                 trailing: const Icon(Icons.chevron_right),
+0189 |                 onTap: busy
+0190 |                     ? null
+0191 |                     : () async {
+0192 |                         final chosen = await showDatePicker(
+0193 |                             context: context,
+0194 |                             firstDate: DateTime(2000),
+0195 |                             lastDate: DateTime.now(),
+0196 |                             initialDate: treatmentDate ?? DateTime.now());
+0197 |                         if (chosen != null && mounted) {
+0198 |                           setState(() => treatmentDate = chosen);
+0199 |                         }
+0200 |                       }),
+0201 |             const SizedBox(height: 14),
+0202 |             TextField(
+0203 |                 controller: description,
+0204 |                 maxLines: 3,
+0205 |                 maxLength: 2000,
+0206 |                 decoration: const InputDecoration(
+0207 |                     labelText: 'What is this claim for?',
+0208 |                     alignLabelWithHint: true)),
+0209 |             TextButton.icon(
+0210 |                 onPressed: () => Navigator.push(context,
+0211 |                     MaterialPageRoute(builder: (_) => const HelpScreen())),
+0212 |                 icon: const Icon(Icons.checklist),
+0213 |                 label: const Text('View document requirements')),
+0214 |             const SizedBox(height: 20),
+0215 |             Wrap(spacing: 8, runSpacing: 8, children: [
+0216 |               OutlinedButton.icon(
+0217 |                   onPressed:
+0218 |                       busy ? null : () => _pickImages(ImageSource.camera),
+0219 |                   icon: const Icon(Icons.camera_alt_outlined),
+0220 |                   label: const Text('Camera')),
+0221 |               OutlinedButton.icon(
+0222 |                   onPressed:
+0223 |                       busy ? null : () => _pickImages(ImageSource.gallery),
+0224 |                   icon: const Icon(Icons.photo_library_outlined),
+0225 |                   label: const Text('Gallery')),
+0226 |             ]),
+0227 |             const SizedBox(height: 8),
+0228 |             OutlinedButton.icon(
+0229 |               onPressed: busy ? null : _pickFiles,
+0230 |               icon: const Icon(Icons.attach_file),
+0231 |               label: const Padding(
+0232 |                 padding: EdgeInsets.symmetric(vertical: 12),
+0233 |                 child: Text('PDF, Word, or image files'),
+0234 |               ),
+0235 |             ),
+0236 |             const SizedBox(height: 20),
+0237 |             Text(
+0238 |               '${documents.length} document${documents.length == 1 ? '' : 's'} selected',
+0239 |               style: Theme.of(
+0240 |                 context,
+0241 |               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+0242 |             ),
+0243 |             const SizedBox(height: 8),
+0244 |             if (documents.isEmpty)
+0245 |               const Card(
+0246 |                 child: Padding(
+0247 |                   padding: EdgeInsets.all(20),
+0248 |                   child: Text('No documents selected yet.'),
+0249 |                 ),
+0250 |               ),
+0251 |             ...documents.asMap().entries.map(
+0252 |                   (entry) => Card(
+0253 |                     margin: const EdgeInsets.only(bottom: 8),
+0254 |                     child: ListTile(
+0255 |                       leading: const Icon(Icons.description_outlined),
+0256 |                       title: Text(
+0257 |                         entry.value.name,
+0258 |                         maxLines: 2,
+0259 |                         overflow: TextOverflow.ellipsis,
+0260 |                       ),
+0261 |                       subtitle: Text(
+0262 |                         '${(entry.value.bytes.length / 1024).toStringAsFixed(0)} KB',
+0263 |                       ),
+0264 |                       trailing: IconButton(
+0265 |                         onPressed: busy
+0266 |                             ? null
+0267 |                             : () =>
+0268 |                                 setState(() => documents.removeAt(entry.key)),
+0269 |                         icon: const Icon(Icons.close),
+0270 |                       ),
+0271 |                     ),
+0272 |                   ),
+0273 |                 ),
+0274 |             if (error != null)
+0275 |               Padding(
+0276 |                 padding: const EdgeInsets.symmetric(vertical: 8),
+0277 |                 child: Text(
+0278 |                   error!,
+0279 |                   style: TextStyle(color: Theme.of(context).colorScheme.error),
+0280 |                 ),
+0281 |               ),
+0282 |             const SizedBox(height: 12),
+0283 |             FilledButton.icon(
+0284 |               onPressed: busy ? null : () => _submit(),
+0285 |               icon: busy
+0286 |                   ? const SizedBox.square(
+0287 |                       dimension: 18,
+0288 |                       child: CircularProgressIndicator(strokeWidth: 2),
+0289 |                     )
+0290 |                   : const Icon(Icons.cloud_upload_outlined),
+0291 |               label: const Padding(
+0292 |                 padding: EdgeInsets.symmetric(vertical: 14),
+0293 |                 child: Text('Upload and extract'),
+0294 |               ),
+0295 |             ),
+0296 |             if (busy)
+0297 |               Padding(
+0298 |                   padding: const EdgeInsets.symmetric(vertical: 12),
+0299 |                   child: Column(children: [
+0300 |                     LinearProgressIndicator(value: progress),
+0301 |                     const SizedBox(height: 8),
+0302 |                     Text(progress == null
+0303 |                         ? 'Preparing upload…'
+0304 |                         : progress! < 1
+0305 |                             ? 'Uploading ${(progress! * 100).round()}%'
+0306 |                             : 'Saving your draft…')
+0307 |                   ])),
+0308 |             const SizedBox(height: 12),
+0309 |             OutlinedButton.icon(
+0310 |                 onPressed: busy ? null : () => _submit(extract: false),
+0311 |                 icon: const Icon(Icons.save_outlined),
+0312 |                 label: const Text('Save draft for later')),
+0313 |           ],
+0314 |         ),
+0315 |       );
+0316 | }
 ```
 
 ## mobile/claimlens_mobile/lib/screens/password_recovery_screen.dart
@@ -4880,7 +4940,7 @@ Symbols: `SplashScreen`: L4
 
 ## mobile/claimlens_mobile/lib/screens/staff_review_screen.dart
 
-210 lines. SHA-256: `66806218a29f4b0eb59f0a6dfdf5afb9c9317733025ddcf3421ba89f20e49c41`.
+217 lines. SHA-256: `3c566b0ee490b2fe102d782b8d7e48bcccb64ceaa1f0c85ccd4f9294b5aa1c94`.
 
 Symbols: `StaffReviewScreen`: L7; `_StaffReviewScreenState`: L14
 
@@ -5012,89 +5072,96 @@ Symbols: `StaffReviewScreen`: L7; `_StaffReviewScreenState`: L14
 0125 |                                         .textTheme
 0126 |                                         .titleMedium),
 0127 |                                 Text(
-0128 |                                     '${friendlyLabel(d.documentType)} • ${friendlyLabel(d.extractionStatus)}'),
-0129 |                                 if (d.signedUrl != null)
-0130 |                                   TextButton.icon(
-0131 |                                       onPressed: () => Navigator.push(
-0132 |                                           context,
-0133 |                                           MaterialPageRoute(
-0134 |                                               builder: (_) =>
-0135 |                                                   DocumentPreviewScreen(
-0136 |                                                       reference: widget
-0137 |                                                           .claim.reference,
-0138 |                                                       documentId: d.id,
-0139 |                                                       name: d.originalName))),
-0140 |                                       icon: const Icon(Icons.open_in_new),
-0141 |                                       label: const Text(
-0142 |                                           'Compare source document')),
-0143 |                                 if (d.duplicateOf != null)
-0144 |                                   const Text(
-0145 |                                       'Duplicate evidence is excluded from the total.'),
-0146 |                                 SwitchListTile(
-0147 |                                     contentPadding: EdgeInsets.zero,
-0148 |                                     title: const Text('Include in claim total'),
-0149 |                                     value: included[d.id]!,
-0150 |                                     onChanged: busy || d.duplicateOf != null
-0151 |                                         ? null
-0152 |                                         : (v) =>
-0153 |                                             setState(() => included[d.id] = v)),
-0154 |                                 TextFormField(
-0155 |                                     controller: amounts[d.id],
-0156 |                                     keyboardType:
-0157 |                                         const TextInputType.numberWithOptions(
-0158 |                                             decimal: true),
-0159 |                                     decoration: const InputDecoration(
-0160 |                                         labelText: 'Confirmed amount'),
-0161 |                                     validator: (v) => included[d.id] == true &&
-0162 |                                             (double.tryParse(v ?? '') == null ||
-0163 |                                                 double.parse(v!) <= 0)
-0164 |                                         ? 'Enter a positive amount'
-0165 |                                         : null),
-0166 |                                 const SizedBox(height: 12),
-0167 |                                 TextFormField(
-0168 |                                     controller: currencies[d.id],
-0169 |                                     decoration: const InputDecoration(
-0170 |                                         labelText: 'Currency (three letters)'),
-0171 |                                     validator: (v) => included[d.id] == true &&
-0172 |                                             !RegExp(r'^[A-Za-z]{3}$')
-0173 |                                                 .hasMatch(v ?? '')
-0174 |                                         ? 'Enter a three-letter currency'
-0175 |                                         : null),
-0176 |                                 if (d.fields.isNotEmpty)
-0177 |                                   ExpansionTile(
-0178 |                                       title: const Text('Extracted fields'),
-0179 |                                       tilePadding: EdgeInsets.zero,
-0180 |                                       children: [
-0181 |                                         for (final f in d.fields)
-0182 |                                           Padding(
-0183 |                                               padding: const EdgeInsets.only(
-0184 |                                                   bottom: 12),
-0185 |                                               child: TextFormField(
-0186 |                                                   controller: fields[f.id],
-0187 |                                                   decoration: InputDecoration(
-0188 |                                                       labelText: friendlyLabel(
-0189 |                                                           f.fieldName),
-0190 |                                                       helperText:
-0191 |                                                           '${(f.confidence * 100).round()}% extraction confidence'),
-0192 |                                                   validator: (v) => v == null ||
-0193 |                                                           v.trim().isEmpty
-0194 |                                                       ? 'Enter a value'
-0195 |                                                       : null))
-0196 |                                       ]),
-0197 |                               ])))),
-0198 |             if (error != null)
-0199 |               Text(error!,
-0200 |                   style: TextStyle(color: Theme.of(context).colorScheme.error)),
-0201 |             const SizedBox(height: 16),
-0202 |             FilledButton.icon(
-0203 |                 onPressed: busy ? null : save,
-0204 |                 icon: const Icon(Icons.save_outlined),
-0205 |                 label: Text(busy ? 'Saving…' : 'Save reviewed information')),
-0206 |           ])));
-0207 |   String? name(String? value) => value == null || value.trim().length < 2
-0208 |       ? 'Enter at least 2 characters'
-0209 |       : null;
-0210 | }
+0128 |                                     'OCR amount: ${d.extractedCurrency ?? widget.claim.currency} ${d.extractedAmount?.toStringAsFixed(2) ?? "Not found"}'),
+0129 |                                 Text(
+0130 |                                     'Client proposal: ${d.clientProposedCurrency ?? d.confirmedCurrency ?? widget.claim.currency} ${(d.clientProposedAmount ?? d.confirmedAmount)?.toStringAsFixed(2) ?? "Not supplied"}'),
+0131 |                                 if (d.clientReportedIncorrectAmount)
+0132 |                                   const Text(
+0133 |                                       'Client reported an incorrect OCR amount. Compare the proposal with the source document.'),
+0134 |                                 Text(
+0135 |                                     '${friendlyLabel(d.documentType)} • ${friendlyLabel(d.extractionStatus)}'),
+0136 |                                 if (d.signedUrl != null)
+0137 |                                   TextButton.icon(
+0138 |                                       onPressed: () => Navigator.push(
+0139 |                                           context,
+0140 |                                           MaterialPageRoute(
+0141 |                                               builder: (_) =>
+0142 |                                                   DocumentPreviewScreen(
+0143 |                                                       reference: widget
+0144 |                                                           .claim.reference,
+0145 |                                                       documentId: d.id,
+0146 |                                                       name: d.originalName))),
+0147 |                                       icon: const Icon(Icons.open_in_new),
+0148 |                                       label: const Text(
+0149 |                                           'Compare source document')),
+0150 |                                 if (d.duplicateOf != null)
+0151 |                                   const Text(
+0152 |                                       'Duplicate evidence is excluded from the total.'),
+0153 |                                 SwitchListTile(
+0154 |                                     contentPadding: EdgeInsets.zero,
+0155 |                                     title: const Text('Include in claim total'),
+0156 |                                     value: included[d.id]!,
+0157 |                                     onChanged: busy || d.duplicateOf != null
+0158 |                                         ? null
+0159 |                                         : (v) =>
+0160 |                                             setState(() => included[d.id] = v)),
+0161 |                                 TextFormField(
+0162 |                                     controller: amounts[d.id],
+0163 |                                     keyboardType:
+0164 |                                         const TextInputType.numberWithOptions(
+0165 |                                             decimal: true),
+0166 |                                     decoration: const InputDecoration(
+0167 |                                         labelText: 'Confirmed amount'),
+0168 |                                     validator: (v) => included[d.id] == true &&
+0169 |                                             (double.tryParse(v ?? '') == null ||
+0170 |                                                 double.parse(v!) <= 0)
+0171 |                                         ? 'Enter a positive amount'
+0172 |                                         : null),
+0173 |                                 const SizedBox(height: 12),
+0174 |                                 TextFormField(
+0175 |                                     controller: currencies[d.id],
+0176 |                                     decoration: const InputDecoration(
+0177 |                                         labelText: 'Currency (three letters)'),
+0178 |                                     validator: (v) => included[d.id] == true &&
+0179 |                                             !RegExp(r'^[A-Za-z]{3}$')
+0180 |                                                 .hasMatch(v ?? '')
+0181 |                                         ? 'Enter a three-letter currency'
+0182 |                                         : null),
+0183 |                                 if (d.fields.isNotEmpty)
+0184 |                                   ExpansionTile(
+0185 |                                       title: const Text('Extracted fields'),
+0186 |                                       tilePadding: EdgeInsets.zero,
+0187 |                                       children: [
+0188 |                                         for (final f in d.fields)
+0189 |                                           Padding(
+0190 |                                               padding: const EdgeInsets.only(
+0191 |                                                   bottom: 12),
+0192 |                                               child: TextFormField(
+0193 |                                                   controller: fields[f.id],
+0194 |                                                   decoration: InputDecoration(
+0195 |                                                       labelText: friendlyLabel(
+0196 |                                                           f.fieldName),
+0197 |                                                       helperText:
+0198 |                                                           '${(f.confidence * 100).round()}% extraction confidence'),
+0199 |                                                   validator: (v) => v == null ||
+0200 |                                                           v.trim().isEmpty
+0201 |                                                       ? 'Enter a value'
+0202 |                                                       : null))
+0203 |                                       ]),
+0204 |                               ])))),
+0205 |             if (error != null)
+0206 |               Text(error!,
+0207 |                   style: TextStyle(color: Theme.of(context).colorScheme.error)),
+0208 |             const SizedBox(height: 16),
+0209 |             FilledButton.icon(
+0210 |                 onPressed: busy ? null : save,
+0211 |                 icon: const Icon(Icons.save_outlined),
+0212 |                 label: Text(busy ? 'Saving…' : 'Save reviewed information')),
+0213 |           ])));
+0214 |   String? name(String? value) => value == null || value.trim().length < 2
+0215 |       ? 'Enter at least 2 characters'
+0216 |       : null;
+0217 | }
 ```
 
 ## mobile/claimlens_mobile/lib/screens/workspace_screens.dart
@@ -5720,7 +5787,7 @@ Symbols: `WorkspaceMenuScreen`: L13; `WorkspaceData`: L79; `_WorkspaceDataState`
 
 ## mobile/claimlens_mobile/lib/services/api_client.dart
 
-178 lines. SHA-256: `be9e3e952e7e335d94ddbcef697d867fdb6efaabba7b4529d5d9d1e826ec36fa`.
+182 lines. SHA-256: `a99b344d5fcf2064338f5311797d086bc67d61f0aebf576f53ea4643b25dc522`.
 
 Symbols: `ApiClient`: L9
 
@@ -5842,67 +5909,71 @@ Symbols: `ApiClient`: L9
 0115 |         data['refresh_token'] as String,
 0116 |       );
 0117 |       return true;
-0118 |     } catch (_) {
-0119 |       await clearSession();
-0120 |       onSessionExpired?.call();
-0121 |       return false;
-0122 |     }
-0123 |   }
-0124 |
-0125 |   Future<void> configureServer(String value) async {
-0126 |     final uri = Uri.tryParse(value.trim());
-0127 |     if (uri == null ||
-0128 |         uri.host.isEmpty ||
-0129 |         uri.userInfo.isNotEmpty ||
-0130 |         uri.hasQuery ||
-0131 |         uri.hasFragment ||
-0132 |         !['https', 'http'].contains(uri.scheme)) {
-0133 |       throw Exception('Enter a valid server URL.');
-0134 |     }
-0135 |     final host = uri.host;
-0136 |     final local = host == 'localhost' ||
-0137 |         host == '127.0.0.1' ||
-0138 |         host.startsWith('10.') ||
-0139 |         host.startsWith('192.168.') ||
-0140 |         RegExp(r'^172\.(1[6-9]|2[0-9]|3[01])\.').hasMatch(host);
-0141 |     if (uri.scheme != 'https' && !(kDebugMode && local)) {
-0142 |       throw Exception('Internet connections must use HTTPS.');
-0143 |     }
-0144 |     final base = uri.replace(path: '/api/v1').toString();
-0145 |     final health = await Dio().get<Map<String, dynamic>>('$base/health',
-0146 |         options: Options(receiveTimeout: const Duration(seconds: 15)));
-0147 |     if (!['ClaimLens API', 'claimelens API']
-0148 |         .contains(health.data?['service'])) {
-0149 |       throw Exception('This address is not a ClaimLens server.');
-0150 |     }
-0151 |     await clearSession();
-0152 |     await _storage.write(key: 'server_url', value: base);
-0153 |     dio.options.baseUrl = base;
-0154 |   }
-0155 | }
-0156 |
-0157 | String readableApiError(Object error) {
-0158 |   if (error is DioException) {
-0159 |     final data = error.response?.data;
-0160 |     if (data is Map && data['detail'] != null) {
-0161 |       final detail = data['detail'];
-0162 |       if (detail is List) {
-0163 |         return detail
-0164 |             .whereType<Map>()
-0165 |             .map(
-0166 |                 (entry) => entry['msg']?.toString() ?? 'Check the form fields.')
-0167 |             .join('\n');
-0168 |       }
-0169 |       return detail.toString();
-0170 |     }
-0171 |     if (error.type == DioExceptionType.connectionError ||
-0172 |         error.type == DioExceptionType.connectionTimeout) {
-0173 |       return 'Cannot reach the ClaimLens server. Check the API address and your connection.';
+0118 |     } catch (exception) {
+0119 |       final status =
+0120 |           exception is DioException ? exception.response?.statusCode : null;
+0121 |       if ([400, 401, 403].contains(status)) {
+0122 |         await clearSession();
+0123 |         onSessionExpired?.call();
+0124 |       }
+0125 |       return false;
+0126 |     }
+0127 |   }
+0128 |
+0129 |   Future<void> configureServer(String value) async {
+0130 |     final uri = Uri.tryParse(value.trim());
+0131 |     if (uri == null ||
+0132 |         uri.host.isEmpty ||
+0133 |         uri.userInfo.isNotEmpty ||
+0134 |         uri.hasQuery ||
+0135 |         uri.hasFragment ||
+0136 |         !['https', 'http'].contains(uri.scheme)) {
+0137 |       throw Exception('Enter a valid server URL.');
+0138 |     }
+0139 |     final host = uri.host;
+0140 |     final local = host == 'localhost' ||
+0141 |         host == '127.0.0.1' ||
+0142 |         host.startsWith('10.') ||
+0143 |         host.startsWith('192.168.') ||
+0144 |         RegExp(r'^172\.(1[6-9]|2[0-9]|3[01])\.').hasMatch(host);
+0145 |     if (uri.scheme != 'https' && !(kDebugMode && local)) {
+0146 |       throw Exception('Internet connections must use HTTPS.');
+0147 |     }
+0148 |     final base = uri.replace(path: '/api/v1').toString();
+0149 |     final health = await Dio().get<Map<String, dynamic>>('$base/health',
+0150 |         options: Options(receiveTimeout: const Duration(seconds: 15)));
+0151 |     if (!['ClaimLens API', 'claimelens API']
+0152 |         .contains(health.data?['service'])) {
+0153 |       throw Exception('This address is not a ClaimLens server.');
+0154 |     }
+0155 |     await clearSession();
+0156 |     await _storage.write(key: 'server_url', value: base);
+0157 |     dio.options.baseUrl = base;
+0158 |   }
+0159 | }
+0160 |
+0161 | String readableApiError(Object error) {
+0162 |   if (error is DioException) {
+0163 |     final data = error.response?.data;
+0164 |     if (data is Map && data['detail'] != null) {
+0165 |       final detail = data['detail'];
+0166 |       if (detail is List) {
+0167 |         return detail
+0168 |             .whereType<Map>()
+0169 |             .map(
+0170 |                 (entry) => entry['msg']?.toString() ?? 'Check the form fields.')
+0171 |             .join('\n');
+0172 |       }
+0173 |       return detail.toString();
 0174 |     }
-0175 |     return error.message ?? 'The request could not be completed.';
-0176 |   }
-0177 |   return error.toString().replaceFirst('Exception: ', '');
-0178 | }
+0175 |     if (error.type == DioExceptionType.connectionError ||
+0176 |         error.type == DioExceptionType.connectionTimeout) {
+0177 |       return 'Cannot reach the ClaimLens server. Check the API address and your connection.';
+0178 |     }
+0179 |     return error.message ?? 'The request could not be completed.';
+0180 |   }
+0181 |   return error.toString().replaceFirst('Exception: ', '');
+0182 | }
 ```
 
 ## mobile/claimlens_mobile/lib/services/auth_service.dart
@@ -7475,9 +7546,9 @@ Symbols: `TextDocument`: L9–L13; `ExtractedValue`: L17–L24; `classify_docume
 
 ## services/api/app/firebase.py
 
-497 lines. SHA-256: `4b36468c023da2ffe756d864456641358ef111141018772b93060b77eb8e76fc`.
+504 lines. SHA-256: `73741e2c82b336873fce95a6cd1893df1075e66cc34bb9d145a7e8093297898b`.
 
-Symbols: `firebase_app`: L22–L31; `now`: L34–L35; `can_access_claim`: L38–L48; `FirebaseGateway`: L51–L497; `__init__`: L52–L56; `_user`: L58–L61; `profile`: L63–L67; `ensure_profile`: L69–L91; `records`: L93–L252; `upload`: L254–L257; `download`: L259–L260; `delete_objects`: L262–L266; `signed_url`: L268–L270; `acquire_processing`: L272–L288; `reserve_draft_deletion`: L290–L301; `confirm`: L303–L497; `ensure`: L75–L89; `run`: L112–L250; `acquire`: L277–L286; `reserve`: L294–L300; `confirm`: L313–L495
+Symbols: `firebase_app`: L22–L31; `now`: L34–L35; `can_access_claim`: L38–L48; `FirebaseGateway`: L51–L504; `__init__`: L52–L56; `_user`: L58–L61; `profile`: L63–L67; `ensure_profile`: L69–L91; `records`: L93–L252; `upload`: L254–L257; `download`: L259–L260; `delete_objects`: L262–L266; `signed_url`: L268–L270; `acquire_processing`: L272–L288; `reserve_draft_deletion`: L290–L301; `confirm`: L303–L504; `ensure`: L75–L89; `run`: L112–L250; `acquire`: L277–L286; `reserve`: L294–L300; `confirm`: L313–L502
 
 ```python
 0001 | """Firebase Admin persistence. Client authorization is enforced here and in routes."""
@@ -7873,110 +7944,117 @@ Symbols: `firebase_app`: L22–L31; `now`: L34–L35; `can_access_claim`: L38–
 0391 |             total = Decimal("0")
 0392 |             currencies = set()
 0393 |             for item in payload.documents:
-0394 |                 if item.include:
-0395 |                     original = by_id[item.id].to_dict()
-0396 |                     if (
-0397 |                         original.get("duplicate_of")
-0398 |                         or item.amount is None
-0399 |                         or item.amount <= 0
-0400 |                         or item.amount.as_tuple().exponent < -2
-0401 |                         or not item.currency
-0402 |                         or len(item.currency) != 3
-0403 |                         or item.currency.upper() not in policy["allowed_currencies"]
-0404 |                     ):
-0405 |                         raise HTTPException(
-0406 |                             422,
-0407 |                             "Included documents need a positive amount, a three-letter currency, and must not be duplicates.",
-0408 |                         )
-0409 |                     total += item.amount
-0410 |                     currencies.add(item.currency.upper())
-0411 |                 updates.append(
-0412 |                     (
-0413 |                         by_id[item.id].reference,
-0414 |                         {
-0415 |                             "include_in_total": item.include,
-0416 |                             "confirmed_amount": str(item.amount)
-0417 |                             if item.include
-0418 |                             else None,
-0419 |                             "confirmed_currency": item.currency.upper()
-0420 |                             if item.include
-0421 |                             else None,
-0422 |                         },
-0423 |                     )
-0424 |                 )
-0425 |             if total <= 0 or len(currencies) != 1:
-0426 |                 raise HTTPException(
-0427 |                     422,
-0428 |                     "Include at least one payable document; all amounts must use the same currency.",
-0429 |                 )
-0430 |             if len({str(f.id) for f in payload.fields}) != len(payload.fields):
-0431 |                 raise HTTPException(422, "Duplicate corrected fields.")
-0432 |             for correction in payload.fields:
-0433 |                 if not correction.value.strip():
-0434 |                     raise HTTPException(422, "Corrected values cannot be blank.")
-0435 |                 field = field_ids.get(str(correction.id))
-0436 |                 if not field:
-0437 |                     raise HTTPException(
-0438 |                         422, "Corrected field does not belong to this claim."
-0439 |                     )
-0440 |                 updates.append(
-0441 |                     (
-0442 |                         field.reference,
-0443 |                         {
-0444 |                             "normalized_value": correction.value.strip(),
-0445 |                             "extraction_method": "human_corrected",
-0446 |                             "confidence": 0,
-0447 |                         },
-0448 |                     )
-0449 |                 )
-0450 |                 audit = self.db.collection("audit_events").document()
-0451 |                 transaction.set(
-0452 |                     audit,
-0453 |                     {
-0454 |                         "id": audit.id,
-0455 |                         "claim_id": claim_id,
-0456 |                         "actor_id": user.id,
-0457 |                         "event_type": "FIELD_CORRECTED",
-0458 |                         "created_at": now(),
-0459 |                         "metadata": {
-0460 |                             "previous_value": field.to_dict().get("normalized_value"),
-0461 |                             "corrected_value": correction.value.strip(),
-0462 |                         },
-0463 |                     },
-0464 |                 )
-0465 |             for target, update in updates:
-0466 |                 transaction.update(target, update)
-0467 |             transaction.update(
-0468 |                 ref,
-0469 |                 {
-0470 |                     "patient_name": payload.patient_name.strip(),
-0471 |                     "provider_name": payload.provider_name.strip(),
-0472 |                     "claimed_amount": str(total),
-0473 |                     "currency": next(iter(currencies)),
-0474 |                     "status": "REVIEW_REQUIRED",
-0475 |                     "submitted_at": now(),
-0476 |                 },
-0477 |             )
-0478 |             from .workflow import write_event
-0479 |
-0480 |             for fingerprint in fingerprints:
-0481 |                 transaction.set(
-0482 |                     fingerprint,
-0483 |                     {"claim_id": claim_id, "client_id": user.id, "created_at": now()},
-0484 |                 )
-0485 |
-0486 |             write_event(
-0487 |                 self.db,
-0488 |                 transaction,
-0489 |                 claim,
-0490 |                 user.id,
-0491 |                 "CLAIM_CONFIRMED",
-0492 |                 {"total": str(total)},
-0493 |                 watchers=watchers,
-0494 |             )
-0495 |             return "REVIEW_REQUIRED"
-0496 |
-0497 |         return await asyncio.to_thread(confirm, self.db.transaction())
+0394 |                 source = by_id[item.id].to_dict()
+0395 |                 extracted = source.get('extracted_amount')
+0396 |                 disputed = bool(item.include and extracted is not None and
+0397 |                                 item.amount != Decimal(str(extracted)))
+0398 |                 if item.include:
+0399 |                     original = by_id[item.id].to_dict()
+0400 |                     if (
+0401 |                         original.get("duplicate_of")
+0402 |                         or item.amount is None
+0403 |                         or item.amount <= 0
+0404 |                         or item.amount.as_tuple().exponent < -2
+0405 |                         or not item.currency
+0406 |                         or len(item.currency) != 3
+0407 |                         or item.currency.upper() not in policy["allowed_currencies"]
+0408 |                     ):
+0409 |                         raise HTTPException(
+0410 |                             422,
+0411 |                             "Included documents need a positive amount, a three-letter currency, and must not be duplicates.",
+0412 |                         )
+0413 |                     total += item.amount
+0414 |                     currencies.add(item.currency.upper())
+0415 |                 updates.append(
+0416 |                     (
+0417 |                         by_id[item.id].reference,
+0418 |                         {
+0419 |                             "include_in_total": item.include,
+0420 |                             "client_proposed_amount": str(item.amount) if item.include else None,
+0421 |                             "client_proposed_currency": item.currency.upper() if item.include else None,
+0422 |                             "client_reported_incorrect_amount": disputed,
+0423 |                             "confirmed_amount": str(item.amount)
+0424 |                             if item.include
+0425 |                             else None,
+0426 |                             "confirmed_currency": item.currency.upper()
+0427 |                             if item.include
+0428 |                             else None,
+0429 |                         },
+0430 |                     )
+0431 |                 )
+0432 |             if total <= 0 or len(currencies) != 1:
+0433 |                 raise HTTPException(
+0434 |                     422,
+0435 |                     "Include at least one payable document; all amounts must use the same currency.",
+0436 |                 )
+0437 |             if len({str(f.id) for f in payload.fields}) != len(payload.fields):
+0438 |                 raise HTTPException(422, "Duplicate corrected fields.")
+0439 |             for correction in payload.fields:
+0440 |                 if not correction.value.strip():
+0441 |                     raise HTTPException(422, "Corrected values cannot be blank.")
+0442 |                 field = field_ids.get(str(correction.id))
+0443 |                 if not field:
+0444 |                     raise HTTPException(
+0445 |                         422, "Corrected field does not belong to this claim."
+0446 |                     )
+0447 |                 updates.append(
+0448 |                     (
+0449 |                         field.reference,
+0450 |                         {
+0451 |                             "normalized_value": correction.value.strip(),
+0452 |                             "extraction_method": "human_corrected",
+0453 |                             "confidence": 0,
+0454 |                         },
+0455 |                     )
+0456 |                 )
+0457 |                 audit = self.db.collection("audit_events").document()
+0458 |                 transaction.set(
+0459 |                     audit,
+0460 |                     {
+0461 |                         "id": audit.id,
+0462 |                         "claim_id": claim_id,
+0463 |                         "actor_id": user.id,
+0464 |                         "event_type": "FIELD_CORRECTED",
+0465 |                         "created_at": now(),
+0466 |                         "metadata": {
+0467 |                             "previous_value": field.to_dict().get("normalized_value"),
+0468 |                             "corrected_value": correction.value.strip(),
+0469 |                         },
+0470 |                     },
+0471 |                 )
+0472 |             for target, update in updates:
+0473 |                 transaction.update(target, update)
+0474 |             transaction.update(
+0475 |                 ref,
+0476 |                 {
+0477 |                     "patient_name": payload.patient_name.strip(),
+0478 |                     "provider_name": payload.provider_name.strip(),
+0479 |                     "claimed_amount": str(total),
+0480 |                     "currency": next(iter(currencies)),
+0481 |                     "status": "REVIEW_REQUIRED",
+0482 |                     "submitted_at": now(),
+0483 |                 },
+0484 |             )
+0485 |             from .workflow import write_event
+0486 |
+0487 |             for fingerprint in fingerprints:
+0488 |                 transaction.set(
+0489 |                     fingerprint,
+0490 |                     {"claim_id": claim_id, "client_id": user.id, "created_at": now()},
+0491 |                 )
+0492 |
+0493 |             write_event(
+0494 |                 self.db,
+0495 |                 transaction,
+0496 |                 claim,
+0497 |                 user.id,
+0498 |                 "CLAIM_CONFIRMED",
+0499 |                 {"total": str(total), "disputed_document_ids": [target.id for target, update in updates if update.get('client_reported_incorrect_amount')]},
+0500 |                 watchers=watchers,
+0501 |             )
+0502 |             return "REVIEW_REQUIRED"
+0503 |
+0504 |         return await asyncio.to_thread(confirm, self.db.transaction())
 ```
 
 ## services/api/app/hardening.py
@@ -10648,9 +10726,9 @@ Symbols: `staff`: L34–L36; `administrator`: L39–L41; `officers`: L45–L62; 
 
 ## services/api/app/schemas.py
 
-151 lines. SHA-256: `90cc322e8c6492408b6a8f089c56297ae7ab454c37fabefbcb7c298e6e999585`.
+154 lines. SHA-256: `30238fcaf60f8994549a83aff518d20c2347023112cb3a0f6541f63e35f78b52`.
 
-Symbols: `Profile`: L14–L26; `LoginRequest`: L29–L31; `RefreshRequest`: L34–L35; `AuthSession`: L38–L43; `ExtractedField`: L46–L54; `ClaimDocument`: L57–L73; `ClaimSummary`: L76–L86; `ClaimDetails`: L89–L95; `DocumentConfirmation`: L98–L102; `FieldCorrection`: L105–L107; `ConfirmClaimRequest`: L110–L114; `ProcessResult`: L117–L121; `DashboardSummary`: L124–L133; `EmailRequest`: L136–L139; `SignupRequest`: L142–L151; `valid_name`: L148–L151
+Symbols: `Profile`: L14–L26; `LoginRequest`: L29–L31; `RefreshRequest`: L34–L35; `AuthSession`: L38–L43; `ExtractedField`: L46–L54; `ClaimDocument`: L57–L76; `ClaimSummary`: L79–L89; `ClaimDetails`: L92–L98; `DocumentConfirmation`: L101–L105; `FieldCorrection`: L108–L110; `ConfirmClaimRequest`: L113–L117; `ProcessResult`: L120–L124; `DashboardSummary`: L127–L136; `EmailRequest`: L139–L142; `SignupRequest`: L145–L154; `valid_name`: L151–L154
 
 ```python
 0001 | from __future__ import annotations
@@ -10720,90 +10798,93 @@ Symbols: `Profile`: L14–L26; `LoginRequest`: L29–L31; `RefreshRequest`: L34�
 0065 |     extracted_currency: str | None = None
 0066 |     confirmed_amount: Decimal | None = None
 0067 |     confirmed_currency: str | None = None
-0068 |     amount_confidence: float | None = None
-0069 |     include_in_total: bool = False
-0070 |     duplicate_of: str | None = None
-0071 |     extraction_notes: str | None = None
-0072 |     signed_url: str | None = None
-0073 |     fields: list[ExtractedField] = Field(default_factory=list)
-0074 |
-0075 |
-0076 | class ClaimSummary(BaseModel):
-0077 |     id: str
-0078 |     reference: str
-0079 |     patient_name: str
-0080 |     provider_name: str
-0081 |     claimed_amount: Decimal | None = None
-0082 |     currency: str
-0083 |     status: str
-0084 |     warning_count: int = 0
-0085 |     created_at: datetime
-0086 |     assigned_to: str | None = None
-0087 |
-0088 |
-0089 | class ClaimDetails(ClaimSummary):
-0090 |     information: dict[str, Any] = Field(default_factory=dict)
-0091 |     documents: list[ClaimDocument] = Field(default_factory=list)
-0092 |     audit_events: list[dict[str, Any]] = Field(default_factory=list)
-0093 |     available_actions: list[str] = Field(default_factory=list)
-0094 |     information_requests: list[dict[str, Any]] = Field(default_factory=list)
-0095 |     workflow: dict[str, Any] = Field(default_factory=dict)
-0096 |
-0097 |
-0098 | class DocumentConfirmation(BaseModel):
-0099 |     id: str
-0100 |     include: bool
-0101 |     amount: Decimal | None = None
-0102 |     currency: str | None = None
-0103 |
-0104 |
-0105 | class FieldCorrection(BaseModel):
-0106 |     id: UUID
-0107 |     value: str = Field(min_length=1, max_length=500)
-0108 |
-0109 |
-0110 | class ConfirmClaimRequest(BaseModel):
-0111 |     patient_name: str = Field(min_length=2, max_length=200)
-0112 |     provider_name: str = Field(min_length=2, max_length=200)
-0113 |     documents: list[DocumentConfirmation]
-0114 |     fields: list[FieldCorrection] = Field(default_factory=list)
-0115 |
-0116 |
-0117 | class ProcessResult(BaseModel):
-0118 |     claim_reference: str
-0119 |     status: str
-0120 |     document_count: int
-0121 |     extracted_field_count: int
-0122 |
-0123 |
-0124 | class DashboardSummary(BaseModel):
-0125 |     action_required_claims: list[ClaimSummary] = Field(default_factory=list)
-0126 |     unassigned: int = 0
-0127 |     by_status: dict[str, int] = Field(default_factory=dict)
-0128 |     total_claims: int
-0129 |     processing: int
-0130 |     review_required: int
-0131 |     verified: int
-0132 |     processing_failed: int
-0133 |     recent_claims: list[ClaimSummary]
-0134 |
-0135 |
-0136 | class EmailRequest(BaseModel):
-0137 |     email: str = Field(
-0138 |         min_length=3, max_length=254, pattern=r"^[^\s@]+@[^\s@]+\.[^\s@]+$"
-0139 |     )
-0140 |
-0141 |
-0142 | class SignupRequest(EmailRequest):
-0143 |     display_name: str = Field(min_length=2, max_length=120)
-0144 |     password: str = Field(min_length=12, max_length=128)
-0145 |
-0146 |     @field_validator("display_name")
-0147 |     @classmethod
-0148 |     def valid_name(cls, value):
-0149 |         if len(value.strip()) < 2:
-0150 |             raise ValueError("Enter a name with at least two characters.")
-0151 |         return value.strip()
+0068 |     client_proposed_amount: Decimal | None = None
+0069 |     client_proposed_currency: str | None = None
+0070 |     client_reported_incorrect_amount: bool = False
+0071 |     amount_confidence: float | None = None
+0072 |     include_in_total: bool = False
+0073 |     duplicate_of: str | None = None
+0074 |     extraction_notes: str | None = None
+0075 |     signed_url: str | None = None
+0076 |     fields: list[ExtractedField] = Field(default_factory=list)
+0077 |
+0078 |
+0079 | class ClaimSummary(BaseModel):
+0080 |     id: str
+0081 |     reference: str
+0082 |     patient_name: str
+0083 |     provider_name: str
+0084 |     claimed_amount: Decimal | None = None
+0085 |     currency: str
+0086 |     status: str
+0087 |     warning_count: int = 0
+0088 |     created_at: datetime
+0089 |     assigned_to: str | None = None
+0090 |
+0091 |
+0092 | class ClaimDetails(ClaimSummary):
+0093 |     information: dict[str, Any] = Field(default_factory=dict)
+0094 |     documents: list[ClaimDocument] = Field(default_factory=list)
+0095 |     audit_events: list[dict[str, Any]] = Field(default_factory=list)
+0096 |     available_actions: list[str] = Field(default_factory=list)
+0097 |     information_requests: list[dict[str, Any]] = Field(default_factory=list)
+0098 |     workflow: dict[str, Any] = Field(default_factory=dict)
+0099 |
+0100 |
+0101 | class DocumentConfirmation(BaseModel):
+0102 |     id: str
+0103 |     include: bool
+0104 |     amount: Decimal | None = None
+0105 |     currency: str | None = None
+0106 |
+0107 |
+0108 | class FieldCorrection(BaseModel):
+0109 |     id: UUID
+0110 |     value: str = Field(min_length=1, max_length=500)
+0111 |
+0112 |
+0113 | class ConfirmClaimRequest(BaseModel):
+0114 |     patient_name: str = Field(min_length=2, max_length=200)
+0115 |     provider_name: str = Field(min_length=2, max_length=200)
+0116 |     documents: list[DocumentConfirmation]
+0117 |     fields: list[FieldCorrection] = Field(default_factory=list)
+0118 |
+0119 |
+0120 | class ProcessResult(BaseModel):
+0121 |     claim_reference: str
+0122 |     status: str
+0123 |     document_count: int
+0124 |     extracted_field_count: int
+0125 |
+0126 |
+0127 | class DashboardSummary(BaseModel):
+0128 |     action_required_claims: list[ClaimSummary] = Field(default_factory=list)
+0129 |     unassigned: int = 0
+0130 |     by_status: dict[str, int] = Field(default_factory=dict)
+0131 |     total_claims: int
+0132 |     processing: int
+0133 |     review_required: int
+0134 |     verified: int
+0135 |     processing_failed: int
+0136 |     recent_claims: list[ClaimSummary]
+0137 |
+0138 |
+0139 | class EmailRequest(BaseModel):
+0140 |     email: str = Field(
+0141 |         min_length=3, max_length=254, pattern=r"^[^\s@]+@[^\s@]+\.[^\s@]+$"
+0142 |     )
+0143 |
+0144 |
+0145 | class SignupRequest(EmailRequest):
+0146 |     display_name: str = Field(min_length=2, max_length=120)
+0147 |     password: str = Field(min_length=12, max_length=128)
+0148 |
+0149 |     @field_validator("display_name")
+0150 |     @classmethod
+0151 |     def valid_name(cls, value):
+0152 |         if len(value.strip()) < 2:
+0153 |             raise ValueError("Enter a name with at least two characters.")
+0154 |         return value.strip()
 ```
 
 ## services/api/app/security.py
@@ -11402,7 +11483,9 @@ Symbols: Configuration/resource file.
 - `mobile/claimlens_mobile/test/account_forms_test.dart`
 - `mobile/claimlens_mobile/test/claim_model_test.dart`
 - `mobile/claimlens_mobile/test/dashboard_layout_test.dart`
+- `mobile/claimlens_mobile/test/extraction_workflow_test.dart`
 - `mobile/claimlens_mobile/test/logo_layout_test.dart`
+- `mobile/claimlens_mobile/test/network_recovery_test.dart`
 - `mobile/claimlens_mobile/test/readiness_ui_test.dart`
 - `mobile/claimlens_mobile/test/server_configuration_test.dart`
 - `mobile/claimlens_mobile/test/signup_navigation_test.dart`
@@ -11416,6 +11499,7 @@ Symbols: Configuration/resource file.
 - `services/api/tests/test_internet_live.py`
 - `services/api/tests/test_job_recovery.py`
 - `services/api/tests/test_local_documents.py`
+- `services/api/tests/test_multi_expense_live.py`
 - `services/api/tests/test_paddle_integration.py`
 - `services/api/tests/test_paddle_ocr.py`
 - `services/api/tests/test_queue_live.py`

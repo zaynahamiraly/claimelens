@@ -2255,6 +2255,33 @@
             ],
             "title": "Confirmed Currency"
           },
+          "client_proposed_amount": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Proposed Amount"
+          },
+          "client_proposed_currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Proposed Currency"
+          },
+          "client_reported_incorrect_amount": {
+            "type": "boolean",
+            "title": "Client Reported Incorrect Amount",
+            "default": false
+          },
           "amount_confidence": {
             "anyOf": [
               {

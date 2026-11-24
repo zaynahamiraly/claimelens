@@ -1,4 +1,4 @@
-# ClaimLens — Project Portfolio and Technical Handbook
+# ClaimLens â€” Project Portfolio and Technical Handbook
 
 **Project:** ClaimLens  
 **Artifact:** Flutter Android application and Python API for medical-insurance claims  
@@ -23,6 +23,10 @@ The present delivery target is cable debugging on a Samsung Android phone. A deb
 ### Current internet-test update
 
 A separate Android test build now uses an HTTPS API endpoint over Wi-Fi or mobile data. Startup tracks the build-configured API address, replacing an older saved USB endpoint when a new build changes servers and clearing the previous server session. Explicit user-selected endpoints persist within the same build configuration. The computer still runs FastAPI, PaddleOCR and private document storage; this connection is a temporary development tunnel rather than independently hosted infrastructure. The tunnel startup script checks saved tunnel reachability and recreates an expired connection. See the verification report for device-test evidence.
+
+### Scenario verification and dispute update
+
+The client must report an incorrect OCR amount before editing its proposal. The API detects amount differences independently, preserves the original OCR result and client proposal, and sends the claim to officer review. Staff can compare these with the reviewed amount. Live tests cover hospital/pharmacy/doctor documents together, independent claims for one patient and duplicate evidence. Offline startup now retains saved credentials with a retry option. See `docs/qa-2026-11-24.md` for evidence, fixes and untested boundaries.
 
 ## 2. Problem definition and context
 
@@ -216,7 +220,7 @@ The separation-of-duties check compares authenticated account IDs. It does not p
 
 Flutter submits the email and password to FastAPI. The API calls Firebase's password sign-in endpoint. A successful result is combined with the existing Firestore profile. The app stores access and refresh tokens in Flutter secure storage. Protected requests send the bearer token. The API verifies it and re-reads the current role/status profile.
 
-**Important implementation detail:** Flutter does not currently use the `firebase_auth` package for the application's login flow. Login runs through Dio → FastAPI → Firebase Authentication REST endpoints. Native `firebase_core` and `firebase_messaging` are used for messaging integration. Another AI must not assume that adding a `FirebaseAuth.instance` call will integrate automatically with this session design.
+**Important implementation detail:** Flutter does not currently use the `firebase_auth` package for the application's login flow. Login runs through Dio â†’ FastAPI â†’ Firebase Authentication REST endpoints. Native `firebase_core` and `firebase_messaging` are used for messaging integration. Another AI must not assume that adding a `FirebaseAuth.instance` call will integrate automatically with this session design.
 
 ### 9.2 Public registration and verification
 
@@ -846,13 +850,13 @@ cryptography==50.0.2
 
 | `mobile/claimlens_mobile/lib/main.dart` | 70 |
 
-| `mobile/claimlens_mobile/lib/models/claim.dart` | 253 |
+| `mobile/claimlens_mobile/lib/models/claim.dart` | 264 |
 
 | `mobile/claimlens_mobile/lib/models/selected_document.dart` | 12 |
 
 | `mobile/claimlens_mobile/lib/models/user_profile.dart` | 48 |
 
-| `mobile/claimlens_mobile/lib/providers/auth_provider.dart` | 150 |
+| `mobile/claimlens_mobile/lib/providers/auth_provider.dart` | 159 |
 
 | `mobile/claimlens_mobile/lib/providers/claims_provider.dart` | 43 |
 
@@ -860,13 +864,13 @@ cryptography==50.0.2
 
 | `mobile/claimlens_mobile/lib/screens/claim_details_screen.dart` | 749 |
 
-| `mobile/claimlens_mobile/lib/screens/claim_review_screen.dart` | 191 |
+| `mobile/claimlens_mobile/lib/screens/claim_review_screen.dart` | 194 |
 
 | `mobile/claimlens_mobile/lib/screens/dashboard_screen.dart` | 286 |
 
 | `mobile/claimlens_mobile/lib/screens/document_preview_screen.dart` | 118 |
 
-| `mobile/claimlens_mobile/lib/screens/extracted_info_screen.dart` | 462 |
+| `mobile/claimlens_mobile/lib/screens/extracted_info_screen.dart` | 493 |
 
 | `mobile/claimlens_mobile/lib/screens/help_screen.dart` | 120 |
 
@@ -874,9 +878,9 @@ cryptography==50.0.2
 
 | `mobile/claimlens_mobile/lib/screens/information_response_screen.dart` | 138 |
 
-| `mobile/claimlens_mobile/lib/screens/login_screen.dart` | 175 |
+| `mobile/claimlens_mobile/lib/screens/login_screen.dart` | 180 |
 
-| `mobile/claimlens_mobile/lib/screens/new_claim_screen.dart` | 315 |
+| `mobile/claimlens_mobile/lib/screens/new_claim_screen.dart` | 316 |
 
 | `mobile/claimlens_mobile/lib/screens/password_recovery_screen.dart` | 118 |
 
@@ -890,11 +894,11 @@ cryptography==50.0.2
 
 | `mobile/claimlens_mobile/lib/screens/splash_screen.dart` | 32 |
 
-| `mobile/claimlens_mobile/lib/screens/staff_review_screen.dart` | 210 |
+| `mobile/claimlens_mobile/lib/screens/staff_review_screen.dart` | 217 |
 
 | `mobile/claimlens_mobile/lib/screens/workspace_screens.dart` | 612 |
 
-| `mobile/claimlens_mobile/lib/services/api_client.dart` | 178 |
+| `mobile/claimlens_mobile/lib/services/api_client.dart` | 182 |
 
 | `mobile/claimlens_mobile/lib/services/auth_service.dart` | 33 |
 
@@ -926,7 +930,7 @@ cryptography==50.0.2
 
 | `services/api/app/extraction.py` | 331 |
 
-| `services/api/app/firebase.py` | 497 |
+| `services/api/app/firebase.py` | 504 |
 
 | `services/api/app/hardening.py` | 70 |
 
@@ -956,7 +960,7 @@ cryptography==50.0.2
 
 | `services/api/app/routers/workspace.py` | 592 |
 
-| `services/api/app/schemas.py` | 151 |
+| `services/api/app/schemas.py` | 154 |
 
 | `services/api/app/security.py` | 65 |
 

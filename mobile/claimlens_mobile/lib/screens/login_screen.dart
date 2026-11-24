@@ -110,6 +110,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     const SizedBox(height: 20),
+                    if (auth.client.hasSession)
+                      TextButton.icon(
+                          onPressed: auth.busy ? null : auth.initialise,
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Retry saved session')),
                     FilledButton.icon(
                       onPressed: auth.busy
                           ? null

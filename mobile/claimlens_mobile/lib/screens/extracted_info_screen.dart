@@ -53,6 +53,11 @@ class _ExtractedInfoScreenState extends State<ExtractedInfoScreen> {
   }
 
   Future<void> _load() async {
+    if (!mounted) return;
+    setState(() {
+      loading = true;
+      error = null;
+    });
     try {
       final api = workspaceApi(context);
       final service = context.read<ClaimsProvider>().service;
@@ -62,6 +67,7 @@ class _ExtractedInfoScreenState extends State<ExtractedInfoScreen> {
       final value = await service.details(
         widget.reference,
       );
+      if (!mounted) return;
       final patientField = _bestField(value, 'patient_name');
       final providerField = _bestField(value, 'provider_name');
       patient.text = patientField?.normalizedValue ?? value.patientName;
@@ -106,7 +112,7 @@ class _ExtractedInfoScreenState extends State<ExtractedInfoScreen> {
       }
       setState(() => claim = value);
     } catch (exception) {
-      setState(() => error = readableApiError(exception));
+      if (mounted) setState(() => error = readableApiError(exception));
     } finally {
       if (mounted) setState(() => loading = false);
     }
@@ -191,13 +197,21 @@ class _ExtractedInfoScreenState extends State<ExtractedInfoScreen> {
                 ? Center(
                     child: Padding(
                       padding: const EdgeInsets.all(24),
-                      child: Text(error ?? 'The claim could not be loaded.'),
+                      child: Column(mainAxisSize: MainAxisSize.min, children: [
+                        Text(error ?? 'The claim could not be loaded.'),
+                        const SizedBox(height: 16),
+                        FilledButton.icon(
+                            onPressed: _load,
+                            icon: const Icon(Icons.refresh),
+                            label: const Text('Retry loading claim')),
+                      ]),
                     ),
                   )
                 : Form(
                     key: formKey,
                     child: ListView(
-                      padding: const EdgeInsets.all(16),
+                      padding: EdgeInsets.fromLTRB(16, 16, 16,
+                          16 + MediaQuery.paddingOf(context).bottom),
                       children: [
                         Card(
                           color:
@@ -374,6 +388,21 @@ class _DocumentEditor extends StatelessWidget {
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             const SizedBox(height: 10),
+            if (document.extractedAmount != null) ...[
+              Text(
+                  'OCR amount: ${document.extractedCurrency ?? item.currency} ${document.extractedAmount!.toStringAsFixed(2)}'),
+              TextButton.icon(
+                  onPressed: item.include
+                      ? () {
+                          item.amountReported = true;
+                          onChanged();
+                        }
+                      : null,
+                  icon: const Icon(Icons.flag_outlined),
+                  label: Text(item.amountReported
+                      ? 'Correction will be checked by a claims officer'
+                      : 'Report incorrect amount')),
+            ],
             Column(
               children: [
                 SizedBox(
@@ -381,13 +410,15 @@ class _DocumentEditor extends StatelessWidget {
                   child: TextFormField(
                     controller: controller,
                     enabled: item.include,
+                    readOnly: document.extractedAmount != null &&
+                        !item.amountReported,
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
                     decoration: InputDecoration(
-                      labelText: 'Amount',
+                      labelText: 'Proposed amount',
                       helperText: document.amountConfidence == null
-                          ? 'Manual value'
+                          ? 'Enter a proposal for the claims officer to check'
                           : 'Confidence ${(document.amountConfidence! * 100).round()}%',
                     ),
                   ),

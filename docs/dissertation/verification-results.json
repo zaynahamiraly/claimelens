@@ -3,8 +3,8 @@
   "scope": "Development working tree; not a production certification",
   "api_isolated": {
     "passed": 73,
-    "skipped": 5,
-    "status": "passed on pre-push rerun"
+    "skipped": 6,
+    "status": "passed after new dispute persistence changes"
   },
   "firebase_integrations": {
     "claim_workflow": "passed",
@@ -16,9 +16,9 @@
     "passed": 13
   },
   "flutter_full_suite": {
-    "passed": 35,
+    "passed": 38,
     "failed": 0,
-    "status": "passed with API-server migration and logo layout regressions included"
+    "status": "passed; extraction dispute workflow, navigation insets and offline session recovery included"
   },
   "android_current_apk": "Built and installed HTTPS internet debug APK on SM-A556E",
   "physical_phone_current_version": {
@@ -42,5 +42,28 @@
       "private signed download",
       "tampered signed-link rejection"
     ]
-  }
+  },
+  "multi_expense_live": {
+    "passed": 1,
+    "duration_seconds": 100.44,
+    "checks": [
+      "three payable documents and corrected total",
+      "client proposal preserved after officer correction",
+      "separate claims for one patient",
+      "negative amount rejection",
+      "idempotent successful-upload retry",
+      "duplicate receipt rejection"
+    ]
+  },
+  "device_additional_checks": [
+    "admin/officer/supervisor/client sign-in",
+    "admin-created client and forced password change",
+    "PDF picker/upload/preview/extraction/submission",
+    "reported amount correction to 900 MUR",
+    "duplicate submission rejection",
+    "offline startup retains credentials and retry recovers",
+    "camera/gallery cancellation",
+    "administrator session restored; temporary account and two claims removed"
+  ],
+  "qa_report": "../qa-2026-11-24.md"
 }

@@ -68,7 +68,8 @@ class _ClaimReviewScreenState extends State<ClaimReviewScreen> {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: const Text('Review and submit')),
         body: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.fromLTRB(
+              16, 16, 16, 16 + MediaQuery.paddingOf(context).bottom),
           children: [
             Text(
               widget.reference,
@@ -130,8 +131,10 @@ class _ClaimReviewScreenState extends State<ClaimReviewScreen> {
               ),
             ],
             const Divider(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              spacing: 16,
+              runSpacing: 8,
               children: [
                 Text('Claim total',
                     style: Theme.of(context).textTheme.titleLarge),
@@ -148,7 +151,7 @@ class _ClaimReviewScreenState extends State<ClaimReviewScreen> {
             ),
             const SizedBox(height: 12),
             const Text(
-              'By submitting, you confirm that these values match your documents. High-confidence consistent claims may be verified automatically; all others go to human review.',
+              'By submitting, you send the OCR results and any corrections as a proposal. A claims officer will compare them with your source documents and verify the correct amount before a decision.',
             ),
             if (error != null)
               Padding(

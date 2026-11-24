@@ -115,9 +115,13 @@ class ApiClient {
         data['refresh_token'] as String,
       );
       return true;
-    } catch (_) {
-      await clearSession();
-      onSessionExpired?.call();
+    } catch (exception) {
+      final status =
+          exception is DioException ? exception.response?.statusCode : null;
+      if ([400, 401, 403].contains(status)) {
+        await clearSession();
+        onSessionExpired?.call();
+      }
       return false;
     }
   }

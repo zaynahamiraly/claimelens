@@ -391,6 +391,10 @@ class FirebaseGateway:
             total = Decimal("0")
             currencies = set()
             for item in payload.documents:
+                source = by_id[item.id].to_dict()
+                extracted = source.get('extracted_amount')
+                disputed = bool(item.include and extracted is not None and
+                                item.amount != Decimal(str(extracted)))
                 if item.include:
                     original = by_id[item.id].to_dict()
                     if (
@@ -413,6 +417,9 @@ class FirebaseGateway:
                         by_id[item.id].reference,
                         {
                             "include_in_total": item.include,
+                            "client_proposed_amount": str(item.amount) if item.include else None,
+                            "client_proposed_currency": item.currency.upper() if item.include else None,
+                            "client_reported_incorrect_amount": disputed,
                             "confirmed_amount": str(item.amount)
                             if item.include
                             else None,
@@ -489,7 +496,7 @@ class FirebaseGateway:
                 claim,
                 user.id,
                 "CLAIM_CONFIRMED",
-                {"total": str(total)},
+                {"total": str(total), "disputed_document_ids": [target.id for target, update in updates if update.get('client_reported_incorrect_amount')]},
                 watchers=watchers,
             )
             return "REVIEW_REQUIRED"

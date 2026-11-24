@@ -65,6 +65,9 @@ class ClaimDocument(BaseModel):
     extracted_currency: str | None = None
     confirmed_amount: Decimal | None = None
     confirmed_currency: str | None = None
+    client_proposed_amount: Decimal | None = None
+    client_proposed_currency: str | None = None
+    client_reported_incorrect_amount: bool = False
     amount_confidence: float | None = None
     include_in_total: bool = False
     duplicate_of: str | None = None

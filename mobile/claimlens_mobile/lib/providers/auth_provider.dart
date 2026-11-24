@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:dio/dio.dart';
 
 import '../models/user_profile.dart';
 import '../services/api_client.dart';
@@ -95,13 +96,21 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> initialise() async {
+    initialising = true;
+    error = null;
+    notifyListeners();
     await client.initialise();
     if (client.hasSession) {
       try {
         user = await service.profile();
         locked = user?.isClient == false;
-      } catch (_) {
-        await client.clearSession();
+      } catch (exception) {
+        final status =
+            exception is DioException ? exception.response?.statusCode : null;
+        if ([400, 401, 403, 404].contains(status)) {
+          await client.clearSession();
+        }
+        error = readableApiError(exception);
       }
     }
     initialising = false;

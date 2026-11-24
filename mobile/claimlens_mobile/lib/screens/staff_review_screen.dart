@@ -125,6 +125,13 @@ class _StaffReviewScreenState extends State<StaffReviewScreen> {
                                         .textTheme
                                         .titleMedium),
                                 Text(
+                                    'OCR amount: ${d.extractedCurrency ?? widget.claim.currency} ${d.extractedAmount?.toStringAsFixed(2) ?? "Not found"}'),
+                                Text(
+                                    'Client proposal: ${d.clientProposedCurrency ?? d.confirmedCurrency ?? widget.claim.currency} ${(d.clientProposedAmount ?? d.confirmedAmount)?.toStringAsFixed(2) ?? "Not supplied"}'),
+                                if (d.clientReportedIncorrectAmount)
+                                  const Text(
+                                      'Client reported an incorrect OCR amount. Compare the proposal with the source document.'),
+                                Text(
                                     '${friendlyLabel(d.documentType)} • ${friendlyLabel(d.extractionStatus)}'),
                                 if (d.signedUrl != null)
                                   TextButton.icon(

@@ -16,6 +16,9 @@ from app.main import app
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
+    qa_report = ROOT / 'docs/qa-2026-11-24.md'
+    if qa_report.exists():
+        (OUT / 'ClaimLens_QA_Report.md').write_text(qa_report.read_text(encoding='utf-8'), encoding='utf-8')
     paths = subprocess.check_output(
         ['git', 'ls-files', '--cached', '--others', '--exclude-standard'], cwd=ROOT,
         text=True).splitlines()

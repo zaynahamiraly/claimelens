@@ -90,16 +90,16 @@
   },
   {
     "path": "mobile/claimlens_mobile/lib/models/claim.dart",
-    "lines": 253,
-    "sha256": "8389032275b83c896caddaae1b7ea6652b6b3dc8ea3f4c6266c1ece89d71216e",
+    "lines": 264,
+    "sha256": "b9f82e251f300acb7f80063bc80a46865296cc40c931fe0a1fe408ede3741e21",
     "symbols": [
       "`ClaimSummary`: L4",
       "`ExtractedField`: L43",
       "`ClaimDocument`: L70",
-      "`ClaimDetails`: L127",
-      "`DashboardData`: L183",
-      "`DocumentConfirmation`: L223",
-      "`FieldCorrection`: L243"
+      "`ClaimDetails`: L137",
+      "`DashboardData`: L193",
+      "`DocumentConfirmation`: L233",
+      "`FieldCorrection`: L254"
     ]
   },
   {
@@ -120,10 +120,10 @@
   },
   {
     "path": "mobile/claimlens_mobile/lib/providers/auth_provider.dart",
-    "lines": 150,
-    "sha256": "b5f81106c32335e9773ec9c6a1ba56bf0cdf38a8d25a35b930b4e8344a9b1ccb",
+    "lines": 159,
+    "sha256": "ea8a0a276b6ea9ed550e8892839ed43b6caff68fe18b58aac103a226e1147758",
     "symbols": [
-      "`AuthProvider`: L9"
+      "`AuthProvider`: L10"
     ]
   },
   {
@@ -157,8 +157,8 @@
   },
   {
     "path": "mobile/claimlens_mobile/lib/screens/claim_review_screen.dart",
-    "lines": 191,
-    "sha256": "e07250eaad160fb6643a98621c761f2ff08a455315085eb7499ee29026efdc4d",
+    "lines": 194,
+    "sha256": "d8069357e6ef39380e2321c9e5c06acbc779bacdc86fa2be64033dbe9bc8e950",
     "symbols": [
       "`ClaimReviewScreen`: L9",
       "`_ClaimReviewScreenState`: L27"
@@ -184,13 +184,13 @@
   },
   {
     "path": "mobile/claimlens_mobile/lib/screens/extracted_info_screen.dart",
-    "lines": 462,
-    "sha256": "cd06fc5953ff3f323a7bc147f98d549cded2d73fc7e82d9f89eaa231f6b6457d",
+    "lines": 493,
+    "sha256": "302b08d5da3f8737932eb4fd13d625d26393e3b8d75e25273d39f0989ef3e20d",
     "symbols": [
       "`ExtractedInfoScreen`: L11",
       "`_ExtractedInfoScreenState`: L18",
-      "`_ConfidenceField`: L285",
-      "`_DocumentEditor`: L309"
+      "`_ConfidenceField`: L299",
+      "`_DocumentEditor`: L323"
     ]
   },
   {
@@ -221,8 +221,8 @@
   },
   {
     "path": "mobile/claimlens_mobile/lib/screens/login_screen.dart",
-    "lines": 175,
-    "sha256": "0e2e72f418a03577f7f240abc65e156ba3939c73a6c3af69df58fa09fc51f162",
+    "lines": 180,
+    "sha256": "386f890cbb137e310f939fa372c0a9bc9f0cdb8e763557096ae035f8e7c01a5c",
     "symbols": [
       "`LoginScreen`: L11",
       "`_LoginScreenState`: L17"
@@ -230,8 +230,8 @@
   },
   {
     "path": "mobile/claimlens_mobile/lib/screens/new_claim_screen.dart",
-    "lines": 315,
-    "sha256": "df990fd131a9bd0fb5798d71e34cabb8b79e0c9e523aa1fdf89da29b14505471",
+    "lines": 316,
+    "sha256": "b39482702a282032dc1e9c193cb73df8d2d7c6c9cab0913543d90aef8dcb1bac",
     "symbols": [
       "`NewClaimScreen`: L15",
       "`_NewClaimScreenState`: L21"
@@ -291,8 +291,8 @@
   },
   {
     "path": "mobile/claimlens_mobile/lib/screens/staff_review_screen.dart",
-    "lines": 210,
-    "sha256": "66806218a29f4b0eb59f0a6dfdf5afb9c9317733025ddcf3421ba89f20e49c41",
+    "lines": 217,
+    "sha256": "3c566b0ee490b2fe102d782b8d7e48bcccb64ceaa1f0c85ccd4f9294b5aa1c94",
     "symbols": [
       "`StaffReviewScreen`: L7",
       "`_StaffReviewScreenState`: L14"
@@ -320,8 +320,8 @@
   },
   {
     "path": "mobile/claimlens_mobile/lib/services/api_client.dart",
-    "lines": 178,
-    "sha256": "be9e3e952e7e335d94ddbcef697d867fdb6efaabba7b4529d5d9d1e826ec36fa",
+    "lines": 182,
+    "sha256": "a99b344d5fcf2064338f5311797d086bc67d61f0aebf576f53ea4643b25dc522",
     "symbols": [
       "`ApiClient`: L9"
     ]
@@ -474,13 +474,13 @@
   },
   {
     "path": "services/api/app/firebase.py",
-    "lines": 497,
-    "sha256": "4b36468c023da2ffe756d864456641358ef111141018772b93060b77eb8e76fc",
+    "lines": 504,
+    "sha256": "73741e2c82b336873fce95a6cd1893df1075e66cc34bb9d145a7e8093297898b",
     "symbols": [
       "`firebase_app`: L22\u2013L31",
       "`now`: L34\u2013L35",
       "`can_access_claim`: L38\u2013L48",
-      "`FirebaseGateway`: L51\u2013L497",
+      "`FirebaseGateway`: L51\u2013L504",
       "`__init__`: L52\u2013L56",
       "`_user`: L58\u2013L61",
       "`profile`: L63\u2013L67",
@@ -492,12 +492,12 @@
       "`signed_url`: L268\u2013L270",
       "`acquire_processing`: L272\u2013L288",
       "`reserve_draft_deletion`: L290\u2013L301",
-      "`confirm`: L303\u2013L497",
+      "`confirm`: L303\u2013L504",
       "`ensure`: L75\u2013L89",
       "`run`: L112\u2013L250",
       "`acquire`: L277\u2013L286",
       "`reserve`: L294\u2013L300",
-      "`confirm`: L313\u2013L495"
+      "`confirm`: L313\u2013L502"
     ]
   },
   {
@@ -698,25 +698,25 @@
   },
   {
     "path": "services/api/app/schemas.py",
-    "lines": 151,
-    "sha256": "90cc322e8c6492408b6a8f089c56297ae7ab454c37fabefbcb7c298e6e999585",
+    "lines": 154,
+    "sha256": "30238fcaf60f8994549a83aff518d20c2347023112cb3a0f6541f63e35f78b52",
     "symbols": [
       "`Profile`: L14\u2013L26",
       "`LoginRequest`: L29\u2013L31",
       "`RefreshRequest`: L34\u2013L35",
       "`AuthSession`: L38\u2013L43",
       "`ExtractedField`: L46\u2013L54",
-      "`ClaimDocument`: L57\u2013L73",
-      "`ClaimSummary`: L76\u2013L86",
-      "`ClaimDetails`: L89\u2013L95",
-      "`DocumentConfirmation`: L98\u2013L102",
-      "`FieldCorrection`: L105\u2013L107",
-      "`ConfirmClaimRequest`: L110\u2013L114",
-      "`ProcessResult`: L117\u2013L121",
-      "`DashboardSummary`: L124\u2013L133",
-      "`EmailRequest`: L136\u2013L139",
-      "`SignupRequest`: L142\u2013L151",
-      "`valid_name`: L148\u2013L151"
+      "`ClaimDocument`: L57\u2013L76",
+      "`ClaimSummary`: L79\u2013L89",
+      "`ClaimDetails`: L92\u2013L98",
+      "`DocumentConfirmation`: L101\u2013L105",
+      "`FieldCorrection`: L108\u2013L110",
+      "`ConfirmClaimRequest`: L113\u2013L117",
+      "`ProcessResult`: L120\u2013L124",
+      "`DashboardSummary`: L127\u2013L136",
+      "`EmailRequest`: L139\u2013L142",
+      "`SignupRequest`: L145\u2013L154",
+      "`valid_name`: L151\u2013L154"
     ]
   },
   {

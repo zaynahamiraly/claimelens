@@ -80,6 +80,9 @@ class ClaimDocument {
     this.extractedCurrency,
     this.confirmedAmount,
     this.confirmedCurrency,
+    this.clientProposedAmount,
+    this.clientProposedCurrency,
+    this.clientReportedIncorrectAmount = false,
     this.amountConfidence,
     this.duplicateOf,
     this.extractionNotes,
@@ -95,6 +98,9 @@ class ClaimDocument {
   final String? extractedCurrency;
   final double? confirmedAmount;
   final String? confirmedCurrency;
+  final double? clientProposedAmount;
+  final String? clientProposedCurrency;
+  final bool clientReportedIncorrectAmount;
   final double? amountConfidence;
   final bool includeInTotal;
   final String? duplicateOf;
@@ -112,6 +118,10 @@ class ClaimDocument {
         extractedCurrency: json['extracted_currency'] as String?,
         confirmedAmount: _number(json['confirmed_amount']),
         confirmedCurrency: json['confirmed_currency'] as String?,
+        clientProposedAmount: _number(json['client_proposed_amount']),
+        clientProposedCurrency: json['client_proposed_currency'] as String?,
+        clientReportedIncorrectAmount:
+            json['client_reported_incorrect_amount'] == true,
         amountConfidence: _number(json['amount_confidence']),
         includeInTotal: json['include_in_total'] as bool? ?? false,
         duplicateOf: json['duplicate_of'] as String?,
@@ -231,6 +241,7 @@ class DocumentConfirmation {
   bool include;
   double? amount;
   String currency;
+  bool amountReported = false;
 
   Map<String, dynamic> toJson() => {
         'id': document.id,

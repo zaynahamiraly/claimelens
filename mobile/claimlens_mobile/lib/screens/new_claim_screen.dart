@@ -154,7 +154,8 @@ class _NewClaimScreenState extends State<NewClaimScreen> {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: const Text('New claim')),
         body: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.fromLTRB(
+              16, 16, 16, 16 + MediaQuery.paddingOf(context).bottom),
           children: [
             Text(
               'Upload every document for this claim',
