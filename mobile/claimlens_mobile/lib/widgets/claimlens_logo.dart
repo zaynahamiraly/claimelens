@@ -5,8 +5,12 @@ class ClaimLensLogo extends StatelessWidget {
   final double size;
   @override
   Widget build(BuildContext context) => ExcludeSemantics(
-      child:
-          CustomPaint(size: Size.square(size), painter: const _LogoPainter()));
+      child: Center(
+          widthFactor: 1,
+          heightFactor: 1,
+          child: SizedBox.square(
+              dimension: size,
+              child: CustomPaint(painter: const _LogoPainter()))));
 }
 
 class _LogoPainter extends CustomPainter {
