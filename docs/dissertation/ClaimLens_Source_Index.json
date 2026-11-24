@@ -1,0 +1,762 @@
+[
+  {
+    "path": "firebase/firestore.rules",
+    "lines": 10,
+    "sha256": "a69a1d7bfa483d2e34371696e4b335491957f7eb304d005dddf74f578f3ea097",
+    "symbols": []
+  },
+  {
+    "path": "mobile/claimlens_mobile/android/app/build.gradle.kts",
+    "lines": 61,
+    "sha256": "494fc8fb13c1c97ba7ce8cb21aea73631e31ac9b479bac1571babe5769fedbd1",
+    "symbols": []
+  },
+  {
+    "path": "mobile/claimlens_mobile/android/app/src/main/AndroidManifest.xml",
+    "lines": 50,
+    "sha256": "3692557b6fbc1413ea07f365dfe9b23f7084c197a734b5b17bfc7353b974d20d",
+    "symbols": []
+  },
+  {
+    "path": "mobile/claimlens_mobile/android/app/src/main/kotlin/ai/claimlens/claimlens_mobile/MainActivity.kt",
+    "lines": 5,
+    "sha256": "1fef5c2dfb4caaaf74a28f171620415aaa5efcfb390e23406d1ba28de6558bb0",
+    "symbols": []
+  },
+  {
+    "path": "mobile/claimlens_mobile/android/app/src/main/res/drawable-v21/launch_background.xml",
+    "lines": 12,
+    "sha256": "dca312ec77de83e43ef70a825c299b51451247286c29167d62f19165750b8793",
+    "symbols": []
+  },
+  {
+    "path": "mobile/claimlens_mobile/android/app/src/main/res/drawable/ic_claimlens.xml",
+    "lines": 6,
+    "sha256": "587b9c6154d1c8b5c9b539b23578b3aa2bc0d77d567daa170cdb5b407e9d1a78",
+    "symbols": []
+  },
+  {
+    "path": "mobile/claimlens_mobile/android/app/src/main/res/drawable/ic_stat_claimlens.xml",
+    "lines": 4,
+    "sha256": "f44b40f97ad5d57f18dacf45a3b2e32b749f09d6aa2b3d9fc7c81cd61f7245da",
+    "symbols": []
+  },
+  {
+    "path": "mobile/claimlens_mobile/android/app/src/main/res/drawable/launch_background.xml",
+    "lines": 12,
+    "sha256": "2df60e2cfbee873ce2858088cf003e6b93498f2f568476da437610467ea1a9d7",
+    "symbols": []
+  },
+  {
+    "path": "mobile/claimlens_mobile/android/app/src/main/res/values-night/styles.xml",
+    "lines": 18,
+    "sha256": "2a6cc941d93cb969508ef1991c7c801ad38fd5b8149def96ec75ae07aafe244b",
+    "symbols": []
+  },
+  {
+    "path": "mobile/claimlens_mobile/android/app/src/main/res/values/styles.xml",
+    "lines": 18,
+    "sha256": "4789a1530af879f0d83495bde5b3e012bb05f597d86b509555126e623d0688e6",
+    "symbols": []
+  },
+  {
+    "path": "mobile/claimlens_mobile/android/settings.gradle.kts",
+    "lines": 27,
+    "sha256": "0d188ac3cb95977eef65bb3a3a9d248e05c03b4f6750028e318c446324001043",
+    "symbols": []
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/app_theme.dart",
+    "lines": 43,
+    "sha256": "fff1aed858ee9509742e6fefd29f84f31a458c73db4f62420b9ec368319bf9b6",
+    "symbols": []
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/config/api_config.dart",
+    "lines": 8,
+    "sha256": "608107b4f6c81f85f720fa879f29192cb99f174302fb98d5df3a31d86d6408f5",
+    "symbols": [
+      "`ApiConfig`: L1"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/main.dart",
+    "lines": 70,
+    "sha256": "1247186ecb4cabe5ee8e708c59379b3e2375f98b62e4e2029ed9184eac1eb37a",
+    "symbols": [
+      "`ClaimLensApp`: L27",
+      "`AuthGate`: L56"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/models/claim.dart",
+    "lines": 253,
+    "sha256": "8389032275b83c896caddaae1b7ea6652b6b3dc8ea3f4c6266c1ece89d71216e",
+    "symbols": [
+      "`ClaimSummary`: L4",
+      "`ExtractedField`: L43",
+      "`ClaimDocument`: L70",
+      "`ClaimDetails`: L127",
+      "`DashboardData`: L183",
+      "`DocumentConfirmation`: L223",
+      "`FieldCorrection`: L243"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/models/selected_document.dart",
+    "lines": 12,
+    "sha256": "a60a21435d96b3d1e1e435ef009aedc8e5bf9a5c4d41448389dbdd7ce9e6ad6c",
+    "symbols": [
+      "`SelectedDocument`: L3"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/models/user_profile.dart",
+    "lines": 48,
+    "sha256": "3b73047c17014ed0cfd76dccecf41058b7434ea2bf7dc54c63fe459b95fa1a80",
+    "symbols": [
+      "`UserProfile`: L1"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/providers/auth_provider.dart",
+    "lines": 150,
+    "sha256": "b5f81106c32335e9773ec9c6a1ba56bf0cdf38a8d25a35b930b4e8344a9b1ccb",
+    "symbols": [
+      "`AuthProvider`: L9"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/providers/claims_provider.dart",
+    "lines": 43,
+    "sha256": "ea3355ea87d93260327393f8e34b20c47b2adf4ec100009799caa463227a8660",
+    "symbols": [
+      "`ClaimsProvider`: L7"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/screens/app_shell.dart",
+    "lines": 163,
+    "sha256": "0e7890eb815e81421c39ddaa2e5793b7c437ab68c2ee2574e8d00dce52f9dad7",
+    "symbols": [
+      "`AppShell`: L15",
+      "`_AppShellState`: L21"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/screens/claim_details_screen.dart",
+    "lines": 749,
+    "sha256": "742ed89f8288c126505c3bec4194cca95320ab8f4dade2a42f5c9ce7aac4478b",
+    "symbols": [
+      "`ClaimDetailsScreen`: L19",
+      "`_ClaimDetailsScreenState`: L31",
+      "`_ProgressTimeline`: L603",
+      "`_Value`: L660",
+      "`_DocumentCard`: L691"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/screens/claim_review_screen.dart",
+    "lines": 191,
+    "sha256": "e07250eaad160fb6643a98621c761f2ff08a455315085eb7499ee29026efdc4d",
+    "symbols": [
+      "`ClaimReviewScreen`: L9",
+      "`_ClaimReviewScreenState`: L27"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/screens/dashboard_screen.dart",
+    "lines": 286,
+    "sha256": "5e455840a7a5fb7cf8b85f20ca5d0a5271fdc06b62b9fb81137fd08dbe260500",
+    "symbols": [
+      "`DashboardScreen`: L12",
+      "`_DashboardScreenState`: L18"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/screens/document_preview_screen.dart",
+    "lines": 118,
+    "sha256": "80e1ac96c36dec7d8fb88b4586e2ef0cd320a805c48f6418078071cfa558d095",
+    "symbols": [
+      "`DocumentPreviewScreen`: L8",
+      "`_DocumentPreviewScreenState`: L19"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/screens/extracted_info_screen.dart",
+    "lines": 462,
+    "sha256": "cd06fc5953ff3f323a7bc147f98d549cded2d73fc7e82d9f89eaa231f6b6457d",
+    "symbols": [
+      "`ExtractedInfoScreen`: L11",
+      "`_ExtractedInfoScreenState`: L18",
+      "`_ConfidenceField`: L285",
+      "`_DocumentEditor`: L309"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/screens/help_screen.dart",
+    "lines": 120,
+    "sha256": "f27d113421db6b7af224dc095106542b31a299e7190d0ffcb74e934733bbfe7a",
+    "symbols": [
+      "`HelpScreen`: L8"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/screens/history_screen.dart",
+    "lines": 175,
+    "sha256": "2c475787458c5505822adf6ef8a663b06eadbaf4d37c60f21f0e47bc236f0962",
+    "symbols": [
+      "`HistoryScreen`: L10",
+      "`_HistoryScreenState`: L18"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/screens/information_response_screen.dart",
+    "lines": 138,
+    "sha256": "b2b7664b2bf8a483b799d82e5dd00918c6ed248acf69ed52fe352057ce2253d4",
+    "symbols": [
+      "`InformationResponseScreen`: L7",
+      "`_InformationResponseScreenState`: L17"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/screens/login_screen.dart",
+    "lines": 175,
+    "sha256": "0e2e72f418a03577f7f240abc65e156ba3939c73a6c3af69df58fa09fc51f162",
+    "symbols": [
+      "`LoginScreen`: L11",
+      "`_LoginScreenState`: L17"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/screens/new_claim_screen.dart",
+    "lines": 315,
+    "sha256": "df990fd131a9bd0fb5798d71e34cabb8b79e0c9e523aa1fdf89da29b14505471",
+    "symbols": [
+      "`NewClaimScreen`: L15",
+      "`_NewClaimScreenState`: L21"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/screens/password_recovery_screen.dart",
+    "lines": 118,
+    "sha256": "f1284cb339d0be79e51433ebc95a248e89710257643688bdc9c827e1f21a7a9b",
+    "symbols": [
+      "`PasswordRecoveryScreen`: L7",
+      "`_PasswordRecoveryScreenState`: L14"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/screens/processing_screen.dart",
+    "lines": 133,
+    "sha256": "ca17d45cb618af324623e391eef3510fa824943afcebdb280614fd3aa030c8b4",
+    "symbols": [
+      "`ProcessingScreen`: L9",
+      "`_ProcessingScreenState`: L16"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/screens/profile_screen.dart",
+    "lines": 195,
+    "sha256": "943cbe6c91b5c061fc6d73d529fecfa45c525e2b4d89820178e235678a4619c5",
+    "symbols": [
+      "`ProfileScreen`: L8"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/screens/required_password_screen.dart",
+    "lines": 114,
+    "sha256": "80c28fa901a0912117b929aa75185045063f1e692b27136971b836af392a16ab",
+    "symbols": [
+      "`RequiredPasswordScreen`: L6",
+      "`_RequiredPasswordScreenState`: L12"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/screens/signup_screen.dart",
+    "lines": 214,
+    "sha256": "65479c4e1649489702ffbae39d7e59d24c8e3e709a436e41fbbae4c7626bba0d",
+    "symbols": [
+      "`SignupScreen`: L7",
+      "`_SignupScreenState`: L15"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/screens/splash_screen.dart",
+    "lines": 32,
+    "sha256": "1f644a10365b8ec8736c8472da1877baa8013bd364784c0317dc435db715b231",
+    "symbols": [
+      "`SplashScreen`: L4"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/screens/staff_review_screen.dart",
+    "lines": 210,
+    "sha256": "66806218a29f4b0eb59f0a6dfdf5afb9c9317733025ddcf3421ba89f20e49c41",
+    "symbols": [
+      "`StaffReviewScreen`: L7",
+      "`_StaffReviewScreenState`: L14"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/screens/workspace_screens.dart",
+    "lines": 612,
+    "sha256": "e98e508ba2571bfac2243f1d59adf79619e66e8ccad1369fe4138adde7496fff",
+    "symbols": [
+      "`WorkspaceMenuScreen`: L13",
+      "`WorkspaceData`: L79",
+      "`_WorkspaceDataState`: L94",
+      "`NotificationsScreen`: L155",
+      "`AnalyticsScreen`: L205",
+      "`_AnalyticsScreenState`: L211",
+      "`AuditScreen`: L292",
+      "`_AuditScreenState`: L298",
+      "`UsersScreen`: L337",
+      "`_UsersScreenState`: L343",
+      "`_Empty`: L564",
+      "`_Heading`: L583",
+      "`_Total`: L592"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/services/api_client.dart",
+    "lines": 167,
+    "sha256": "92faf08186f66375ac0bc2e481504d8190d518cd5cf2a95fbfd32857f87ee537",
+    "symbols": [
+      "`ApiClient`: L9"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/services/auth_service.dart",
+    "lines": 33,
+    "sha256": "3c08690fb18bd3a09edae3a0e4a97bf88ba2dcc0d294839f7d1d45e7ab170245",
+    "symbols": [
+      "`AuthService`: L4"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/services/claim_service.dart",
+    "lines": 87,
+    "sha256": "53e9e02270beddf143512cd43452a1f8930be7b567025c6c675f2cdbb11c4487",
+    "symbols": [
+      "`ClaimService`: L8"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/services/push_service.dart",
+    "lines": 61,
+    "sha256": "904d45fe8ca8af054ffcc9d20317505fd9542913edf4b21fbf01b17bc9d69047",
+    "symbols": [
+      "`PushService`: L13"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/services/workspace_service.dart",
+    "lines": 37,
+    "sha256": "0fb054a054f728f2d200ce0552f32fcbb163c25c91b6abd89ccec7fa8b4d0492",
+    "symbols": []
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/widgets/claim_card.dart",
+    "lines": 78,
+    "sha256": "3a77721f917736c98c877f7eed047426171ea00aa14d4631425ba99c09b6ff9f",
+    "symbols": [
+      "`ClaimCard`: L8"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/widgets/claimlens_logo.dart",
+    "lines": 46,
+    "sha256": "19ee42b84fc7a1860662ab2c931002a2200d7155e8df42202bcd3fbe4b022efe",
+    "symbols": [
+      "`ClaimLensLogo`: L3",
+      "`_LogoPainter`: L12"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/widgets/session_guard.dart",
+    "lines": 157,
+    "sha256": "2a4b75bf1876450d446110ae0a8ab71b2cbb34a3e69defeaad71e6af5c2dc52f",
+    "symbols": [
+      "`SessionGuard`: L7",
+      "`_SessionGuardState`: L14",
+      "`_UnlockScreen`: L60",
+      "`_UnlockScreenState`: L66"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/widgets/status_chip.dart",
+    "lines": 38,
+    "sha256": "5543a71f985b29a6e2cb62305ca17558e9eab0539a2fdea5d1b4d37b6832e179",
+    "symbols": [
+      "`StatusChip`: L3"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/lib/widgets/workspace_form.dart",
+    "lines": 158,
+    "sha256": "9a05bb52ae21b5212d0c98278091e62ed6153dfee763d089524c493c71a3859c",
+    "symbols": [
+      "`FormEntry`: L5",
+      "`_WorkspaceForm`: L37",
+      "`_WorkspaceFormState`: L52"
+    ]
+  },
+  {
+    "path": "mobile/claimlens_mobile/pubspec.yaml",
+    "lines": 29,
+    "sha256": "248239f6e37ecd90a892ce0f25f3c9b326e06400f5e19185d1e46d2f77bb5f2a",
+    "symbols": []
+  },
+  {
+    "path": "services/api/app/__init__.py",
+    "lines": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "symbols": []
+  },
+  {
+    "path": "services/api/app/backups.py",
+    "lines": 157,
+    "sha256": "f3de010c725f97714f20584ca9697162efd436688b0649c782961c376a27668c",
+    "symbols": [
+      "`derive`: L23\u2013L26",
+      "`create_backup`: L29\u2013L55",
+      "`open_backup`: L58\u2013L88",
+      "`main`: L91\u2013L153"
+    ]
+  },
+  {
+    "path": "services/api/app/config.py",
+    "lines": 41,
+    "sha256": "0c5109287eabe5ae32c0eec6cc95f4f885265322064f4aeaad13c86891647434",
+    "symbols": [
+      "`Settings`: L15\u2013L36",
+      "`get_settings`: L40\u2013L41",
+      "`cors_origins`: L33\u2013L36"
+    ]
+  },
+  {
+    "path": "services/api/app/documents.py",
+    "lines": 175,
+    "sha256": "a2b985858da82c0b6b942bc2c4f6e1e21eaf6406ef2e4a61c9a058ac0ae8ee6b",
+    "symbols": [
+      "`LocalDocuments`: L26\u2013L154",
+      "`document_store`: L157\u2013L159",
+      "`download_document`: L163\u2013L175",
+      "`__init__`: L27\u2013L29",
+      "`file`: L31\u2013L42",
+      "`_metadata`: L44\u2013L49",
+      "`_cipher`: L51\u2013L65",
+      "`_key`: L67\u2013L77",
+      "`upload`: L79\u2013L94",
+      "`download`: L96\u2013L110",
+      "`delete`: L112\u2013L114",
+      "`_signature`: L116\u2013L119",
+      "`signed_url`: L121\u2013L135",
+      "`verify`: L137\u2013L154"
+    ]
+  },
+  {
+    "path": "services/api/app/extraction.py",
+    "lines": 331,
+    "sha256": "00cc3d86e352443360916863a016a72794e1985d5502b4a2702ee28eeb42693e",
+    "symbols": [
+      "`TextDocument`: L9\u2013L13",
+      "`ExtractedValue`: L17\u2013L24",
+      "`classify_document`: L149\u2013L153",
+      "`normalize_money`: L156\u2013L168",
+      "`detected_currency`: L171\u2013L185",
+      "`after_label`: L188\u2013L197",
+      "`provider_from_heading`: L200\u2013L232",
+      "`ranked_amount`: L235\u2013L266",
+      "`extract_fields`: L269\u2013L331"
+    ]
+  },
+  {
+    "path": "services/api/app/firebase.py",
+    "lines": 497,
+    "sha256": "4b36468c023da2ffe756d864456641358ef111141018772b93060b77eb8e76fc",
+    "symbols": [
+      "`firebase_app`: L22\u2013L31",
+      "`now`: L34\u2013L35",
+      "`can_access_claim`: L38\u2013L48",
+      "`FirebaseGateway`: L51\u2013L497",
+      "`__init__`: L52\u2013L56",
+      "`_user`: L58\u2013L61",
+      "`profile`: L63\u2013L67",
+      "`ensure_profile`: L69\u2013L91",
+      "`records`: L93\u2013L252",
+      "`upload`: L254\u2013L257",
+      "`download`: L259\u2013L260",
+      "`delete_objects`: L262\u2013L266",
+      "`signed_url`: L268\u2013L270",
+      "`acquire_processing`: L272\u2013L288",
+      "`reserve_draft_deletion`: L290\u2013L301",
+      "`confirm`: L303\u2013L497",
+      "`ensure`: L75\u2013L89",
+      "`run`: L112\u2013L250",
+      "`acquire`: L277\u2013L286",
+      "`reserve`: L294\u2013L300",
+      "`confirm`: L313\u2013L495"
+    ]
+  },
+  {
+    "path": "services/api/app/hardening.py",
+    "lines": 70,
+    "sha256": "0c986b0a976aa570dedb2ae7643ccb53290287e0faf44b7265e7043877a666d6",
+    "symbols": [
+      "`consume`: L14\u2013L33",
+      "`security_defaults`: L36\u2013L70"
+    ]
+  },
+  {
+    "path": "services/api/app/jobs.py",
+    "lines": 128,
+    "sha256": "cccfe07f870c254b019f392ff0da5222574c9aab34dceed6a5a94c300f63e925",
+    "symbols": [
+      "`queue_record`: L15\u2013L23",
+      "`enqueue`: L26\u2013L30",
+      "`take_job`: L33\u2013L82",
+      "`heartbeat`: L85\u2013L90",
+      "`worker_loop`: L93\u2013L128",
+      "`acquire`: L44\u2013L77"
+    ]
+  },
+  {
+    "path": "services/api/app/main.py",
+    "lines": 97,
+    "sha256": "7dc6fd15347171d0307d9c2d9d06ad300e543397f2736c88a080f30fb5676c87",
+    "symbols": [
+      "`lifespan`: L23\u2013L46",
+      "`validation_error`: L59\u2013L61",
+      "`root`: L83\u2013L88",
+      "`health_check`: L92\u2013L97"
+    ]
+  },
+  {
+    "path": "services/api/app/ocr.py",
+    "lines": 54,
+    "sha256": "690bdcec6ec672a25fa449775fd07741e427ffd6f67ac034829e69e5183e2638",
+    "symbols": [
+      "`_engine`: L13\u2013L25",
+      "`extract_image`: L28\u2013L54"
+    ]
+  },
+  {
+    "path": "services/api/app/permissions.py",
+    "lines": 41,
+    "sha256": "c287ac90f515cad4216b062f89a7f6c7e63e3dcfc25576910186fbfe01bcb2f3",
+    "symbols": [
+      "`permissions`: L29\u2013L34",
+      "`require`: L37\u2013L41"
+    ]
+  },
+  {
+    "path": "services/api/app/processing.py",
+    "lines": 304,
+    "sha256": "3fe17432c9e2f17d9821beac5ba452bbcb0277b116cf6db86085ed92d551d07d",
+    "symbols": [
+      "`_extract_docx`: L16\u2013L24",
+      "`_ocr_image`: L27\u2013L30",
+      "`_extract_pdf`: L33\u2013L54",
+      "`extract_document_text`: L57\u2013L67",
+      "`process_claim`: L70\u2013L304"
+    ]
+  },
+  {
+    "path": "services/api/app/provision_staff.py",
+    "lines": 82,
+    "sha256": "cee696da81702797c238d0b1e111fcf4709dc7d9e801a08aaf92ef6769d2dd1d",
+    "symbols": [
+      "`main`: L15\u2013L78",
+      "`assign`: L43\u2013L59"
+    ]
+  },
+  {
+    "path": "services/api/app/push.py",
+    "lines": 117,
+    "sha256": "d2dac537bf74e791202f8f668ac9bbeda45ed33ad3d432acdd6d3f0ff13eed28",
+    "symbols": [
+      "`Device`: L18\u2013L19",
+      "`register`: L23\u2013L33",
+      "`unregister`: L37\u2013L48",
+      "`deliver_pending`: L51\u2013L105",
+      "`push_loop`: L108\u2013L117"
+    ]
+  },
+  {
+    "path": "services/api/app/routers/__init__.py",
+    "lines": 1,
+    "sha256": "82a6495cd582f6bce793605df2c6865f30dd470905a7eee445ab34807d277670",
+    "symbols": []
+  },
+  {
+    "path": "services/api/app/routers/auth.py",
+    "lines": 159,
+    "sha256": "8a1c673a254a405cf049514b75c34268a38488c9dd574f1317a4783dad8e2c13",
+    "symbols": [
+      "`firebase_request`: L18\u2013L47",
+      "`session`: L50\u2013L67",
+      "`login`: L71\u2013L81",
+      "`refresh`: L85\u2013L92",
+      "`signup`: L96\u2013L125",
+      "`forgot_password`: L129\u2013L141",
+      "`logout`: L145\u2013L147",
+      "`send_verification`: L151\u2013L159"
+    ]
+  },
+  {
+    "path": "services/api/app/routers/claim_tools.py",
+    "lines": 321,
+    "sha256": "459063e2381c9ab5d396956752d1c36ffffef099d615c1232a47bcee72349d87",
+    "symbols": [
+      "`ClaimInformation`: L21\u2013L25",
+      "`BusinessSettings`: L28\u2013L45",
+      "`business_settings`: L48\u2013L54",
+      "`settings`: L58\u2013L59",
+      "`edit_settings`: L63\u2013L84",
+      "`information`: L88\u2013L117",
+      "`Appeal`: L120\u2013L121",
+      "`appeal`: L125\u2013L181",
+      "`preview`: L185\u2013L253",
+      "`receipt`: L257\u2013L298",
+      "`receipt_preview`: L302\u2013L321",
+      "`save`: L103\u2013L114",
+      "`submit`: L139\u2013L178",
+      "`render`: L206\u2013L242",
+      "`create`: L265\u2013L288",
+      "`render`: L307\u2013L315"
+    ]
+  },
+  {
+    "path": "services/api/app/routers/claims.py",
+    "lines": 462,
+    "sha256": "61959e00788960e5430fcca8922b7b6200bda6a6b5fe0d23f5ba0d04b80a9e1a",
+    "symbols": [
+      "`summary`: L51\u2013L52",
+      "`valid_signature`: L55\u2013L76",
+      "`accessible_claim`: L79\u2013L87",
+      "`list_claims`: L91\u2013L132",
+      "`dashboard`: L136\u2013L167",
+      "`create_claim`: L171\u2013L292",
+      "`delete_draft`: L296\u2013L319",
+      "`get_claim`: L323\u2013L378",
+      "`process`: L382\u2013L418",
+      "`finish_processing`: L421\u2013L440",
+      "`confirm_claim`: L444\u2013L462"
+    ]
+  },
+  {
+    "path": "services/api/app/routers/profile.py",
+    "lines": 113,
+    "sha256": "e21e50b55b767fd08d383af25ccf373c58376367bb42b03b92cb976939cb430d",
+    "symbols": [
+      "`profile`: L17\u2013L18",
+      "`ProfileEdit`: L21\u2013L25",
+      "`edit_profile`: L29\u2013L47",
+      "`PasswordEdit`: L50\u2013L52",
+      "`UnlockRequest`: L55\u2013L56",
+      "`unlock`: L60\u2013L74",
+      "`change_password`: L78\u2013L113"
+    ]
+  },
+  {
+    "path": "services/api/app/routers/workspace.py",
+    "lines": 592,
+    "sha256": "59421ad5c8d440683db45575a4d5cd7d9f305be366131854c630872d7e5b19df",
+    "symbols": [
+      "`staff`: L34\u2013L36",
+      "`administrator`: L39\u2013L41",
+      "`officers`: L45\u2013L62",
+      "`claim_action`: L66\u2013L76",
+      "`information_response`: L80\u2013L225",
+      "`finish_information_processing`: L228\u2013L235",
+      "`notifications`: L239\u2013L253",
+      "`read_notice`: L257\u2013L270",
+      "`audit`: L274\u2013L302",
+      "`analytics`: L306\u2013L346",
+      "`UserCreate`: L349\u2013L362",
+      "`UserEdit`: L365\u2013L379",
+      "`users`: L383\u2013L395",
+      "`create_user`: L399\u2013L432",
+      "`account_event`: L435\u2013L446",
+      "`change_user`: L449\u2013L500",
+      "`edit_user`: L504\u2013L513",
+      "`delete_user`: L517\u2013L527",
+      "`user_reset`: L531\u2013L544",
+      "`AdminPassword`: L547\u2013L549",
+      "`set_user_password`: L553\u2013L592",
+      "`load`: L49\u2013L60",
+      "`load`: L244\u2013L251",
+      "`mark`: L262\u2013L267",
+      "`load`: L282\u2013L300",
+      "`valid_permissions`: L357\u2013L362",
+      "`valid_name`: L376\u2013L379",
+      "`change`: L453\u2013L498",
+      "`submit`: L138\u2013L199"
+    ]
+  },
+  {
+    "path": "services/api/app/schemas.py",
+    "lines": 151,
+    "sha256": "90cc322e8c6492408b6a8f089c56297ae7ab454c37fabefbcb7c298e6e999585",
+    "symbols": [
+      "`Profile`: L14\u2013L26",
+      "`LoginRequest`: L29\u2013L31",
+      "`RefreshRequest`: L34\u2013L35",
+      "`AuthSession`: L38\u2013L43",
+      "`ExtractedField`: L46\u2013L54",
+      "`ClaimDocument`: L57\u2013L73",
+      "`ClaimSummary`: L76\u2013L86",
+      "`ClaimDetails`: L89\u2013L95",
+      "`DocumentConfirmation`: L98\u2013L102",
+      "`FieldCorrection`: L105\u2013L107",
+      "`ConfirmClaimRequest`: L110\u2013L114",
+      "`ProcessResult`: L117\u2013L121",
+      "`DashboardSummary`: L124\u2013L133",
+      "`EmailRequest`: L136\u2013L139",
+      "`SignupRequest`: L142\u2013L151",
+      "`valid_name`: L148\u2013L151"
+    ]
+  },
+  {
+    "path": "services/api/app/security.py",
+    "lines": 65,
+    "sha256": "5d4bffbf70e9f2ae4afe412e54234788dbdfb6cc0515c8cb40f748e17a05e554",
+    "symbols": [
+      "`CurrentUser`: L18\u2013L22",
+      "`get_current_user`: L25\u2013L65"
+    ]
+  },
+  {
+    "path": "services/api/app/serve.py",
+    "lines": 24,
+    "sha256": "bcb29a8e265c85cabc38886980b3ec81f6dab179603f08d12925e1db8c8772de",
+    "symbols": [
+      "`main`: L11\u2013L20"
+    ]
+  },
+  {
+    "path": "services/api/app/workflow.py",
+    "lines": 451,
+    "sha256": "c885f03abca87848505e687e7d7edd665706e1d1ca41e4b688a654016b19474a",
+    "symbols": [
+      "`WorkflowInput`: L22\u2013L54",
+      "`available_actions`: L57\u2013L88",
+      "`workflow_patch`: L91\u2013L187",
+      "`write_event`: L190\u2013L222",
+      "`apply_action`: L225\u2013L396",
+      "`workflow_details`: L399\u2013L451",
+      "`checked_documents`: L42\u2013L46",
+      "`checked_fields`: L50\u2013L54",
+      "`run`: L231\u2013L394",
+      "`load`: L400\u2013L449"
+    ]
+  },
+  {
+    "path": "services/api/requirements.txt",
+    "lines": 15,
+    "sha256": "762318c3d6b661691f3d137f629e1381380a9a9189293dc370ef721b6cb682e0",
+    "symbols": []
+  }
+]
