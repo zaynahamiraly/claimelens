@@ -2,6 +2,7 @@
 
 import argparse
 import logging
+import os
 
 import uvicorn
 
@@ -11,9 +12,10 @@ from .ocr import _engine
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--host", default="127.0.0.1")
-    parser.add_argument("--port", type=int, default=8000)
+    parser.add_argument("--port", type=int, default=os.getenv("PORT", "8000"))
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO)
+    logging.getLogger("httpx").setLevel(logging.WARNING)
     logging.info("Loading PaddleOCR models before accepting uploads...")
     _engine()
     logging.info("PaddleOCR models are ready.")

@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from .config import get_settings
+from .config import get_settings, maintenance_mode
 from .routers import auth, claims, profile, workspace
 from .documents import router as documents_router
 from .routers.claim_tools import router as claim_tools_router
@@ -27,14 +27,14 @@ async def lifespan(application: FastAPI):
 
     worker = (
         asyncio.create_task(worker_loop())
-        if os.getenv("PROCESSING_WORKER_ENABLED", "true").lower() == "true"
+        if not maintenance_mode() and os.getenv("PROCESSING_WORKER_ENABLED", "true").lower() == "true"
         else None
     )
     from .push import push_loop
 
     push_worker = (
         asyncio.create_task(push_loop())
-        if os.getenv("PUSH_WORKER_ENABLED", "true").lower() == "true"
+        if not maintenance_mode() and os.getenv("PUSH_WORKER_ENABLED", "true").lower() == "true"
         else None
     )
     yield

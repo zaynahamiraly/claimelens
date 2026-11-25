@@ -35,6 +35,11 @@ See [workflow details](docs/mobile-workflows.md).
 
 Repository: [zaynahamiraly/claimelens](https://github.com/zaynahamiraly/claimelens).
 
+For operation with the computer switched off, see the
+[Render deployment and migration plan](docs/render-deployment.md). The prepared
+configuration requires account access and approval of hosting/storage costs;
+it has not yet been deployed.
+
 ## Stack
 
 | Component | Purpose |

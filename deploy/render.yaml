@@ -1,0 +1,38 @@
+# DRAFT: applying this Blueprint creates PAID compute/storage. Obtain cost
+# approval first. No resource is created merely by committing this file.
+services:
+  - type: web
+    name: claimlens-api
+    runtime: docker
+    rootDir: services/api
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    region: frankfurt
+    plan: standard # Legacy name for 1 CPU / 2 GB; validate OCR memory after launch.
+    numInstances: 1
+    autoDeployTrigger: 'off'
+    healthCheckPath: /api/v1/health
+    maxShutdownDelaySeconds: 120
+    disk:
+      name: claimlens-private-documents
+      mountPath: /var/data
+      sizeGB: 10
+    envVars:
+      - key: PORT
+        value: '10000'
+      - key: FIREBASE_PROJECT_ID
+        value: claimelens
+      - key: FIREBASE_API_KEY
+        sync: false
+      - key: GOOGLE_APPLICATION_CREDENTIALS
+        value: /etc/secrets/firebase-admin.json
+      - key: DOCUMENT_STORAGE_PATH
+        value: /var/data/claimlens/documents
+      - key: PADDLE_DEVICE
+        value: cpu
+      - key: CLAIMLENS_MAINTENANCE
+        value: 'true'
+      - key: PROCESSING_WORKER_ENABLED
+        value: 'false'
+      - key: PUSH_WORKER_ENABLED
+        value: 'false'

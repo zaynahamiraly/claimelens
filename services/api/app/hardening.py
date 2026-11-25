@@ -8,7 +8,7 @@ import time
 import uuid
 from fastapi import Request
 from fastapi.responses import JSONResponse
-from .config import get_settings
+from .config import get_settings, maintenance_mode
 
 
 def consume(key, limit, seconds):
@@ -36,6 +36,12 @@ def consume(key, limit, seconds):
 async def security_defaults(request: Request, call_next):
     route = request.url.path
     request_id = uuid.uuid4().hex
+    if maintenance_mode() and route.startswith("/api/v1/") and route != "/api/v1/health":
+        return JSONResponse(
+            {"detail": "ClaimLens is undergoing maintenance. Please try again shortly."},
+            status_code=503,
+            headers={"Retry-After": "60", "Cache-Control": "no-store", "X-Request-ID": request_id},
+        )
     if request.method == "POST" and (
         route
         in {

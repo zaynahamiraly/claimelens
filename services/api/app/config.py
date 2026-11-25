@@ -23,7 +23,11 @@ class Settings:
             / "claimelens/documents"
         ),
     )
-    public_api_url: str = os.getenv("PUBLIC_API_URL", "http://127.0.0.1:8000")
+    public_api_url: str = (
+        os.getenv("PUBLIC_API_URL")
+        or os.getenv("RENDER_EXTERNAL_URL")
+        or "http://127.0.0.1:8000"
+    )
     max_file_bytes: int = int(os.getenv("MAX_UPLOAD_BYTES", str(10 * 1024 * 1024)))
     max_claim_documents: int = int(os.getenv("MAX_CLAIM_DOCUMENTS", "10"))
     paddle_device: str = os.getenv("PADDLE_DEVICE", "cpu")
@@ -39,3 +43,7 @@ class Settings:
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
+
+
+def maintenance_mode() -> bool:
+    return os.getenv("CLAIMLENS_MAINTENANCE", "false").lower() == "true"
